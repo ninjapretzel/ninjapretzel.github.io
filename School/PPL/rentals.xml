@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="rentals.xsl"?>
+<rental_listings>
+<property>
+  <address number="123" street="Main St." unit="1R" city="Denver" state="Colorado" zip="80200"/>
+  <description nbeds="2" nbaths="1" sqft="755" nparking_spots="1" pet="no" washer_drier="yes"/>
+  <application_process>
+	<step>
+		Get to the application page at: http://www.ineedaplacetorent.com.
+	</step>
+	<step>
+		Fillout the form and submit with a credit card number
+		to pay for the application process.
+	</step>
+	<step>
+		Be sure and fill out the name of a reference whom you rented from before.
+	</step>
+  </application_process>
+  <comments>
+  This is  a lovely apartment with mountain views.
+  Cellphone reception is good as is TV reception.
+  </comments>
+</property>
+<property>
+<address number="1621" street="N. Lipan St." unit="1036" 
+				city="Denver" state="Colorado" zip="80215"/>
+  <description nbeds="1" nbaths="1" sqft="460" nparking_spots="0" pet="no" washer_drier="no"/>
+  <application_process>
+	<step>
+		Come visit the unit Monday between noon and 3:30PM.
+		Bring 2 forms of identification.
+	</step>
+	<step>
+		Grab an application form and fill it out.
+	</step>
+	<step>
+		Return the application during your visit or mail
+		it to the address on the form.
+	</step>
+  </application_process>
+  <comments>
+  This is a fine apartment.  The neighbors are quiet.
+  </comments>
+</property>
+
+</rental_listings>
