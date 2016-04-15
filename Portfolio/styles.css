@@ -1,0 +1,19 @@
+.bgg {
+	background: url("./images/bg.jpg");
+}
+
+.alphaBG-blue {
+	background-color:rgba(11,33,99,0.8) !important; 
+}
+
+.alphaBG-blue-lighten {
+	background-color:rgba(22,66,188,0.95) !important; 
+}
+
+.extended {
+	padding: 20px;
+}
+
+nav {
+    display: block;
+}
