@@ -1,5 +1,8 @@
 .bgg {
 	background: url("./images/bg.jpg");
+	background-size: cover;
+	background-repeat: no-repeat;
+    background-attachment: fixed;
 }
 
 .alphaBG-blue {
@@ -31,6 +34,14 @@
 }
 
 
+
+
 nav {
     display: block;
+}
+
+.barf { 
+	list-style-type: circle !important;
+	list-style-position: inside !important; 
+	margin-left: 25px; 
 }
