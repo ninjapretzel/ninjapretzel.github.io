@@ -1,0 +1,50 @@
+.bgg {
+	background: url("./images/bg.jpg");
+	background-size: cover;
+	background-repeat: no-repeat;
+    background-attachment: fixed;
+	background-size: cover;
+}
+
+.c1 { background-color:rgba(33,66,11,0.7) !important; }
+.c2 { background-color:rgba(44,88,22,0.7) !important; }
+
+.alphaBG-green { background-color:rgba(33,66,11,0.7) !important; }
+.alphaBG-green-lighten { background-color:rgba(66,122,22,0.95) !important; }
+.alphaBG-green-overlay { background-color:rgba(66,122,22,0.65) !important; color:white; }
+
+.alphaBG-blue { background-color:rgba(11,33,99,0.8) !important; }
+.alphaBG-blue-lighten { background-color:rgba(22,66,188,0.95) !important; }
+.alphaBG-blue-overlay { background-color:rgba(22,66,188,0.65) !important; color:white; }
+
+.invis { background-color:rgba(0,0,0,0) !important; }
+
+
+
+.extended {
+	padding: 20px;
+}
+
+.tinytext {
+	font-size: .75em;
+}
+.smallertext {
+	font-size: .85em;
+}
+
+h1 {
+	color: #ffc107
+}
+
+
+
+
+nav {
+    display: block;
+}
+
+.barf { 
+	list-style-type: circle !important;
+	list-style-position: inside !important; 
+	margin-left: 25px; 
+}

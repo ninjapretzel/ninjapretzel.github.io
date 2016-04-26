@@ -1,0 +1,89 @@
+<html>
+	<head>
+		<script src="https://code.jquery.com/jquery-1.12.0.min.js"></script>
+		<script src="materialize/js/materialize.js"></script>
+		<script src="page.js"></script>
+		<script>
+			$(document).ready(function(){
+				// the "href" attribute of .modal-trigger must specify the modal ID that wants to be triggered
+				$('.modal-trigger').leanModal();
+		  	});
+		</script>
+		<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+		<link rel="stylesheet" type="text/css" href="materialize/css/materialize.css" />
+		<link rel="stylesheet" type="text/css" href="styles.css" />
+	</head>
+	
+	
+	
+	<body class="bgg">
+		<div id="modals" class="white-text">
+			<div id="helpmodal" class="modal modal-fixed-footer c1">
+				<div class="modal-content c1">
+					<h4>Help!</h4>
+					<p>Maybe you should stop sucking</p>
+				</div>
+				<div class="modal-footer c2">
+					<a href="#!" class="modal-action modal-close btn-flat white-text">Okay</a>
+				</div>
+			</div>
+		</div>
+
+		<div class="alphaBG-green darken-4 white-text center">
+			<h1>Vidya Gaem</h1>
+		</div>
+		
+		<div class="alphaBG-green white-text">
+			<div id="result"></div>
+			
+			<div class="row">
+				<div class="col s3 c1 center" id="nav">
+					<div class="c2">Game Info</div>
+					<div><a href="#helpmodal" class="modal-trigger">Help</a></div>
+					<div>.</div>
+					<div>.</div>
+					<div>.</div>
+					<div>.</div>
+					<div>.</div>
+					<div>.</div>
+					<div>.</div>
+					<div>.</div>
+					<div>.</div>
+					<div>.</div>
+					
+					
+				</div>
+				
+				<div class="col s6 c1 row" id="info">
+					<h5><div class="col s12 c2" id="name"></div></h5>
+					
+					<div class="col s4 c1" id="level"></div>
+					<div class="col s4 c1" id="exp"></div>
+					
+					<div class="col s12 c1" id="content">
+						this is the main game view
+					</div>
+					
+				</div>
+				
+				<div class="col s3 c1 center" id="stats"> 
+					<div class="c2">STATS</div>
+					<div id="kills">kills: 5</div>
+					<div>.</div>
+					<div>.</div>
+					<div>.</div>
+					<div>.</div>
+					<div>.</div>
+					<div>.</div>
+					<div>.</div>
+					<div>.</div>
+				</div>
+				
+				
+			</div>
+		
+		</div>
+		
+	</body>
+	
+</html>
