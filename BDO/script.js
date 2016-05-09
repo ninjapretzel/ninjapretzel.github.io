@@ -3,6 +3,12 @@ guid = function() {
     return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();
 }
 
+clamp = function(val, min, max) {
+    if (val < min) { return min; }
+    if (val > max) { return max; }
+    return val;
+}
+
 chars = {};
 MAX_NRG_DEFAULT = 30;
 maxnrg = MAX_NRG_DEFAULT;
@@ -47,7 +53,7 @@ $(document).ready(() => {
             } else {
                 nrg = 0;
             }
-            if (nrg > maxnrg) { nrg = maxnrg; }
+            nrg = clamp(nrg, 0, maxnrg);
             
             if (name != "" && nrg != "") {
                 insertChar(name, nrg, uid, last);
@@ -95,20 +101,16 @@ $(document).ready(() => {
         
     });
     
-    $("#save").click(() => {
-        save();
-    });
-    
-    $("#clear").click(() => {
-        clear();
-    });
+    //$('.modal-trigger').leanModal();
+    //$("#deleteModalCancel").click(()=>{ $("#deleteModal").closeModal(); });
+    $("#save").click(() => { save(); });
+    $("#clear").click(() => { clear(); });
     
     var lastUpdate = new Date().getTime();
     
     interval = setInterval(()=>{
         var now = new Date().getTime();
         var diff = now-lastUpdate;
-        //console.log("tick");
         var dosave = false;
         
         var seconds = diff / 1000;
@@ -116,7 +118,8 @@ $(document).ready(() => {
             var char = chars[key];
             var lastFloor = Math.floor(char.nrg);
             char.nrg += OFFLINE_ENERGY_PER_SECOND * seconds;
-            if (char.nrg > maxnrg) { char.nrg = maxnrg; }
+            char.nrg = clamp(char.nrg, 0, maxnrg);
+            
             var nowFloor = Math.floor(char.nrg);
             
             var p = cent(char.nrg, maxnrg);
@@ -127,7 +130,6 @@ $(document).ready(() => {
     
             
             if (nowFloor > lastFloor) {
-                //console.log("UPDATE REGENED")
                 $("#nrg__" + char.uid).val(Math.floor(char.nrg));
                 dosave = true;
             }
@@ -186,9 +188,9 @@ function save(initial) {
     setCookie("last", ""+new Date().getTime());
     setCookie("maxnrg", ""+maxnrg);
     var i = 0;
+    console.log(chars);
     for (var key in chars) {
         var val = chars[key];
-        console.log(val);
         setCookie("name__" + i, val.name);
         setCookie("nrg__" + i, val.nrg);
         setCookie("uid__" + i, val.uid);
@@ -233,13 +235,11 @@ function insertChar(name, nrg, uid, last){
     var lastD = new Date(last);
     var nowD = new Date();
     
-    console.log("inserting " + uid)
-    
     var diffMS = nowD.getTime() - lastD.getTime();
-    console.log("dif:" + diffMS);
     
-    var nrgRecovery = diffMS / MS_IN_HALF_HOUR;
-    nrg += Math.floor(nrgRecovery);
+    var nrgRecovery = (diffMS / 1000) * OFFLINE_ENERGY_PER_SECOND;
+
+    nrg += nrgRecovery;
     if (nrg > maxnrg) { nrg = maxnrg; }
     var c = {};
     c.name = name;
@@ -261,7 +261,6 @@ function insertChar(name, nrg, uid, last){
     var $nrg = inputField("nrg__"+uid, "number", "Energy", "col s3 nrg");
     $nrg.find("input").val(""+Math.floor(nrg));
     $nrg.change(()=>{
-        console.log("NRG CHANGED");
         var elem = $("#nrg__"+uid);
         var val = parseInt(elem.val());
         if (val > maxnrg) { val = maxnrg; }
@@ -276,10 +275,7 @@ function insertChar(name, nrg, uid, last){
     $div.append($nrg);
     
     var $delete = makeButton("deleteChar"+uid, "-", () => {
-        console.log("Delete clicked");
-        $("#char"+uid).remove();
-        delete chars[uid];
-        //chars = chars.splice(ind, 1);
+       showDeleteModal(uid);
     }, "red darken-4");
     $div.append($delete);
     
@@ -295,6 +291,23 @@ function insertChar(name, nrg, uid, last){
     
     
     return $div;
+}
+
+function showDeleteModal(target) {
+    $("#deleteTargetName").text(chars[target].name);
+    
+    $("#deleteModal").openModal();
+    
+    $("#deleteModalConfirm").click(()=>{ 
+        deleteChar(target); 
+        $("#deleteModal").closeModal(); 
+    });
+    
+}
+
+function deleteChar(target) {
+    $("#char"+target).remove();
+    delete chars[target];
 }
 
 function makeButton(id, text, onclick, classes) {

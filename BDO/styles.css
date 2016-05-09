@@ -8,3 +8,12 @@
 .divider {
     margin: 1px !important;
 }
+
+.btn {
+    text-transform: none !important;
+}
+
+.hidden {
+    display: none;
+
+}
