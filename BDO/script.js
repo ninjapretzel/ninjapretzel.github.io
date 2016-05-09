@@ -66,14 +66,16 @@ $(document).ready(() => {
             
         }
         
+        
         $(".nrg").each((i, e)=>{ 
             var input = $(e).find("input");
             var val = parseInt(input.val());
             if (val >= maxnrg) {
                 input.val(maxnrg);
             }
-            
         });
+        
+         
     })
     
     $("#addChar").click(() => {
@@ -101,7 +103,7 @@ $(document).ready(() => {
     interval = setInterval(()=>{
         var now = new Date().getTime();
         var diff = now-lastUpdate;
-        console.log("tick");
+        //console.log("tick");
         
         var seconds = diff / 1000;
         for (var key in chars) {
@@ -119,7 +121,7 @@ $(document).ready(() => {
     
             
             if (nowFloor > lastFloor) {
-                console.log("UPDATE REGENED")
+                //console.log("UPDATE REGENED")
                 $("#nrg__" + char.uid).val(Math.floor(char.nrg));
             }
         }
@@ -193,6 +195,7 @@ function insertChar(name, nrg, uid, last){
     
     var nrgRecovery = diffMS / MS_IN_HALF_HOUR;
     nrg += Math.floor(nrgRecovery);
+    if (nrg > maxnrg) { nrg = maxnrg; }
     var c = {};
     c.name = name;
     c.nrg = nrg;
@@ -216,6 +219,7 @@ function insertChar(name, nrg, uid, last){
     var $nrg = inputField("nrg__"+uid, "number", "Energy", "col s3 nrg");
     $nrg.find("input").val(""+nrg);
     $nrg.change(()=>{
+        console.log("NRG CHANGED");
         var elem = $("#nrg__"+uid);
         var val = parseInt(elem.val());
         if (val > maxnrg) { val = maxnrg; }
