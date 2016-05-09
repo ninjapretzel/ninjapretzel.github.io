@@ -228,7 +228,7 @@ var MS_IN_HALF_HOUR = 1000 * 60 * 30
 function insertChar(name, nrg, uid, last){
     if (!uid) { uid = guid(); }
     if (!last) { last = new Date().getTime(); }
-    var $div = $("<div>", {id: "char"+uid, class:"col s12 card blue-grey darken-3"})
+    var $div = $("<div>", {id: "char"+uid, class:"col s12 row card packed blue-grey darken-3"})
     
     var lastD = new Date(last);
     var nowD = new Date();
@@ -249,16 +249,13 @@ function insertChar(name, nrg, uid, last){
     
     $cardContainer = $("#cardContainer");
     $cardContainer.append($div);
-    var $content = $("<div>", {class:"card-content"});
-    $div.append($content);
-    
     var $name = inputField("name__"+uid, "text", "Name", "col s5");
     $name.find("input").val(name);
     $name.change(()=>{
         var val = $("#name__"+uid).val();
         chars[uid].name = val;
     });
-    $content.append($name);
+    $div.append($name);
     
     
     var $nrg = inputField("nrg__"+uid, "number", "Energy", "col s3 nrg");
@@ -276,7 +273,7 @@ function insertChar(name, nrg, uid, last){
         chars[uid].nrg = val;
         elem.val(val);
     });
-    $content.append($nrg);
+    $div.append($nrg);
     
     var $delete = makeButton("deleteChar"+uid, "-", () => {
         console.log("Delete clicked");
@@ -284,15 +281,16 @@ function insertChar(name, nrg, uid, last){
         delete chars[uid];
         //chars = chars.splice(ind, 1);
     }, "red darken-4");
-    $content.append($delete);
-    
-    var p = cent(nrg, maxnrg);
-    var $bar = makeProgress("progress__"+uid, p);
-    $content.append($bar);
+    $div.append($delete);
     
     var $eta = $("<div>", {id:"eta__"+uid});
     $eta.text(eta(nrg, maxnrg, OFFLINE_ENERGY_PER_SECOND));
-    $content.append($eta);
+    $div.append($eta);
+    
+    var p = cent(nrg, maxnrg);
+    var $bar = makeProgress("progress__"+uid, p);
+    $div.append($bar);
+    
     
     
     

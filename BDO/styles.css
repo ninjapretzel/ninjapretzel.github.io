@@ -1,3 +1,10 @@
 .tiny {
     font-size: .7em;
 }
+
+.packed {
+    margin: 3px !important;
+}
+.divider {
+    margin: 1px !important;
+}
