@@ -6,7 +6,7 @@ function guid() {
 chars = {};
 MAX_NRG_DEFAULT = 30;
 maxnrg = MAX_NRG_DEFAULT;
-var lastSave;
+lastSave = -1;
 interval = -1;
 
 var FULL_COLOR = "green";
@@ -25,8 +25,15 @@ $(document).ready(() => {
     $("#maxnrg").val(maxnrg);
     
     var last = getCookie("last");
+    
     console.log("Saved at : " + last);
-    if (last) { last = parseInt(last); }
+    if (last) { 
+        last = parseInt(last); 
+        lastSave = last;
+    } else {
+        lastSave = new Date().getTime();
+    }
+    
     
     if (cnt != "") {
         for (var i = 0; i < cnt; i++) {
@@ -49,10 +56,8 @@ $(document).ready(() => {
 
         }
     }
-    if (!last || last == "") {
-        lastSave = new Date().getTime();
-        setCookie("last", lastSave);
-    }
+    
+    save(true);
     
     $("#maxnrg").change(()=>{
         var v = $("#maxnrg").val();
@@ -91,15 +96,14 @@ $(document).ready(() => {
     
     $("#save").click(() => {
         save();
-        Materialize.toast("Saved!", 3000, "orange darken-4 rounded");
     });
     
     $("#clear").click(() => {
         clear();
-        Materialize.toast("Cleared!", 3000, "red darken-4 rounded");
     });
     
     var lastUpdate = new Date().getTime();
+    
     interval = setInterval(()=>{
         var now = new Date().getTime();
         var diff = now-lastUpdate;
@@ -109,7 +113,7 @@ $(document).ready(() => {
         for (var key in chars) {
             var char = chars[key];
             var lastFloor = Math.floor(char.nrg);
-            char.nrg += DEBUG_ENERGY_PER_SECOND * seconds;
+            char.nrg += OFFLINE_ENERGY_PER_SECOND * seconds;
             if (char.nrg > maxnrg) { char.nrg = maxnrg; }
             var nowFloor = Math.floor(char.nrg);
             
@@ -126,7 +130,6 @@ $(document).ready(() => {
             }
         }
         
-        
         lastUpdate = now;
     }, 111);
 })
@@ -134,8 +137,32 @@ $(document).ready(() => {
 
 function cent(cur, max) { return Math.floor(cur / max * 100)}
 
+
+function timeFormat(sc) {
+    var days = Math.floor(sc / (60 * 60 * 24));
+    sc -= days * (60 * 60 * 24);
+    
+    var hr = Math.floor(sc / (60 * 60));
+    sc -= hr * (60 * 60);
+    
+    var mn = Math.floor(sc / 60);
+    sc -= mn * 60;
+    
+    sc = Math.floor(sc);
+    var str = "";
+    if (days > 0) { str += days + " Days and "; }
+    
+    str += hr + ":";
+    if (mn < 10) { str += "0"; }
+    str += mn + ":";
+    if (sc < 10) { str += "0"; }
+    str += sc;
+    
+    return str;
+}
 function eta(cur, max, rate) {
-    return (max-cur)/rate;
+    var sc = (max-cur) / rate;
+    return "ETA: " + timeFormat(sc);
 }
 
 function sizeOf(obj) {
@@ -148,7 +175,8 @@ function sizeOf(obj) {
 
     return count;
 }
-function save() {
+function save(initial) {
+    
     setCookie("cnt", sizeOf(chars));
     setCookie("last", ""+new Date().getTime());
     setCookie("maxnrg", ""+maxnrg);
@@ -161,13 +189,24 @@ function save() {
         setCookie("uid__" + i, val.uid);
         i++;
     }
+    if (!initial) {
+        Materialize.toast("Saved!", 3000, "blue darken-4 rounded");
+    } else {
+        var diff = new Date().getTime() - lastSave;
+        if (diff > 99) {
+            var time = timeFormat(diff/1000);
+            Materialize.toast("Welcome back! Last time was " + time + " ago!", 3000, "green darken-4 rounded");
+        } else {
+            Materialize.toast("Hello, stranger!", 3000, "green rounded" )
+        }
+    }
     
 }
 function clear() {
     maxnrg = MAX_NRG_DEFAULT;
     $("#maxnrg").val(maxnrg);
     
-    chars = [];
+    chars = {};
     $("#cardContainer").empty();
     
     var cookies = document.cookie.split(";");
@@ -175,6 +214,8 @@ function clear() {
     for (var i = 0; i < cookies.length; i++) {
         eraseCookie(cookies[i].split("=")[0]);
     }
+    
+    Materialize.toast("Cleared!", 3000, "red darken-4 rounded");
 }
 //MS per second per minute per half hour
 var MS_IN_HALF_HOUR = 1000 * 60 * 30
