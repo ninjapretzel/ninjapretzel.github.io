@@ -43,7 +43,7 @@ $(document).ready(() => {
             
             console.log("" + i + " : " + nrg)
             if (nrg && nrg != "") {
-                nrg = parseInt(nrg);
+                nrg = parseFloat(nrg);
             } else {
                 nrg = 0;
             }
@@ -140,7 +140,7 @@ $(document).ready(() => {
 })
 
 
-function cent(cur, max) { return Math.floor(cur / max * 100)}
+function cent(cur, max) { return Math.floor(cur / max * 10000) / 100}
 
 
 function timeFormat(sc) {
@@ -262,7 +262,7 @@ function insertChar(name, nrg, uid, last){
     
     
     var $nrg = inputField("nrg__"+uid, "number", "Energy", "col s3 nrg");
-    $nrg.find("input").val(""+nrg);
+    $nrg.find("input").val(""+Math.floor(nrg));
     $nrg.change(()=>{
         console.log("NRG CHANGED");
         var elem = $("#nrg__"+uid);
@@ -293,6 +293,8 @@ function insertChar(name, nrg, uid, last){
     var $eta = $("<div>", {id:"eta__"+uid});
     $eta.text(eta(nrg, maxnrg, OFFLINE_ENERGY_PER_SECOND));
     $content.append($eta);
+    
+    
     
     return $div;
 }
