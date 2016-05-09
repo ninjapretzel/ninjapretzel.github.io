@@ -374,7 +374,7 @@ function makeButton(id, text, onclick, classes) {
 
 function makeProgress(id, percentage, color) {
     if (!color) { color = "amber"; }
-    var $div = $("<div>", {id:id, class:"progress lighten-5 " + color});
+    var $div = $("<div>", {id:id, class:"progress bar lighten-5 " + color});
     
     var $bar = $("<div>", {class:"determinate darken-3 " + color, style:"width: " + percentage + "%"})
     $div.append($bar);
@@ -391,8 +391,8 @@ function setProgress(selector, percentage) {
 function inputField(id, type, label, classes) {
     classes = classes || "";
     var $div = $("<div>", {class:"input-field " + classes});
-    var $input = $("<input>", {id:id, type:type});
-    var $label = $("<label>", {for:id, class:"active"})
+    var $input = $("<input>", {id:id, type:type, class:"packed"});
+    var $label = $("<label>", {for:id, class:"active tiny"})
     $div.append($input);
     
     $label.text(label);

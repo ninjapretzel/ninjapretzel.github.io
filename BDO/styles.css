@@ -5,6 +5,8 @@
 .packed {
     margin: 3px !important;
 }
+
+
 .divider {
     margin: 1px !important;
 }
@@ -15,5 +17,10 @@
 
 .hidden {
     display: none;
+}
 
+
+.bar {
+    margin: 3px;
+    padding: 4px;
 }
