@@ -108,6 +108,7 @@ $(document).ready(() => {
         var now = new Date().getTime();
         var diff = now-lastUpdate;
         //console.log("tick");
+        var dosave = false;
         
         var seconds = diff / 1000;
         for (var key in chars) {
@@ -127,8 +128,11 @@ $(document).ready(() => {
             if (nowFloor > lastFloor) {
                 //console.log("UPDATE REGENED")
                 $("#nrg__" + char.uid).val(Math.floor(char.nrg));
+                dosave = true;
             }
+            
         }
+        if (dosave) { save(); }
         
         lastUpdate = now;
     }, 111);
