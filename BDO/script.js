@@ -285,7 +285,7 @@ function insertChar(name, nrg, online, uid, last) {
     var diffMS = nowD.getTime() - lastD.getTime();
     
     var nrgRecovery = (diffMS / 1000) * OFFLINE_ENERGY_PER_SECOND;
-
+    
     nrg += nrgRecovery;
     if (nrg > maxnrg) { nrg = maxnrg; }
     var c = {};
@@ -304,7 +304,6 @@ function insertChar(name, nrg, online, uid, last) {
     });
     $div.append($name);
     
-    
     var $nrg = inputField("nrg__"+uid, "number", "Energy", "col s3 nrg");
     $nrg.find("input").val(""+Math.floor(nrg));
     $nrg.change(()=>{
@@ -313,9 +312,6 @@ function insertChar(name, nrg, online, uid, last) {
         if (val > maxnrg) { val = maxnrg; }
         var p = cent(val, maxnrg);
         
-        var $eta = $("#eta__"+uid);
-        $eta.text(eta(nrg, maxnrg, OFFLINE_ENERGY_PER_SECOND));
-    
         chars[uid].nrg = val;
         elem.val(val);
     });
@@ -327,7 +323,6 @@ function insertChar(name, nrg, online, uid, last) {
     $div.append($delete);
     
     var onlineData = { class:"with-gap", name:"onlineGroup", type:"radio", id:"online__"+uid };
-    //if (online) { onlineData.checked = "checked"; }
     var $online = $("<input>", onlineData);
     if (online) { $online.attr("checked", "checked"); }
     $online.change(()=>{
