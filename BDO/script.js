@@ -86,9 +86,10 @@ $(document).ready(() => {
     $("#addChar").click(() => {
         var name = $("#name").val();
         var nrg = parseInt( $("#nrg").val() );
+        $("#name").val("");
+        $("#nrg").val(0);
         
         if (name && name != "") {
-        
             insertChar(name, nrg);
         }
         
@@ -223,12 +224,11 @@ function clear() {
 }
 //MS per second per minute per half hour
 var MS_IN_HALF_HOUR = 1000 * 60 * 30
+
 function insertChar(name, nrg, uid, last){
-    
-    var index = chars.length;
-    var $div = $("<div>", {id: "char"+uid, class:"col s12 card blue-grey darken-3"})
     if (!uid) { uid = guid(); }
     if (!last) { last = new Date().getTime(); }
+    var $div = $("<div>", {id: "char"+uid, class:"col s12 card blue-grey darken-3"})
     
     var lastD = new Date(last);
     var nowD = new Date();
@@ -278,7 +278,7 @@ function insertChar(name, nrg, uid, last){
     });
     $content.append($nrg);
     
-    var $delete = makeButton("deleteChar"+index, "-", () => {
+    var $delete = makeButton("deleteChar"+uid, "-", () => {
         console.log("Delete clicked");
         $("#char"+uid).remove();
         delete chars[uid];
