@@ -183,7 +183,7 @@ $(document).ready(() => {
         if (dosave) { save(); }
         
         lastUpdate = now;
-    }, 111);
+    }, 500);
 })
 
 
