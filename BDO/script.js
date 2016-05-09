@@ -33,6 +33,10 @@ $(document).ready(() => {
     
     var last = getCookie("last");
     
+    var bed = getCookie("bed");
+    if (bed == "") { bed = "noBed"; }
+    $("#" + bed).attr('checked', 'checked');
+    
     console.log("Saved at : " + last);
     if (last) { 
         last = parseInt(last); 
@@ -221,6 +225,11 @@ function save(initial) {
     setCookie("cnt", sizeOf(chars));
     setCookie("last", ""+new Date().getTime());
     setCookie("maxnrg", ""+maxnrg);
+    var bed = "noBed";
+    if ($("#bed").is(":checked")) { bed = "bed"; }
+    if ($("#cashBed").is(":checked")) { bed = "cashBed"; }
+    setCookie("bed", bed);
+    
     var i = 0;
     console.log(chars);
     for (var key in chars) {
