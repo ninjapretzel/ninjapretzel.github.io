@@ -321,7 +321,7 @@ function insertChar(name, nrg, online, uid, last) {
     });
     $div.append($nrg);
     
-    var $delete = makeButton("deleteChar"+uid, "DELETE", () => {
+    var $delete = makeButton("deleteChar"+uid, "-", () => {
        showDeleteModal(uid);
     }, "red darken-4 packed");
     $div.append($delete);
