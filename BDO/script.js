@@ -97,7 +97,10 @@ $(document).ready(() => {
     
     function addchar() {
         var name = $("#name").val();
-        var nrg = parseInt( $("#nrg").val() );
+        var rawNRG = $("#nrg").val();
+        if (rawNRG == "") { rawNRG = "0"}
+        var nrg = parseInt( rawNRG );
+        
         $("#name").val("");
         $("#nrg").val(0);
         
@@ -251,9 +254,9 @@ function save(initial) {
         var diff = new Date().getTime() - lastSave;
         if (diff > 99) {
             var time = timeFormat(diff/1000);
-            Materialize.toast("Welcome back! Last time was " + time + " ago!", 3000, "green darken-4 rounded");
+            Materialize.toast("Welcome back! Elapsed " + time + " offline", 3000, "purple darken-4 rounded");
         } else {
-            Materialize.toast("Hello, stranger!", 3000, "green rounded" )
+            Materialize.toast("Hello, stranger!", 3000, "purple rounded" )
         }
     }
     
@@ -321,9 +324,9 @@ function insertChar(name, nrg, online, uid, last) {
     });
     $div.append($nrg);
     
-    var $delete = makeButton("deleteChar"+uid, "-", () => {
+    var $delete = makeButton("deleteChar"+uid, "delete", () => {
        showDeleteModal(uid);
-    }, "red darken-4 packed");
+    }, "red darken-4");
     $div.append($delete);
     
     var onlineData = { class:"with-gap", name:"onlineGroup", type:"radio", id:"online__"+uid };
