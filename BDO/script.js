@@ -14,6 +14,7 @@ MAX_NRG_DEFAULT = 30;
 maxnrg = MAX_NRG_DEFAULT;
 lastSave = -1;
 interval = -1;
+selectedOnline = "offline"
 
 var FULL_COLOR = "green";
 var NORMAL_COLOR = "amber;"
@@ -46,6 +47,7 @@ $(document).ready(() => {
             var name = getCookie("name__"+i);
             var nrg = getCookie("nrg__"+i);
             var uid = getCookie("uid__"+i);
+            var online = (getCookie("online__"+i) === "true")
             
             console.log("" + i + " : " + nrg)
             if (nrg && nrg != "") {
@@ -56,7 +58,7 @@ $(document).ready(() => {
             nrg = clamp(nrg, 0, maxnrg);
             
             if (name != "" && nrg != "") {
-                insertChar(name, nrg, uid, last);
+                insertChar(name, nrg, online, uid, last);
             }
 
 
@@ -106,6 +108,14 @@ $(document).ready(() => {
     $("#save").click(() => { save(); });
     $("#clear").click(() => { clear(); });
     
+    
+    $("input[name='onlineGroup']").change((e)=>{
+        console.log("Online group changed");
+        console.log(e);
+        var parent = $(e.target).parent();
+        console.log();
+    });
+    
     var lastUpdate = new Date().getTime();
     
     interval = setInterval(()=>{
@@ -117,7 +127,31 @@ $(document).ready(() => {
         for (var key in chars) {
             var char = chars[key];
             var lastFloor = Math.floor(char.nrg);
-            char.nrg += OFFLINE_ENERGY_PER_SECOND * seconds;
+            var online = $("#online__"+char.uid).is(":checked");
+            
+            var inBed = $("#bed").is(":checked");
+            var cashBed = $("#cashBed").is(":checked");
+            
+            var $div = $("#char"+char.uid);
+            var regenRate = OFFLINE_ENERGY_PER_SECOND;
+            if (online) { 
+                regenRate = ONLINE_ENERGY_PER_SECOND;
+                if (cashBed) { regenRate *= 3; }
+                else if (inBed) { regenRate *= 2; }
+                if ($div.hasClass("blue-grey")) {
+                    $div.removeClass("blue-grey");
+                    $div.addClass("teal");
+                }
+            } else {
+                if ($div.hasClass("teal")) {
+                    $div.removeClass("teal");
+                    $div.addClass("blue-grey");
+                }
+                
+            }
+            
+            
+            char.nrg += regenRate * seconds;
             char.nrg = clamp(char.nrg, 0, maxnrg);
             
             var nowFloor = Math.floor(char.nrg);
@@ -126,7 +160,7 @@ $(document).ready(() => {
             setProgress("#progress__" + char.uid, p);
             
             var $eta = $("#eta__" + char.uid);
-            $eta.text(eta(char.nrg, maxnrg, OFFLINE_ENERGY_PER_SECOND));
+            $eta.text(eta(char.nrg, maxnrg, regenRate));
     
             
             if (nowFloor > lastFloor) {
@@ -182,8 +216,8 @@ function sizeOf(obj) {
 
     return count;
 }
-function save(initial) {
-    
+
+function save(initial) {    
     setCookie("cnt", sizeOf(chars));
     setCookie("last", ""+new Date().getTime());
     setCookie("maxnrg", ""+maxnrg);
@@ -194,6 +228,8 @@ function save(initial) {
         setCookie("name__" + i, val.name);
         setCookie("nrg__" + i, val.nrg);
         setCookie("uid__" + i, val.uid);
+        var online = $("#online__"+val.uid).is(":checked");
+        setCookie("online__" + i, online ? "true" : "");
         i++;
     }
     if (!initial) {
@@ -227,7 +263,9 @@ function clear() {
 //MS per second per minute per half hour
 var MS_IN_HALF_HOUR = 1000 * 60 * 30
 
-function insertChar(name, nrg, uid, last){
+function insertChar(name, nrg, online, uid, last) {
+    var saveAfter = (!last);
+    
     if (!uid) { uid = guid(); }
     if (!last) { last = new Date().getTime(); }
     var $div = $("<div>", {id: "char"+uid, class:"col s12 row card packed blue-grey darken-3"})
@@ -279,6 +317,21 @@ function insertChar(name, nrg, uid, last){
     }, "red darken-4");
     $div.append($delete);
     
+    var onlineData = { class:"with-gap", name:"onlineGroup", type:"radio", id:"online__"+uid };
+    //if (online) { onlineData.checked = "checked"; }
+    var $online = $("<input>", onlineData);
+    if (online) { $online.attr("checked", "checked"); }
+    $online.change(()=>{
+        selectedOnline = uid;
+        console.log(name + " changed online status");
+    })
+    
+    var $onlineLabel = $("<label>", {for:"online__"+uid,})
+    $onlineLabel.text("online?");
+    
+    $div.append($online);
+    $div.append($onlineLabel);
+    
     var $eta = $("<div>", {id:"eta__"+uid});
     $eta.text(eta(nrg, maxnrg, OFFLINE_ENERGY_PER_SECOND));
     $div.append($eta);
@@ -288,7 +341,7 @@ function insertChar(name, nrg, uid, last){
     $div.append($bar);
     
     
-    
+    if (saveAfter) { save(); }
     
     return $div;
 }
