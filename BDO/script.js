@@ -95,7 +95,7 @@ $(document).ready(() => {
          
     })
     
-    $("#addChar").click(() => {
+    function addchar() {
         var name = $("#name").val();
         var nrg = parseInt( $("#nrg").val() );
         $("#name").val("");
@@ -105,7 +105,11 @@ $(document).ready(() => {
             insertChar(name, nrg);
         }
         
-    });
+    }
+    $("#addChar").click(addchar);
+    
+    $("#name").keydown((e)=>{ if (e.keyCode == 13) { addchar(); } });
+    $("#nrg").keydown((e)=>{ if (e.keyCode == 13) { addchar(); } });
     
     //$('.modal-trigger').leanModal();
     //$("#deleteModalCancel").click(()=>{ $("#deleteModal").closeModal(); });
@@ -317,9 +321,9 @@ function insertChar(name, nrg, online, uid, last) {
     });
     $div.append($nrg);
     
-    var $delete = makeButton("deleteChar"+uid, "-", () => {
+    var $delete = makeButton("deleteChar"+uid, "DELETE", () => {
        showDeleteModal(uid);
-    }, "red darken-4");
+    }, "red darken-4 packed");
     $div.append($delete);
     
     var onlineData = { class:"with-gap", name:"onlineGroup", type:"radio", id:"online__"+uid };
