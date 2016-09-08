@@ -10,13 +10,91 @@
 	<body class="grey darken-4  white-text">
 		
 		<div class="row">
-			<div class="col card s6 offset-s3 blue-grey darken-4">
-				<h1>BDO Energy thingy</h1>
+			<div class="col s12 m10 offset-m1 l8 offset-l2 row card blue-grey darken-4">
+				<h3 class="center">BDO Alt energy timer thingy</h3>
+                <div class="col s12 divider"></div>
 				
-				<div id="cardContainer"></div>
+                <div class="input-field col s6">
+                    <input id="maxnrg" type="number" />
+                    <label for="maxnrg" class="active">Family Max Energy</label>
+                </div>
+                <div id="save" class="col s6 btn green darken-4">Save</div>
+                <div id="clear" class="col s6 btn red darken-4">Clear</div>
+                    
+                
+                <div class="col s12 divider"></div>
+                
+                <div class="col s12 card packed row grey darken-2">
+                    <div class="col s8">Track New Character</div>
+                    <div id="addChar" class="btn green darken-4 col s4">+</div>
+                    <div class="input-field col s6">
+                        <input id="name" type="text" />
+                        <label for="name">name</label>
+                    </div>
+
+                    <div class="input-field col s6">
+                        <input id="nrg" type="number" />
+                        <label for="nrg">energy</label>
+                    </div>
+                    
+                </div>
+                
+                <div class="col s12 row card packed grey darken-3">
+                    <div class="col s12">
+                        Beds!
+                        <span class="tiny red-text">Note: Bed/online bonuses won't be applied if you close the tab!</span>
+                    </div>
+                    <div class="col s4">
+                        <input class="with-gap" name="bedGroup" type="radio" id="noBed" checked />
+                        <label for="noBed">No Bed <span class="tiny">x1</span></label>
+                    </div>
+                    <div class="col s4">
+                        <input class="with-gap" name="bedGroup" type="radio" id="bed" />
+                        <label for="bed">Normal Bed <span class="tiny">x2</span></label>
+                    </div>
+                    <div class="col s4">
+                        <input class="with-gap" name="bedGroup" type="radio" id="cashBed" />
+                        <label for="cashBed">Good Bed <span class="tiny">x3</span></label>
+                    </div>
+                    <div class="col s12 divider brown darken-4"></div>
+                    <div class="col s4 offset-s8">
+                        <input class="with-gap" name="onlineGroup" type="radio" id="offline" />
+                        <label for="offline" class="with-gap">Logged Off</label>
+                    </div>
+                </div>
+                <div class="col s12 divider"></div>
+                
+                <div id="cardContainer" class="col s12 row packed">
+                    
+                </div>
+                
+                <div class="col s12 divider"></div>
+                
+                
+                <div class="col s12 m10 offset-m1 l8 offset-l2 tiny center blue-grey-text">
+                    This site gives you COOKIES!<br />
+                    Note: Energy counts might be a little bit off!<br />
+                    Energy is applied in tiny bits continuously here.<br />
+                    On the actual game, it is applied discreetly at 30 minute intervals<br />
+                    3 minute intervals for online characters!
+                    <br />
+                </div>
 			</div>
 		</div>
-		
-		
+        
+		<div id="deleteModal" class="modal grey darken-3 white-text">
+            <div class="modal-content grey darken-3">
+                <h4>Confirm DELETE</h4>
+                <p>
+                    Are you sure you want to delete <span id="deleteTargetName"></span>?
+                </p>
+            </div>
+            
+            <div class="modal-footer grey darken-3 white-text">
+                <a href="#!" id="deleteModalConfirm" class="modal-action modal-close btn red darken-4">YES</a>
+                <a href="#!" class="modal-action modal-close btn green darken-4">Naw</a>
+            </div>
+        </div>
+        
 	</body>
 </html>

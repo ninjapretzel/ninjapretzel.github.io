@@ -1,0 +1,26 @@
+.tiny {
+    font-size: .7em;
+}
+
+.packed {
+    margin: 3px !important;
+}
+
+
+.divider {
+    margin: 1px !important;
+}
+
+.btn {
+    text-transform: none !important;
+}
+
+.hidden {
+    display: none;
+}
+
+
+.bar {
+    margin: 3px;
+    padding: 4px;
+}
