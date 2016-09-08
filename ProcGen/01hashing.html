@@ -1,0 +1,250 @@
+<html>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<head>
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.7/css/materialize.min.css">
+		<link rel="stylesheet" href="./styles.css">
+		<script src="https://code.jquery.com/jquery-3.1.0.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.7/js/materialize.min.js"></script>
+		<script src="01hashing.js"></script>
+		
+	</head>
+		
+	<body class="brown lighten-3">
+		<div class="container row">
+			<div class="card blue-grey lighten-4 center"> 
+				<h1>Procedural Generation</h1>
+				<h3>Noise functions and Basis for Hgher-Order Noise</h3>
+			</div>
+			
+			<div class="col s12">
+				<h5>Introduction</h5>
+				<p>
+					Procedural generation is used in many applications in computer graphics 
+					and games. Most of the time, a simple random function is good enough to 
+					create small differences in outcomes of simple random events like dice rolls.
+					Dice rolls are good enough for simple things in games and modeling, but when
+					we are designing things that have some sort of ａｅｓｔｈｅｔｉｃ, we may want to
+					have noise that isn't purely random.
+				</p>
+				<p>
+					When worlds are being crafted, pure randomness just creates boring, repetititive garbage.
+					For example, terrain generated with just a random diceroll function would be completely incoherent,
+					there would be no geological features, but just a sea of peaks and valleys crammed close together.
+					We would want to get a better noise function that can be used to create more believable worlds.
+				</p>
+				
+				<p>
+					Another property we want is to be able to reproduce the same outcomes for the same inputs. 
+					The output of our 'random' functions must not be <i>truely random</i>, but just <i>statistically random.</i>
+					A truely random function could not generate the same output for the same input. 
+					It's a good thing computers are highly deterministic, as this makes creating predictable,pseudorandom noise much easier,
+					and this also has the benefit of making our pseudorandom numbers able to be generated in parallel.
+				</p>
+				
+				<p>
+					There will be a few different languages used, mostly Nvidia Cg (C for Graphics) and OpenGLSL
+					(Open Graphics Library Shader Language). There are minor differences between
+					these two languages, so each code snippit will have the language it is in noted.
+					Some of the samples will be created in JavaScript so they can run inside the webpage.
+					Other samples will include 'GLSLSandbox' shaders (OpenGLSL code, runs in the browser),
+					And executables with Cg shader code.
+				</p>
+
+				<h5>Hashing and Noise</h5>
+				<p>
+					The first, and most basic component of building coherent noise is a form of 
+					hash function. The hash functions in this context are a function that takes 
+					an input of a Scalar or Vector, and outputs a Scalar, in the range [0,1].
+					There are a number of different forms for these hash functions. Here is a 
+					formal definition of a Hash Function.
+				</p>
+			</div> 
+			
+			<div class="card blue-grey lighten-3 col s10 offset-s1">
+				<h4>Hash Function: Definition</h4>
+				<p>
+					A function that maps data of an arbitrary size to data of a fixed size.
+					There are a few properties that are necessary:
+					<ol>
+						<li>Any input to the function must always produce the same output.</li>
+						<li>Any change to the input data produces an unpredictable change in the output.</li>
+					</ol>
+				</p>
+			</div>
+			<div class="col s12">
+				<p>
+					For our purposes of generating textures, input data to our hash functions are floating point Scalars,
+					or floating point Vectors any dimension. Our output is a floating point number in the range (0, 1).
+					The differences of exclusion or inclusion of 0 and 1 in the output range are insignificant for the overall behaviour.
+				</p>
+				
+				<p>
+					Also, hash functions do not need to be overly complex, a simple function is preferable to a more complex one, 
+					so long as they have all of the necessary properties. Here is a pretty complex hash function:
+				</p>
+					
+			</div>
+		
+			<div class="card blue-grey lighten-4 col s8 offset-s2">
+				<div class="chip">(C++)</div><pre>
+double IntegerNoise(int n) {
+  n = (n >> 13) ^ n;
+  int nn = (n * (n * n * 60493 + 19990303) + 1376312589) 
+  & 0x7fffffff;
+  return 1.0 - ((double)nn / 1073741824.0);
+}</pre>
+				<span class="small">From <a href="http://libnoise.sourceforge.net/noisegen/index.html">libnoise's documentation</a></span>
+			</div>		
+			<div class="col s12">
+				<p>
+					This is quite a complex function, and is much harder to compute per-pixel than it needs to be.
+					When rendering noise in real-time, the speed of a 'hash' function must be a consideration.
+					Another thing, is that this function won't run as expected when translated for use on a graphics card- There is no 'double' type
+					in most languages that compile to Graphics Card assemblies. We would want to have a simpler, faster function, that gives us
+					much the same kind of output, and will still work properly on a graphics card.
+				</p>
+			</div>
+			
+			<div class="card blue-grey lighten-4 col s8 offset-s2">
+				<div class="chip">(NVIDIA CG)</div><pre>
+float hash(float n) {
+	return frac(sin(n)*SEED);
+}</pre>
+				<span class="small">Common form of noise function found in various shaders on http://glslsandbox.com/</span>
+			</div>
+			<div class="col s12">
+				<p>
+					Now, this function isn't perfect either, in fact, there are drawbacks to this function that the other function doesn't have:
+					Floating point rounding can create large 'artifacts' at points that are very far away from zero, and, on different
+					hardware (graphics cards), floating point numbers may have different sizes. This results in noise based off of this kind of
+					hash function looking different based on the precision of the hardware. Typically, it is expected to be a 32-bit floating point number.
+					Depending on the specifics, on older hardware, it may be a 24-bit or 16-bit.
+				</p>
+				
+				<p>
+					Lets look at some specific stuff about the smaller, quick hash function.<br>
+					<TT>SEED</TT> is a value to scale the distribution of the random function.<br>
+					<TT>frac</TT> is a function that returns only the fractional part of the number, as a positive value.<br>
+					<br>
+					This hash function takes in an input (<tt>n</tt>), 
+					passes that input into a (<tt>sin</tt>) function, multiplies the value by a <tt>SEED</tt> value,
+					and then drops the integer part of the number, leaving the fractional part.
+					<br>
+					Changing the <tt>SEED</tt> value changes the output of the hash function quite drastically. 
+				</p>
+				
+				<p>Here is some sample output from the hash function: </p>
+			</div>
+			
+			<div class="card blue-grey darken-4 col s12">
+				<h5 class="white-text"><tt>Output from hash(n) for n=(0...500)</tt></h5>
+				<tt class="cyan-text text-lighten-3">SEED = 31337.1337</tt>
+				<svg viewbox="0 0 520 100" xmlns="http://www.w3.org/2000/svg">
+					<g id="hash1" fill="cyan">
+					</g>
+						
+					<g class="graph-lines">
+						<line x1="20" x2="600" y1="70" y2="70" />
+						<line x1="20" x2="20" y1="20" y2="70" />
+					</g>
+					
+					<g class="graph-labels">
+						<text x="12" y="28">1</text>
+						<text x="12" y="70">0</text>
+						<text x="20" y="80">0</text>
+						<text x="500" y="80">500</text>
+					</g>
+					
+				</svg>	
+				<tt class="cyan-text text-lighten-3">SEED = 12345.6789</tt>
+				<svg viewbox="0 0 520 100" xmlns="http://www.w3.org/2000/svg">
+					<g id="hash2" fill="cyan">
+					</g>
+						
+					<g class="graph-lines">
+						<line x1="20" x2="600" y1="70" y2="70" />
+						<line x1="20" x2="20" y1="20" y2="70" />
+					</g>
+					
+					<g class="graph-labels">
+						<text x="12" y="28">1</text>
+						<text x="12" y="70">0</text>
+						<text x="20" y="80">0</text>
+						<text x="500" y="80">500</text>
+					</g>
+					
+				</svg>
+			</div>
+			
+			<div class="col s12">
+				<p>
+					It should be relatively easy to see that the distribution between these two functions is different,
+					just from having a different seed value. The most notable thing about the data here, is that there is no
+					COHERENCE in the output. If you went through all of the points, one by one, left to right, the values
+					vary wildly. 
+					Additionally, we can visualize the values output from hash not as points on a graph, but as colors.
+				</p>
+				
+				<p>
+					For the following images, they are made by generating hash values for consecutive numbers,
+					mapping those values directly to grayscale colors, where 0 is black and 1 is white, and
+					numbers in-between are some shade of gray. Then, placing those colors into a grid.
+					The appearance they have is like the harsh 'static' on an untuned television.
+				</p>
+			</div>
+			
+			<div class="card blue-grey darken-4 col s12 row">
+				<div class="col s12">
+					<h5 class="white-text"><tt>Output from 'raw' hash as grayscale textures</tt></h5>
+				</div>
+				
+				<div class="col s4 center">
+					<tt class="cyan-text text-lighten-3">SEED = 31337.1337</tt>
+					<br>
+					<svg viewbox="0 0 1 1" width="100" height="100" xmlns="http://www.w3.org/2000/svg">
+						<g id="hash1_grayscale"></g>
+					</svg>
+					<br>
+				</div>
+				
+				<div class="col s4 center">
+					<tt class="cyan-text text-lighten-3">SEED = 12345.6789</tt>
+					<br>
+					<svg viewbox="0 0 1 1" width="100" height="100" xmlns="http://www.w3.org/2000/svg">
+						<g id="hash2_grayscale"></g>
+					</svg>
+					<br>
+				</div>
+				<div class="col s4 center">
+					<tt class="cyan-text text-lighten-3">SEED = 9876.54321</tt>
+					<br>
+					<svg viewbox="0 0 1 1" width="100" height="100" xmlns="http://www.w3.org/2000/svg">
+						<g id="hash3_grayscale"></g>
+					</svg>
+					<br>
+				</div>
+			</div>
+					
+			<div class="col s12">
+				<p>
+					Now, that's well and good and all, but, still has no 'coherence'. It's just raw noise, and looks very messy.
+					To make noise that has coherence, we utilize the 'raw' noise, sample it at given points, and for points
+					in between the samples, blend the values together. 
+					We look at this on the <a href="02coherence.html">next page</a>.
+				</p>
+			</div>
+					
+			
+		</div>
+		
+	</body>
+	
+</html>
+
+
+
+		
+
+
+	
+	

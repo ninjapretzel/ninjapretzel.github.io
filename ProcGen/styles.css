@@ -1,0 +1,59 @@
+html {
+    font-family: Tahoma;
+}
+
+p tt {
+	background-color: #cfd8dc;
+}
+
+ul li {
+	list-style-type: disc;
+}
+
+.graph-lines {
+	stroke-width: .1;
+	stroke: #0FF;
+}
+
+.dist-lines {
+	stroke-width: .45;
+	stroke: #C48;
+}
+
+.dist-dash {
+	stroke-width: .45;
+	stroke: #CC4;
+	stroke-dasharray: 1,1;
+}
+
+.dist-labels {
+	fill: #C48;
+	font-family: Tahoma;
+	font-size: 4pt;
+	font-weight: bolder;
+	stroke: #000;
+	stroke-width: .3;
+}
+
+.graph-labels {
+	fill: #ADD;
+	font-family: Tahoma;
+	font-size: .75em;
+}
+
+.graph-labels-tiny {
+	fill: #ADD;
+	font-family: Tahoma;
+	font-size: 3pt;
+}
+
+.small {
+	font-size: .7em;
+	
+}
+
+.graph-dots {
+	fill: #48C;
+	stroke-width: 0;
+}
+
