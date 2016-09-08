@@ -76,12 +76,229 @@ function hash2d(x, y) {
 					<h5>Interpolation</h5>
 					We then take the output from that 2d hash function, and 'Interpolate' it. We sample the function only at fixed points-
 					In this case, integer values for x and y, and then 'Interpolate' between the nearest sample points to determine the 
-					value at any given point.
+					value at any given point. Interpolation takes data that is known, and then creates more data between the known data.
+					The most well known interpolation function is <i>Linear Interpolation</i>, or <i>lerp</i> for short.
 				</p>
-				This is what gives the 'Interpolated' noise its 'coherence', if the Interpolated noise function 
-				is sampled at other points around a point, they will likely have the same value. We can get a bit more specific, and fully
-				define what we mean, specifically, when we say 'Coherent noise':
 			</div>
+	
+			<div class="card blue-grey lighten-4 col s8 offset-s2">
+				<div class="chip">(NVIDIA CG)</div><pre>function lerp(a, b, x) { return a + (b-a) * x; }</pre>
+			</div>
+	
+			<div class="col s12">
+				<p>
+					This function is very commonly used in all sorts of applications. It can be used for animation, for smoothing
+					images, mixing colors, and anything else that can be done by taking two points, and moving to some position between them.
+					There are also variations on this idea, that interpolate between values in a more smooth fashion.
+				</p>
+			</div>
+			
+			<div class="card blue-grey lighten-4 col s8 offset-s2">
+				<div class="chip">(NVIDIA CG)</div><pre>
+function coserp(a, b, x) { 
+	var ft = x * 3.1415927;
+	var f = (1 - Math.cos(ft)) * .5;
+	return a + (b-a) * f;
+}
+
+function smoothstep(a, b, x) {
+	var t = saturate((x - a)/(b - a));
+    return t*t*(3.0 - (2.0*t));
+}
+</pre>
+			</div>
+			
+	
+			<div class="card blue-grey darken-4 col s12">
+				<div class="row">
+					<div class="col s12 center white-text">
+						<h5>Comparison of Different Interpolation Functions</h5>
+						For all of these graphs, a is 0, and b is 1.
+						The vertical represents the inputs 'a' and 'b', as well as the output of the function.
+						The horizontal represents the input 'f'.
+						Also, all of these interpolation methods not only work for scalars, but also on vectors of any length.
+					</div>
+					<div class="col s12">.</div>
+					<div class="col s4 center white-text">Linear<br><tt>lerp(a, b, f)</tt></div>
+					<div class="col s4 center white-text">Cosine<br><tt>coserp(a, b, f)</tt></div>
+					<div class="col s4 center white-text">'Hermite'<br><tt>smoothStep(a, b, f)</tt></div>
+					<div class="col s4 center">
+						<svg viewbox="-20 -20 140 140">
+							<g class="graph-lines">
+								<line x1="0" x2="100" y1="100" y2="100" style="stroke-width:.5"/>
+								<line x1="0" x2="0" y1="0" y2="100" style="stroke-width:.5"/>
+								<line x1="0" x2="100" y1="0" y2="0" />
+								<line x1="0" x2="100" y1="10" y2="10" />
+								<line x1="0" x2="100" y1="20" y2="20" />
+								<line x1="0" x2="100" y1="30" y2="30" />
+								<line x1="0" x2="100" y1="40" y2="40" />
+								<line x1="0" x2="100" y1="50" y2="50" />
+								<line x1="0" x2="100" y1="60" y2="60" />
+								<line x1="0" x2="100" y1="70" y2="70" />
+								<line x1="0" x2="100" y1="80" y2="80" />
+								<line x1="0" x2="100" y1="90" y2="90" />
+								<line x1="0" x2="100" y1="100" y2="100" />
+
+								<line x1="0" x2="0" y1="0" y2="100" />
+								<line x1="10" x2="10" y1="0" y2="100" />
+								<line x1="20" x2="20" y1="0" y2="100" />
+								<line x1="30" x2="30" y1="0" y2="100" />
+								<line x1="40" x2="40" y1="0" y2="100" />
+								<line x1="50" x2="50" y1="0" y2="100" />
+								<line x1="60" x2="60" y1="0" y2="100" />
+								<line x1="70" x2="70" y1="0" y2="100" />
+								<line x1="80" x2="80" y1="0" y2="100" />
+								<line x1="90" x2="90" y1="0" y2="100" />
+								<line x1="100" x2="100" y1="0" y2="100" />
+							</g>
+							<g class="graph-labels">
+								<text x="23" y="113">f (position)</text>
+								<text x="-3" y="113">0</text>
+								<text x="97" y="113">1</text>
+								
+								<text x="-18" y="50">in</text>
+								<text x="-20" y="60">out</text>
+								<text x="-10" y="103">0</text>
+								<text x="-10" y="5">1</text>
+								
+								<text x="2" y="92">a</text>
+								<text x="92" y="-5">b</text>
+							</g>
+							<g class="graph-dots">
+								<circle cx="0" cy="100" r="3" fill="#C84"/>
+								<circle cx="100" cy="0" r="3" fill="#C84"/>
+							</g>
+							
+							<g id="linearGraph" class="graph-dots">
+							</g>
+						</svg>
+					</div>
+					<div class="col s4 center">
+						<svg viewbox="-20 -20 140 140">
+							<g class="graph-lines">
+								<line x1="0" x2="100" y1="100" y2="100" style="stroke-width:.5"/>
+								<line x1="0" x2="0" y1="0" y2="100" style="stroke-width:.5"/>
+								<line x1="0" x2="100" y1="0" y2="0" />
+								<line x1="0" x2="100" y1="10" y2="10" />
+								<line x1="0" x2="100" y1="20" y2="20" />
+								<line x1="0" x2="100" y1="30" y2="30" />
+								<line x1="0" x2="100" y1="40" y2="40" />
+								<line x1="0" x2="100" y1="50" y2="50" />
+								<line x1="0" x2="100" y1="60" y2="60" />
+								<line x1="0" x2="100" y1="70" y2="70" />
+								<line x1="0" x2="100" y1="80" y2="80" />
+								<line x1="0" x2="100" y1="90" y2="90" />
+								<line x1="0" x2="100" y1="100" y2="100" />
+
+								<line x1="0" x2="0" y1="0" y2="100" />
+								<line x1="10" x2="10" y1="0" y2="100" />
+								<line x1="20" x2="20" y1="0" y2="100" />
+								<line x1="30" x2="30" y1="0" y2="100" />
+								<line x1="40" x2="40" y1="0" y2="100" />
+								<line x1="50" x2="50" y1="0" y2="100" />
+								<line x1="60" x2="60" y1="0" y2="100" />
+								<line x1="70" x2="70" y1="0" y2="100" />
+								<line x1="80" x2="80" y1="0" y2="100" />
+								<line x1="90" x2="90" y1="0" y2="100" />
+								<line x1="100" x2="100" y1="0" y2="100" />
+							</g>
+							<g class="graph-labels">
+								<text x="23" y="113">f (position)</text>
+								<text x="-3" y="113">0</text>
+								<text x="97" y="113">1</text>
+								
+								<text x="-18" y="50">in</text>
+								<text x="-20" y="60">out</text>
+								<text x="-10" y="103">0</text>
+								<text x="-10" y="5">1</text>
+								
+								<text x="2" y="92">a</text>
+								<text x="92" y="-5">b</text>
+							</g>
+							<g class="graph-dots">
+								<circle cx="0" cy="100" r="3" fill="#C84"/>
+								<circle cx="100" cy="0" r="3" fill="#C84"/>
+							</g>
+							<g id="cosineGraph" class="graph-dots">
+							</g>
+						</svg>
+					</div>					
+					<div class="col s4 center">
+						<svg viewbox="-20 -20 140 140">
+							<g class="graph-lines">
+								<line x1="0" x2="100" y1="100" y2="100" style="stroke-width:.5"/>
+								<line x1="0" x2="0" y1="0" y2="100" style="stroke-width:.5"/>
+								<line x1="0" x2="100" y1="0" y2="0" />
+								<line x1="0" x2="100" y1="10" y2="10" />
+								<line x1="0" x2="100" y1="20" y2="20" />
+								<line x1="0" x2="100" y1="30" y2="30" />
+								<line x1="0" x2="100" y1="40" y2="40" />
+								<line x1="0" x2="100" y1="50" y2="50" />
+								<line x1="0" x2="100" y1="60" y2="60" />
+								<line x1="0" x2="100" y1="70" y2="70" />
+								<line x1="0" x2="100" y1="80" y2="80" />
+								<line x1="0" x2="100" y1="90" y2="90" />
+								<line x1="0" x2="100" y1="100" y2="100" />
+
+								<line x1="0" x2="0" y1="0" y2="100" />
+								<line x1="10" x2="10" y1="0" y2="100" />
+								<line x1="20" x2="20" y1="0" y2="100" />
+								<line x1="30" x2="30" y1="0" y2="100" />
+								<line x1="40" x2="40" y1="0" y2="100" />
+								<line x1="50" x2="50" y1="0" y2="100" />
+								<line x1="60" x2="60" y1="0" y2="100" />
+								<line x1="70" x2="70" y1="0" y2="100" />
+								<line x1="80" x2="80" y1="0" y2="100" />
+								<line x1="90" x2="90" y1="0" y2="100" />
+								<line x1="100" x2="100" y1="0" y2="100" />
+							</g>
+							<g class="graph-labels">
+								<text x="23" y="113">f (position)</text>
+								<text x="-3" y="113">0</text>
+								<text x="97" y="113">1</text>
+								
+								<text x="-18" y="50">in</text>
+								<text x="-20" y="60">out</text>
+								<text x="-10" y="103">0</text>
+								<text x="-10" y="5">1</text>
+								
+								<text x="2" y="92">a</text>
+								<text x="92" y="-5">b</text>
+							</g>
+							<g class="graph-dots">
+								<circle cx="0" cy="100" r="3" fill="#C84"/>
+								<circle cx="100" cy="0" r="3" fill="#C84"/>
+							</g>
+							<g id="smoothGraph" class="graph-dots"></g>
+						</svg>
+					</div>
+				</div>
+			</div>	
+	
+			<div class="card blue-grey lighten-4 col s8 offset-s2">
+				<div class="chip">(NVIDIA CG)</div><pre>
+function noise2d(x,y) {
+	var ix = Math.floor(x);	//Integer X
+	var fx = x-ix;          //Fractional X
+	var iy = Math.floor(y);	//Integer Y
+	var fy = y-iy;          //Fractional Y
+	
+	var v1 = hash2d(ix  , iy  ); //Sample 
+	var v2 = hash2d(ix+1, iy  ); //4 integer points
+	var v3 = hash2d(ix  , iy+1); //around (x,y)
+	var v4 = hash2d(ix+1, iy+1);
+	
+	var i1 = coserp(v1, v2, fx); //Interpolate across x axis
+	var i2 = coserp(v3, v4, fx);
+	return coserp(i1, i2, fy); //Interpolate across y axis
+}</pre>
+			</div>
+			<div class="col s12">
+				<p>
+					
+				</p>
+			</div>
+			
 			<div class="card blue-grey darken-4 col s12">
 				<h5 class="white-text"><tt>Interpolation</tt></h5>
 				<svg viewbox="-20 -20 140 140" height="500px" xmlns="http://www.w3.org/2000/svg">
@@ -164,9 +381,9 @@ function hash2d(x, y) {
 					</g>
 					<g class="dist-labels">
 						<text x="27.5" y="17">ix</text>
-						<text x="48" y="17">1</text>
 						<text x="13" y="31">iy</text>
-						<text x="13" y="52">1</text>
+						<text x="48" y="17" fill="#C84">1</text>
+						<text x="13" y="52" fill="#C84">1</text>
 						<text x="45" y="35">fx</text>
 						<text x="31" y="44">fy</text>
 					</g>

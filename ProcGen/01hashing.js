@@ -71,6 +71,6 @@ $(document).ready( () => {
 	fillGrayscale("#hash2_grayscale", 12345.6789);
 	fillGrayscale("#hash3_grayscale", 9876.54321);
 	
-	//Refresh SVG elements by refreshing 
+	//Refresh SVG elements by refreshing page
 	$("body").html($("body").html());
 });

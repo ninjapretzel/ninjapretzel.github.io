@@ -9,6 +9,13 @@ function sin(n) { return Math.sin(n); }
 //global seed
 SEED = 1234.456;
 
+//Saturate (clamp) value between 0 and 1
+function saturate(n) {
+	if (n < 0) { return 0; }
+	else if (n > 1) { return 1; } 
+	return n; 
+}
+
 //Raw 1d hash function
 function hash(n) {
 	return frac(sin(n)*SEED);
@@ -20,6 +27,12 @@ function coserp(a, b, x) {
 	var ft = x * 3.1415927;
 	var f = (1 - Math.cos(ft)) * .5;
 	return a + (b-a) * f;
+}
+
+//'Hermite' interpolation, called 'smoothstep' in most shader/graphics languages
+function smoothstep(a, b, x) {
+	var t = saturate((x - a)/(b - a));
+    return t*t*(3.0 - (2.0*t));
 }
 
 //2d hash function
@@ -205,7 +218,30 @@ function wheel(e) {
 	draw();
 }
 
+
+function fill(id, interp) {
+	var container = $(id);
+	
+	for (var i = 0; i <= 1; i += .005) {
+		var cir = $("<circle />");
+		cir.attr("cx", ""+(0 + i * 100));
+		cir.attr("cy", ""+(100 - interp(0, 1, i) * 100 ));
+		cir.attr("r", ""+.5);
+		container.append(cir);
+	}
+	
+	
+}
+
 $(document).ready(()=>{
+	fill("#linearGraph", lerp);
+	fill("#cosineGraph", coserp);
+	fill("#smoothGraph", smoothstep);
+	
+	//Refresh SVG elements by refreshing page 
+	$("body").html($("body").html());
+	
+	
 	canvas = document.getElementById("canvas");
 	if (canvas.getContext) {
 		canvas.addEventListener("mouseup", mouseup);
@@ -217,5 +253,8 @@ $(document).ready(()=>{
 		ctx = canvas.getContext("2d");
 		
 		draw();
-	}
+	} 
+	
+	
+	
 });
