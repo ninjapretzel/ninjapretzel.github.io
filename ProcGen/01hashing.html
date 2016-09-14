@@ -10,22 +10,170 @@
 	</head>
 		
 	<body class="brown lighten-3">
-		<div class="container row">
+		<div class="container row brown lighten-2">
 			<div class="card blue-grey lighten-4 center"> 
 				<h1>Procedural Generation</h1>
-				<h3>Noise functions and Basis for Hgher-Order Noise</h3>
+				<h3>Noise functions and Basis for Higher-Order Noise</h3>
 			</div>
 			
 			<div class="col s12">
 				<h5>Introduction</h5>
 				<p>
-					Procedural generation is used in many applications in computer graphics 
-					and games. Most of the time, a simple random function is good enough to 
-					create small differences in outcomes of simple random events like dice rolls.
-					Dice rolls are good enough for simple things in games and modeling, but when
-					we are designing things that have some sort of ａｅｓｔｈｅｔｉｃ, we may want to
-					have noise that isn't purely random.
+					Procedural generation is used in many applications in computer graphics and games. 
+					The ideas of Procedural Generation have been around since some time in the late 70s and early 80s.
+					At that time, ProcGen was used to get around size limitations, as there was a tight
+					limit on the storage and RAM use of programs. It took less space to store a function
+					that produced some output, rather than store all of the output of the function.
+					The program could just crunch the function and calculate whatever data was needed. 
+					For example, in games, storing 2d 'map' data could take up lots of space.
+					A function that could produce map data took much less space to store, and could still run very quickly.
+					Some early games from the those days like "Beneath Apple Manor" and "Rouge" generated dungeons with rooms and corridors.
+					Early predecessors of the modern 'Endless Runner' like River Raid (1982) used ProcGen ideas to place objects as the player moved.
 				</p>
+				
+				<p>
+					The techniques used in these old games typically amounted to use of a pseudo-random number generator,
+					with a controlled 'seed' value used in the process of generation. Using a different 'seed' would give a different
+					pseudo-random sequence, and change the layout of the level. This pseudo-random function would be used for various things,
+					like deciding the horizontal position of an object placed on the top of the screen, or the width/length of a room or hallway.
+					At the same time, another group of people were using the same techniques, to promote their activities.
+				</p>
+					
+				<div class="col s12 card blue-grey darken-3 center row">
+					<div class="card blue-grey darken-2 col s4">
+						<div class="card-image">
+							<img src="./images/applemanor.gif" />
+						</div>
+						<h6>Beneath Apple Manor - 1978</h6>
+						<span class="tiny">Image from 
+							<a href="http://www.myabandonware.com/media/screenshots/b/beneath-apple-manor-256/beneath-apple-manor_5.gif">myabandonware.com</a>
+						</span>
+					</div>
+						
+					<div class="card blue-grey darken-2 col s4">
+						<div class="card-image">
+							<img src="./images/rouge.gif" />
+						</div>	
+						<h6>Rouge - 1980</h6>
+						<span class="tiny">Image from 
+							<a href="http://image.dosgamesarchive.com/screenshots/rogue2.gif">dosgamesarchive.com</a>
+						</span>
+					</div>
+					
+					<div class="card blue-grey darken-2 col s4">
+						<div class="card-image">
+							<img src="./images/nethack.gif" />
+						</div>	
+						<h6>Nethack - 1987</h6>
+						<span class="tiny">Image posted on  
+							<a href="http://www.echoingthesound.org/community/threads/910-NetHack">echoingthesound.org</a>
+							<a href="https://danielkinsman.files.wordpress.com/2011/10/nethack.gif">(direct link)</a>
+						</span>
+					</div>
+					
+					
+				</div>
+				
+				<p>
+					Demos are tiny programs that were originally inserted alongside pirated software to advertise the skill of the group that 'hacked' 
+					that software. These programs were engineered to be as small as possible, and be as optimized as possible, capable of creating
+					animated images set to some synthesized music. These little programs inside of pirated software eventually lead to the creation
+					of the 'Demoscene' - A group of people who make demos, not for software pirates, but for fun.
+				</p>
+				
+				<p>
+					These 'Demos' didn't really use random functions like games did, but instead used mathematical functions to represenat things.
+					This allowed them to create programs that produced impressive visuals and sound/music, with a minimal program size and memory usage.
+				</p>
+				
+				<div class="col s12 card blue-grey darken-3 center row">
+					<div class="card blue-grey darken-2 col s4 offset-s2">
+						<div class="card-image">
+							<img src="images/c64-swinth.png" />
+						</div>
+						<h6>Swinth - 1985</h6>
+						<span class="tiny">Image from a video of the demo on 
+							<a href="https://www.youtube.com/watch?v=gE3KaHb-GJs">Youtube</a>
+						</span>
+					</div>
+					<div class="card blue-grey darken-2 col s4">
+						<div class="card-image">
+							<img src="images/c64-christmas.png" />
+						</div>
+						<h6>Compunet Christmas - 1985</h6>
+						<span class="tiny">Image from a video of the demo on 
+							<a href="https://www.youtube.com/watch?v=QG8iTTndQgg">Youtube</a>
+						</span>
+					</div>
+				</div>
+					
+				<p>
+					To this day, Procedural Generation is still used, but in many more complex ways. Many games use procedural generation
+					to store as little data as possible, and create massive worlds. The game ".kkriger", released in 2004 as an entry into
+					a competition, was only 96kb in size, but had graphical fidelity comparable to its industry peers.
+				</p>
+				<div class="col s12 card blue-grey darken-3 center row">
+					<h6>Screenshots from '.kkriger' - 2004 by '.theprodukkt'</h6>
+					<div class="card blue-grey darken-2 col s4">
+						<div class="card-image">
+							<img src="images/kkrieger.png" />
+						</div>
+					</div>
+					<div class="card blue-grey darken-2 col s4">
+						<div class="card-image">
+							<img src="images/kkrieger2.png" />
+						</div>
+					</div>
+					<div class="card blue-grey darken-2 col s4">
+						<div class="card-image">
+							<img src="images/kkrieger3.png" />
+						</div>
+					</div>
+					<div class="col s12">
+						<span class="tiny">
+							Screenshots taken by myself.
+							.kkrieger is a 96kb game. A windows download can be found
+							<a href="http://www.pouet.net/prod.php?which=12036">here</a>.
+						</span>
+					</div>
+				</div>
+				
+				<p>
+					More recently, 'Graphics Card' technology has gotten powerful enough to generate incredible graphics in real time.
+					Through a number of 3d rendering techniques, using Raycasting, objects with mathematically defined topologies, and fractals,
+					a shader can be created to render incredibly complex 3d scenes, in real time. No inputs are needed, and the shader 
+					calculates and renders the scene, every frame. One recent release, 'Optical Circuit' (Japanese Title '光回路'), released at
+					Tokyo Demo Fest 2015. 
+				</p>
+				
+				<div class="col s12 card blue-grey darken-3 center row">
+					<h6>Stills from 'Optical Circuit (光回路)' - 2015 by '0x4015'</h6>
+					<div class="card card blue-grey darken-2 col s4">
+						<div class="card-image">
+							<img src="images/OpticalCircuit.jpg" />
+						</div>
+						
+					</div>
+					<div class="card card blue-grey darken-2 col s4">
+						<div class="card-image">
+							<img src="images/OpticalCircuit2.jpg" />
+						</div>
+						
+					</div>
+					<div class="card card blue-grey darken-2 col s4">
+						<div class="card-image">
+							<img src="images/OpticalCircuit3.jpg" />
+						</div>
+					</div>
+					<div class="col s12">
+						<span class="tiny">
+							Screenshots taken myself. 
+							Optical Circuit is a 4kb demo. A windows download can be found
+							<a href="http://www.pouet.net/prod.php?which=65125">here</a>.
+						</span>
+					</div>	
+				</div>
+				
 				<p>
 					When worlds are being crafted, pure randomness just creates boring, repetititive garbage.
 					For example, terrain generated with just a random diceroll function would be completely incoherent,
