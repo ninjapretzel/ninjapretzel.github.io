@@ -5,12 +5,13 @@
 		<link rel="stylesheet" href="./styles.css">
 		<script src="https://code.jquery.com/jquery-3.1.0.min.js"></script>
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.7/js/materialize.min.js"></script>
+		<script src="common.js"></script>
 		<script src="02coherence.js"></script>
 		
 	</head>
 		
 	<body class="brown lighten-3">
-		<div class="container row">
+		<div class="container row brown lighten-2">
 			<div class="card blue-grey lighten-4 center"> 
 				<h1>Procedural Generation</h1>
 				<h3>Noise functions and Basis for Higher-Order Noise</h3>
@@ -33,7 +34,7 @@
 				</p>
 			</div> 
 
-			<div class="card blue-grey darken-4 col s12">
+			<div class="card blue-grey darken-4 col s12 center">
 				<h5 class="white-text">Comparison of 'raw' noise and 'coherent' noise</h5>
 				<tt class="cyan-text text-lighten-3">Interactive; Click and drag to move the noise fields!</tt>
 				<br>
@@ -41,17 +42,21 @@
 					
 				</canvas>
 				<br>
-				<span>If you want a version of this that can run on your graphics card, go <a href="http://glslsandbox.com/e#35207.3">here</a>.</span>
+				<span>
+					If you want a version of this that can run on your graphics card, go 
+					<a href="http://glslsandbox.com/e#35207.3">here</a>
+					or <a href="https://www.shadertoy.com/view/llKGzm">here</a>.
+				</span>
 			</div>	
 			
 			<div class="col s12">
 				<p>
 					Some stuff to note: 
-					<ul>
+					<ol>
 						<li>At any scale, the raw noise looks roughly the same- like old TV static.</li>
 						<li>At Integer Positions, when zoomed all the way out, all 3 textures look roughly the same</li>
 						<li>Many features are present in both the Interpolated Noise and the Smoothed Interpolated Noise at any scale</li>
-					</ul>
+					</ol>
 				</p>
 			
 				<p>
@@ -68,7 +73,7 @@
 			<div class="card blue-grey lighten-4 col s8 offset-s2">
 				<div class="chip">(NVIDIA CG)</div><pre>
 float hash2d(float x, float y) { 
-	return hash(x + 1337*y);
+	return hash(x + 1333.0 * y);
 }</pre>
 			</div>	
 			
@@ -84,7 +89,7 @@ float hash2d(float x, float y) {
 			</div>
 	
 			<div class="card blue-grey lighten-4 col s8 offset-s2">
-				<div class="chip">(NVIDIA CG)</div><pre>function lerp(a, b, x) { return a + (b-a) * x; }</pre>
+				<div class="chip">(NVIDIA CG)</div><pre>float lerp(float a, float b, float x) { return a + (b-a) * x; }</pre>
 			</div>
 	
 			<div class="col s12">
@@ -97,28 +102,34 @@ float hash2d(float x, float y) {
 			
 			<div class="card blue-grey lighten-4 col s8 offset-s2">
 				<div class="chip">(NVIDIA CG)</div><pre>
-function coserp(a, b, x) { 
-	var ft = x * 3.1415927;
-	var f = (1 - Math.cos(ft)) * .5;
+float coserp(float a, float b, float x) { 
+	float ft = x * 3.1415927;
+	float f = (1 - cos(ft)) * .5;
 	return a + (b-a) * f;
 }
 
-function smoothstep(a, b, x) {
-	var t = saturate((x - a)/(b - a));
-    return t*t*(3.0 - (2.0*t));
+float smoothstep(float a, float b, float x) {
+	float t = saturate((x - a)/(b - a));
+	return t*t*(3.0 - (2.0*t));
 }
 </pre>
+				<span class="tiny">Note: the saturate function clamps a value between 0 and 1.</span>
 			</div>
-			
 	
 			<div class="card blue-grey darken-4 col s12">
 				<div class="row">
-					<div class="col s12 center white-text">
+					<div class="col s12 center white-text row">
 						<h5>Comparison of Different Interpolation Functions</h5>
-						For all of these graphs, a is 0, and b is 1.
-						The vertical represents the inputs 'a' and 'b', as well as the output of the function.
-						The horizontal represents the input 'f'.
-						Also, all of these interpolation methods not only work for scalars, but also on vectors of any length.
+						<div class="col s8 offset-s2 small">
+							For all of these graphs, a is 0, and b is 1.
+							The vertical represents the inputs 'a' and 'b', as well as the output of the function.
+							The horizontal represents the input 'f'.
+							Also, all of these interpolation methods not only work for scalars, but also on vectors of any length.
+						</div>
+						
+						<div class="col s12">
+							The inputs to all of these functions is '.65'
+						</div>
 					</div>
 					<div class="col s12">.</div>
 					<div class="col s4 center white-text">Linear<br><tt>lerp(a, b, f)</tt></div>
@@ -158,8 +169,9 @@ function smoothstep(a, b, x) {
 								<text x="-3" y="113">0</text>
 								<text x="97" y="113">1</text>
 								
-								<text x="-18" y="50">in</text>
-								<text x="-20" y="60">out</text>
+								<text x="-18" y="50">a,b</text>
+								<text x="-20" y="65">out</text>
+								
 								<text x="-10" y="103">0</text>
 								<text x="-10" y="5">1</text>
 								
@@ -209,8 +221,8 @@ function smoothstep(a, b, x) {
 								<text x="-3" y="113">0</text>
 								<text x="97" y="113">1</text>
 								
-								<text x="-18" y="50">in</text>
-								<text x="-20" y="60">out</text>
+								<text x="-18" y="50">a,b</text>
+								<text x="-20" y="65">out</text>
 								<text x="-10" y="103">0</text>
 								<text x="-10" y="5">1</text>
 								
@@ -259,8 +271,8 @@ function smoothstep(a, b, x) {
 								<text x="-3" y="113">0</text>
 								<text x="97" y="113">1</text>
 								
-								<text x="-18" y="50">in</text>
-								<text x="-20" y="60">out</text>
+								<text x="-18" y="50">a,b</text>
+								<text x="-20" y="65">out</text>
 								<text x="-10" y="103">0</text>
 								<text x="-10" y="5">1</text>
 								
@@ -277,27 +289,48 @@ function smoothstep(a, b, x) {
 				</div>
 			</div>	
 	
+			<div class="col s12">
+				<p>
+					As can be seen from the above graphs, lerp is a rough line between two points. 
+					Cosine interpolation and 'smoothStep' look roughly the same. The difference is in their implementations.
+					Depending on how the cosine function is implemented in the environment (lookup table, crunching a polynomial, or an actual evaluation),
+					the performance of the function may change. Typically the 'smoothstep' interpolation function is used.
+				</p>
+				
+				<p>
+					The function can then be applied to interpolate between output of a hash function at given points.<br>
+					Consider the following code:
+				</p>
+
+			</div>	
+	
 			<div class="card blue-grey lighten-4 col s8 offset-s2">
 				<div class="chip">(NVIDIA CG)</div><pre>
-function noise2d(x,y) {
-	var ix = Math.floor(x);	//Integer X
-	var fx = x-ix;          //Fractional X
-	var iy = Math.floor(y);	//Integer Y
-	var fy = y-iy;          //Fractional Y
+//Coherent, 2d noise function
+float noise2d(float2 v) {
+	float ix = floor(v.x);   //Integer X
+	float fx = v.x-ix;       //Fractional X
+	float iy = floor(v.y);   //Integer Y
+	float fy = v.y-iy;       //Fractional Y
 	
-	var v1 = hash2d(ix  , iy  ); //Sample 
-	var v2 = hash2d(ix+1, iy  ); //4 integer points
-	var v3 = hash2d(ix  , iy+1); //around (x,y)
-	var v4 = hash2d(ix+1, iy+1);
+	float v1 = hash2d(ix  , iy  ); //Sample 
+	float v2 = hash2d(ix+1, iy  ); //4 integer points
+	float v3 = hash2d(ix  , iy+1); //around (x,y)
+	float v4 = hash2d(ix+1, iy+1);
 	
-	var i1 = coserp(v1, v2, fx); //Interpolate across x axis
-	var i2 = coserp(v3, v4, fx);
-	return coserp(i1, i2, fy); //Interpolate across y axis
+	float i1 = smoothstep(v1, v2, fx); //Interpolate across x axis
+	float i2 = smoothstep(v3, v4, fx); 
+	return smoothstep(i1, i2, fy);     //Interpolate across y axis
 }</pre>
 			</div>
 			<div class="col s12">
 				<p>
-					
+					This is a 2-dimensional interpolation. We sample 4 points (at integer positions). Then we apply an interpolation function
+					between the sampled values, and the fractional position of the target.
+				</p>
+				
+				<p>
+					Here is a graphical representation of what this looks like.
 				</p>
 			</div>
 			
@@ -392,6 +425,13 @@ function noise2d(x,y) {
 				</svg>
 			</div>
 			
+			<div class="col s12">
+				<p>
+					All of these features together finally give us a nice coherent noise function.
+					Here are the properties that any function would need to be coherent noise:
+				</p>
+			</div>
+	
 			<div class="card blue-grey lighten-3 col s10 offset-s1">
 				<h4>Coherent Noise: Definition</h4>
 				<p>
@@ -405,7 +445,36 @@ function noise2d(x,y) {
 				</p>
 			</div>
 					
-			
+			<div class="col s12">
+				<p>
+					This is just one of many possible noise functions- Coherent noise can be created in a few different ways.
+					Depending on how the noise function is constructed, the resulting noise can look very different. There are also
+					ways to create noise that doesn't degrade as quickly due to floating point precision loss, such as spiral noise (that makes heavy
+					use of sine and cosine functions at different phases).
+				</p>
+			</div>
+
+			<div class="col s12 card blue-grey darken-3 center row">
+					<h6>Screenshots from various noises, degraded vs stable</h6>
+					<div class="card blue-grey darken-2 col s6">
+						<div class="card-image">
+							<img src="images/normal_1.png" />
+						</div>
+						<a href="http://glslsandbox.com/e#27926.0">
+							'Stable' version of noise A
+						</a><br>
+						Zoom Factor of 1
+					</div>
+					<div class="card blue-grey darken-2 col s6">
+						<div class="card-image">
+							<img src="images/degraded_1.png" />
+						</div>
+						<a href="http://glslsandbox.com/e#35271.0">
+							'Degraded' version of noise A
+						</a><br>
+						Zoom Factor of 10,000, on a low-precision graphics card.
+					</div>
+				</div>
 					
 					
 					

@@ -230,6 +230,24 @@ function fill(id, interp) {
 		container.append(cir);
 	}
 	
+		
+	var dot = $("<circle />");
+	var val = interp(0, 1, .65);
+
+	dot.attr("cx", ""+(65));
+	dot.attr("cy", ""+(100 - val * 100 ));
+	dot.attr("r", ""+2);
+	dot.attr("fill", "#C44");
+	container.append(dot);
+
+	var t = $("<text />");
+	t.text("(f, " + val.toFixed(4) + ")");
+	t.toggleClass("tiny");
+	t.attr("x", ""+(15));
+	t.attr("y", ""+(100 - val * 100));
+	t.attr("fill", "#C44");
+	container.append(t);
+
 	
 }
 
@@ -237,6 +255,8 @@ $(document).ready(()=>{
 	fill("#linearGraph", lerp);
 	fill("#cosineGraph", coserp);
 	fill("#smoothGraph", smoothstep);
+	
+	clickableImages();
 	
 	//Refresh SVG elements by refreshing page 
 	$("body").html($("body").html());

@@ -63,6 +63,8 @@ function fillGrayscale(id, seed) {
 	
 }
 
+
+
 $(document).ready( () => {
 	
 	fillPoints("#hash1", 31337.1337);
@@ -71,6 +73,9 @@ $(document).ready( () => {
 	fillGrayscale("#hash2_grayscale", 12345.6789);
 	fillGrayscale("#hash3_grayscale", 9876.54321);
 	
+	clickableImages();
 	//Refresh SVG elements by refreshing page
 	$("body").html($("body").html());
+	
+	
 });

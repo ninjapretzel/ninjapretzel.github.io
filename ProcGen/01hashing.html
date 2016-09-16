@@ -5,6 +5,7 @@
 		<link rel="stylesheet" href="./styles.css">
 		<script src="https://code.jquery.com/jquery-3.1.0.min.js"></script>
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.7/js/materialize.min.js"></script>
+		<script src="common.js"></script>
 		<script src="01hashing.js"></script>
 		
 	</head>
@@ -13,7 +14,7 @@
 		<div class="container row brown lighten-2">
 			<div class="card blue-grey lighten-4 center"> 
 				<h1>Procedural Generation</h1>
-				<h3>Noise functions and Basis for Higher-Order Noise</h3>
+				<h3>Noise Functions</h3>
 			</div>
 			
 			<div class="col s12">
@@ -132,7 +133,8 @@
 					<div class="col s12">
 						<span class="tiny">
 							Screenshots taken by myself.
-							.kkrieger is a 96kb game. A windows download can be found
+							.kkrieger is a 96kb game. These images are about 1.5-2 times as large, each!<br>
+							A windows download can be found
 							<a href="http://www.pouet.net/prod.php?which=12036">here</a>.
 						</span>
 					</div>
@@ -168,35 +170,64 @@
 					<div class="col s12">
 						<span class="tiny">
 							Screenshots taken myself. 
-							Optical Circuit is a 4kb demo. A windows download can be found
-							<a href="http://www.pouet.net/prod.php?which=65125">here</a>.
+							Optical Circuit is a 4kb demo - These images are 40-50 times larger, each!<br>
+							A windows download can be found
+							<a href="http://www.pouet.net/prod.php?which=65125">here</a>. <br>
+							An embedded version of the shader can be found
+							<a href="http://glslsandbox.com/e#23482.0">here</a>.
 						</span>
 					</div>	
 				</div>
 				
 				<p>
-					When worlds are being crafted, pure randomness just creates boring, repetititive garbage.
+					In the early days of gaming, a little randomness went a long way, and could be used to define properties
+					of things that the game creates, such as their position on a grid, their size on that grid, and other things
+					that are directly mathematical. The seed value could be easily controlled so that the same world could be 
+					created every time, if desired. These days, there may be many more objects in the game world that need to be
+					generated procedurally, or properties of the objects must be controlled with finer granularity. A simple random
+					function with a controlled seed isn't good enough, and isn't able to produce everything.
 					For example, terrain generated with just a random diceroll function would be completely incoherent,
 					there would be no geological features, but just a sea of peaks and valleys crammed close together.
 					We would want to get a better noise function that can be used to create more believable worlds.
 				</p>
 				
 				<p>
-					Another property we want is to be able to reproduce the same outcomes for the same inputs. 
-					The output of our 'random' functions must not be <i>truely random</i>, but just <i>statistically random.</i>
-					A truely random function could not generate the same output for the same input. 
-					It's a good thing computers are highly deterministic, as this makes creating predictable,pseudorandom noise much easier,
+					We also want to be able to reproduce the same outcomes for the same inputs, and not have the process reliant on state.
+					Controlling the seed of a random function to control the random sequence solves the reproducability problem, 
+					but leaves the process reliant on state, and also prevents us from parallelizing the generation processes. 
+				</p>
+					
+				<p>
+					Additionally, the output of our 'random' functions must not be <i>truely random</i>, but just <i>statistically random.</i>
+					It's actually a good thing computers are highly deterministic, as this makes creating predictable, pseudorandom noise much easier,
 					and this also has the benefit of making our pseudorandom numbers able to be generated in parallel.
 				</p>
 				
+			</div>
+			<div class="card blue-grey lighten-3 col s10 offset-s1">
+				<h4>Useful properties for Procedural Generation</h4>
 				<p>
+					<ol>
+						<li>Same outcomes for same inputs</li>
+						<li>No reliance on program state (Seed value shouldn't change when randomness is calculated) </li>
+						<li>Easily Parallelized (Can run the procedural generation for any two 'things' at the same time)</li>
+						<li><i>Statistically</i> Random outputs for any given inputs</li>
+					</ol>
+				</p>
+			</div>
+			<div class="col s12">
+				<p>
+					A functional solution will provide all of the properties that we want.
+				</p>
+				<div class="tiny blue-grey darken-1">
+					Note:<br>
 					There will be a few different languages used, mostly Nvidia Cg (C for Graphics) and OpenGLSL
-					(Open Graphics Library Shader Language). There are minor differences between
+					(Open Graphics Library Shader Language, or GLSL). There are minor differences between
 					these two languages, so each code snippit will have the language it is in noted.
 					Some of the samples will be created in JavaScript so they can run inside the webpage.
-					Other samples will include 'GLSLSandbox' shaders (OpenGLSL code, runs in the browser),
+					Other samples will include 'GLSLSandbox' shaders (GLSL code, runs in the browser),
 					And executables with Cg shader code.
-				</p>
+				</div>
 
 				<h5>Hashing and Noise</h5>
 				<p>
@@ -264,12 +295,37 @@ float hash(float n) {
 			<div class="col s12">
 				<p>
 					Now, this function isn't perfect either, in fact, there are drawbacks to this function that the other function doesn't have:
-					Floating point rounding can create large 'artifacts' at points that are very far away from zero, and, on different
+					Floating point rounding can create 'artifacts' at points that are very far away from zero, and, on different
 					hardware (graphics cards), floating point numbers may have different sizes. This results in noise based off of this kind of
 					hash function looking different based on the precision of the hardware. Typically, it is expected to be a 32-bit floating point number.
 					Depending on the specifics, on older hardware, it may be a 24-bit or 16-bit.
 				</p>
+			</div>
 				
+			<div class="col s10 card blue-grey darken-3 center row offset-s1">
+				<p>
+					Example of artifacts caused by low precision, compared to a 'normal' texture
+				</p>
+				<div class="col s6 card blue-grey darken-2 row">
+					Procedural texture
+					<div class="card-image">
+						<img src="images/artifacts.jpg" />
+					</div>
+					<div class="col s6">Artifacted</div>
+					<div class="col s6">Normal</div>
+				</div>
+				<div class="col s6 card blue-grey darken-2 row">
+					One layer of noise in texture
+					<div class="card-image">
+						<img src="images/artifacts2.jpg" />
+					</div>
+					<div class="col s6">Artifacted</div>
+					<div class="col s6">Normal</div>
+				</div>
+			</div>
+			
+				
+			<div class="col s12">
 				<p>
 					Lets look at some specific stuff about the smaller, quick hash function.<br>
 					<TT>SEED</TT> is a value to scale the distribution of the random function.<br>
