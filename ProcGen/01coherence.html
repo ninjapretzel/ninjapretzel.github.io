@@ -6,7 +6,7 @@
 		<script src="https://code.jquery.com/jquery-3.1.0.min.js"></script>
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.7/js/materialize.min.js"></script>
 		<script src="common.js"></script>
-		<script src="02coherence.js"></script>
+		<script src="01coherence.js"></script>
 		
 	</head>
 		
@@ -14,7 +14,7 @@
 		<div class="container row brown lighten-2">
 			<div class="card blue-grey lighten-4 center"> 
 				<h1>Procedural Generation</h1>
-				<h3>Noise functions and Basis for Higher-Order Noise</h3>
+				<h3>Coherence and Degredation of Noise</h3>
 			</div>
 			
 			<div class="col s12">
@@ -128,7 +128,7 @@ float smoothstep(float a, float b, float x) {
 						</div>
 						
 						<div class="col s12">
-							The inputs to all of these functions is '.65'
+							The inputs to all of these functions is (0, 1, .65)
 						</div>
 					</div>
 					<div class="col s12">.</div>
@@ -169,14 +169,10 @@ float smoothstep(float a, float b, float x) {
 								<text x="-3" y="113">0</text>
 								<text x="97" y="113">1</text>
 								
-								<text x="-18" y="50">a,b</text>
 								<text x="-20" y="65">out</text>
 								
-								<text x="-10" y="103">0</text>
-								<text x="-10" y="5">1</text>
-								
-								<text x="2" y="92">a</text>
-								<text x="92" y="-5">b</text>
+								<text x="-10" y="103">a</text>
+								<text x="-10" y="5">b</text>
 							</g>
 							<g class="graph-dots">
 								<circle cx="0" cy="100" r="3" fill="#C84"/>
@@ -221,13 +217,9 @@ float smoothstep(float a, float b, float x) {
 								<text x="-3" y="113">0</text>
 								<text x="97" y="113">1</text>
 								
-								<text x="-18" y="50">a,b</text>
 								<text x="-20" y="65">out</text>
-								<text x="-10" y="103">0</text>
-								<text x="-10" y="5">1</text>
-								
-								<text x="2" y="92">a</text>
-								<text x="92" y="-5">b</text>
+								<text x="-10" y="103">a</text>
+								<text x="-10" y="5">b</text>
 							</g>
 							<g class="graph-dots">
 								<circle cx="0" cy="100" r="3" fill="#C84"/>
@@ -271,13 +263,9 @@ float smoothstep(float a, float b, float x) {
 								<text x="-3" y="113">0</text>
 								<text x="97" y="113">1</text>
 								
-								<text x="-18" y="50">a,b</text>
 								<text x="-20" y="65">out</text>
-								<text x="-10" y="103">0</text>
-								<text x="-10" y="5">1</text>
-								
-								<text x="2" y="92">a</text>
-								<text x="92" y="-5">b</text>
+								<text x="-10" y="103">a</text>
+								<text x="-10" y="5">b</text>
 							</g>
 							<g class="graph-dots">
 								<circle cx="0" cy="100" r="3" fill="#C84"/>
@@ -291,8 +279,8 @@ float smoothstep(float a, float b, float x) {
 	
 			<div class="col s12">
 				<p>
-					As can be seen from the above graphs, lerp is a rough line between two points. 
-					Cosine interpolation and 'smoothStep' look roughly the same. The difference is in their implementations.
+					As can be seen from the above graphs, lerp is just a line between two points. 
+					Cosine interpolation and 'smoothStep' look roughly the same, but have slightly different outputs. The difference is in their implementations.
 					Depending on how the cosine function is implemented in the environment (lookup table, crunching a polynomial, or an actual evaluation),
 					the performance of the function may change. Typically the 'smoothstep' interpolation function is used.
 				</p>
@@ -334,7 +322,7 @@ float noise2d(float2 v) {
 				</p>
 			</div>
 			
-			<div class="card blue-grey darken-4 col s12">
+			<div class="card blue-grey darken-4 col s8 offset-s2 center">
 				<h5 class="white-text"><tt>Interpolation</tt></h5>
 				<svg viewbox="-20 -20 140 140" height="500px" xmlns="http://www.w3.org/2000/svg">
 					<g class="graph-lines">
@@ -452,31 +440,189 @@ float noise2d(float2 v) {
 					ways to create noise that doesn't degrade as quickly due to floating point precision loss, such as spiral noise (that makes heavy
 					use of sine and cosine functions at different phases).
 				</p>
+				<p>
+					Depending on the construction of the noise, it can have a different look, tiling period, and speed of calculation.
+					It may also degrade at a different rate, and need to be looked at at different scales.
+					Here is a comparison of some of the looks and degredation patterns of different kinds of noise.
+				</p>
 			</div>
 
-			<div class="col s12 card blue-grey darken-3 center row">
-					<h6>Screenshots from various noises, degraded vs stable</h6>
-					<div class="card blue-grey darken-2 col s6">
-						<div class="card-image">
-							<img src="images/normal_1.png" />
-						</div>
-						<a href="http://glslsandbox.com/e#27926.0">
-							'Stable' version of noise A
-						</a><br>
-						Zoom Factor of 1
+			<div class="col s12 card blue-grey darken-2 center row">
+				<h6>Screenshots from various noises, their field images, and various edges (if applicable)</h6>
+				
+				<div class="col s12 row card blue-grey darken-3">
+					<div class="col s12 card blue-grey darken-4 white-text">Our Noise</div>
+					<div class="card blue-grey darken-2 col s3">
+						<div class="card-image"> <img src="images/normal_0.png" /> </div>
+						<a href="http://glslsandbox.com/e#35283.1"> Stable </a><br>
+						<span class="tiny"> Zoom Factor of 128 around (0,0) </span>
 					</div>
-					<div class="card blue-grey darken-2 col s6">
-						<div class="card-image">
-							<img src="images/degraded_1.png" />
-						</div>
-						<a href="http://glslsandbox.com/e#35271.0">
-							'Degraded' version of noise A
-						</a><br>
-						Zoom Factor of 10,000, on a low-precision graphics card.
+
+					<div class="card blue-grey darken-2 col s3">
+						<div class="card-image"> <img src="images/degraded_0.png" /> </div>
+						<a href="http://glslsandbox.com/e#35283.6"> Noise Field </a><br>
+						<span class="tiny"> Zoom Factor of 628000 around (0,0) </span>
+					</div>
+
+					<div class="card blue-grey darken-2 col s3">
+						<div class="card-image"> <img src="images/distant_0.png" /> </div>
+						<a href="http://glslsandbox.com/e#35283.5"> Middle Edge </a><br>
+						<span class="tiny"> Zoom Factor of 128 around (0,48111) </span>
+					</div>
+
+					<div class="card blue-grey darken-2 col s3">
+						<div class="card-image"> <img src="images/distant_0_1.png" /> </div>
+						<a href="http://glslsandbox.com/e#35283.4"> Far Edge </a><br>
+						<span class="tiny"> Zoom Factor of 128 around (0,192350) </span>
+					</div>
+					
+					<div class="col s12">
+						Notes:<br>
+						Scale factor is quite large 128, and low detail. This is just a single layer of noise.
+						Most of the others in this section are 'Fractal Noise' (Discussed in the second 'paper').
+						Also, for most of these, exact positions of edges may be different for different hardware.
 					</div>
 				</div>
+				
+				<div class="col s12 row card blue-grey darken-3">
+					<div class="col s12 card blue-grey darken-4 white-text">'Voronoise'</div>
+					<div class="card blue-grey darken-2 col s3">
+						<div class="card-image"> <img src="images/normal_1.png" /> </div>
+						<a href="http://glslsandbox.com/e#27926.0"> Stable </a><br>
+						<span class="tiny"> Zoom Factor of 1 around (0,0) </span>
+					</div>
 					
+					<div class="card blue-grey darken-2 col s3">
+						<div class="card-image"> <img src="images/degraded_1.png" /> </div>
+						<a href="http://glslsandbox.com/e#35271.0"> Noise Field </a><br>
+						<span class="tiny"> Zoom Factor of 10000 around (0,0) </span>
+					</div>
 					
+					<div class="card blue-grey darken-2 col s3">
+						<div class="card-image"> <img src="images/distant_1.png" /> </div>
+						<a href="http://glslsandbox.com/e#35281.1"> Middle Edge </a><br>
+						<span class="tiny"> Zoom Factor of 1, around (411.5, 411.5) </span>
+					</div>
+					<div class="card blue-grey darken-2 col s3">
+						<div class="card-image"> <img src="images/distant_1_2.png" /> </div>
+						<a href="http://glslsandbox.com/e#35281.2"> Far Edge </a><br>
+						<span class="tiny"> Zoom Factor of 1, around (823, 823) </span>
+					</div>
+					<div class="col s12">
+						Notes:<br>
+						This gives more detail, and a more interesting appearance.
+						The noise 'primitive' that is used, is also a type of noise that is based on voroni distance and blur filters,
+						but is built on the same sort of noise that ours is.
+						
+					</div>
+				</div>
+				
+				<div class="col s12 row card blue-grey darken-3">
+					<div class="col s12 card blue-grey darken-4 white-text">'Convergent Noise'</div>
+					<div class="card blue-grey darken-2 col s3">
+						<div class="card-image"> <img src="images/normal_2.png" /> </div>
+						<a href="http://glslsandbox.com/e#27919.2"> Stable </a><br>
+						<span class="tiny"> Zoom Factor of 15 around (0,0) </span>
+					</div>
+					
+					<div class="card blue-grey darken-2 col s3">
+						<div class="card-image"> <img src="images/degraded_2.png" /> </div>
+						<a href="http://glslsandbox.com/e#35270.0"> Noise Field </a><br>
+						<span class="tiny"> Zoom Factor of 5333 around (0,0) </span>
+					</div>
+					
+					<div class="card blue-grey darken-2 col s3">
+						<div class="card-image"> <img src="images/distant_2.png" /> </div>
+						<a href="http://glslsandbox.com/e#35270.4"> Middle Edge </a><br>
+						<span class="tiny"> Zoom Factor of 200, around (2595, 20600) </span>
+					</div>
+					<div class="card blue-grey darken-2 col s3">
+						<div class="card-image"> <img src="images/distant_2_2.png" /> </div>
+						<a href="http://glslsandbox.com/e#35270.5"> Far Edge </a><br>
+						<span class="tiny"> Zoom Factor of 200, around (17655, 6250) </span>
+					</div>
+					<div class="col s12">
+						Notes:<br>
+						This noise is based on converging number series. An interesting implementation of a noise function, 
+						and the noise layers that are added are rotated from each other to mask the period of the noise.
+					</div>
+				</div>
+				
+				<div class="col s12 row card blue-grey darken-3">
+					<div class="col s12 card blue-grey darken-4 white-text">'Elastic Noise'</div>
+					<div class="card blue-grey darken-2 col s3">
+						<div class="card-image"> <img src="images/normal_3.png" /> </div>
+						<a href="http://glslsandbox.com/e#27917.1"> Stable </a><br>
+						<span class="tiny"> Zoom Factor of 10 around (0,0) </span>
+					</div>
+					
+					<div class="card blue-grey darken-2 col s3">
+						<div class="card-image"> <img src="images/degraded_3.png" /> </div>
+						<a href="http://glslsandbox.com/e#35272.0"> Noise Field </a><br>
+						<span class="tiny"> Zoom Factor of 300000000 around (0,0) </span>
+					</div>
+					
+					<div class="card blue-grey darken-2 col s3">
+						<div class="card-image"> <img src="images/distant_3.png" /> </div>
+						<a href="http://glslsandbox.com/e#35272.2"> Middle Region </a><br>
+						<span class="tiny"> Zoom Factor of 100, around (0, 26353580) </span>
+					</div>
+					<div class="card blue-grey darken-2 col s3">
+						<div class="card-image"> <img src="images/distant_3_2.png" /> </div>
+						<a href="http://glslsandbox.com/e#35272.1"> Far Region</a><br>
+						<span class="tiny"> Zoom Factor of 100, around (26353600, 26353600) </span>
+					</div>
+					<div class="col s12">
+						Notes:<br>
+						This version didn't come with any documentation comments, so I came up with the name myself.
+						The noise is constructed from many interlaced sin/cos functions based on the x and y positions of the points.
+						It doesn't degrade evenly, hence the odd cross pattern in the noise field. It also has an absolutely massive noise field, but still suffers
+						from degredation as early as 10000 units away from the origin, like most other functions.
+					</div>
+				</div>
+				
+				<div class="col s12 row card blue-grey darken-3">
+					<div class="col s12 card blue-grey darken-4 white-text">'Flow Noise'</div>
+					<div class="card blue-grey darken-2 col s3">
+						<div class="card-image"> <img src="images/normal_4.png" /> </div>
+						<a href="http://glslsandbox.com/e#27914.0"> Stable </a><br>
+						<span class="tiny"> Zoom Factor of 10 around (0,0) </span>
+					</div>
+					
+					<div class="card blue-grey darken-2 col s3">
+						<div class="card-image"> <img src="images/degraded_4.png" /> </div>
+						<a href="http://glslsandbox.com/e#35273.0"> Noise Field </a><br>
+						<span class="tiny"> Zoom Factor of 20000000 around (0,0) </span>
+					</div>
+					
+					<div class="card blue-grey darken-2 col s3">
+						<div class="card-image"> <img src="images/distant_4.png" /> </div>
+						<a href="http://glslsandbox.com/e#35273.1"> Distant Region </a><br>
+						<span class="tiny"> Zoom Factor of 2, around (-180000, 80000) </span>
+					</div>
+					<div class="card blue-grey darken-2 col s3">
+						<div class="card-image"> <img src="images/distant_4_2.png" /> </div>
+						<a href="http://glslsandbox.com/e#35273.3"> Distant Region</a><br>
+						<span class="tiny"> Zoom Factor of 2, around (80000, 0) </span>
+					</div>
+					<div class="col s12">
+						Notes:<br>
+						This is a form of simplex noise, in this case, using a 3d simplex. (Tetrahedron). 
+						Similarly to how we did interpolation on the verticies of a square in 2d space,
+						simplex noise does interpolation on the verticies of a simplex in whatever space it's in,
+						for example, a 2d simplex noise would use triangles.
+					</div>
+				</div>
+				
+			</div>
+					
+			<div class="col s12">
+				Degredation of noise happens for many reasons, but is present because graphics hardware is just not powerful enough to calculate
+				noise functions when the input positions get too far from the origin. The typical culprit is floating point rounding errors.
+				This happens earlier with processes that use both large and small numbers together, but eventually happens to every noise function.
+				There are ways to prevent, or minimize the amount of degredation present, but degredation is pretty much a given for any noise function.
+				
+			</div>
 					
 				
 				

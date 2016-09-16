@@ -241,15 +241,14 @@ function fill(id, interp) {
 	container.append(dot);
 
 	var t = $("<text />");
-	t.text("(f, " + val.toFixed(4) + ")");
+	t.text("(.65, " + val.toFixed(3) + ")");
 	t.toggleClass("tiny");
 	t.attr("x", ""+(15));
-	t.attr("y", ""+(100 - val * 100));
+	t.attr("y", ""+(95 - val * 100));
 	t.attr("fill", "#C44");
 	container.append(t);
-
-	
 }
+	
 
 $(document).ready(()=>{
 	fill("#linearGraph", lerp);
