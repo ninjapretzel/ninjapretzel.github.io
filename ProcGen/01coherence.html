@@ -476,7 +476,7 @@ float noise2d(float2 v) {
 						<span class="tiny"> Zoom Factor of 128 around (0,192350) </span>
 					</div>
 					
-					<div class="col s12">
+					<div class="col s8 offset-s2">
 						Notes:<br>
 						Scale factor is quite large 128, and low detail. This is just a single layer of noise.
 						Most of the others in this section are 'Fractal Noise' (Discussed in the second 'paper').
@@ -508,7 +508,7 @@ float noise2d(float2 v) {
 						<a href="http://glslsandbox.com/e#35281.2"> Far Edge </a><br>
 						<span class="tiny"> Zoom Factor of 1, around (823, 823) </span>
 					</div>
-					<div class="col s12">
+					<div class="col s8 offset-s2">
 						Notes:<br>
 						This gives more detail, and a more interesting appearance.
 						The noise 'primitive' that is used, is also a type of noise that is based on voroni distance and blur filters,
@@ -541,7 +541,7 @@ float noise2d(float2 v) {
 						<a href="http://glslsandbox.com/e#35270.5"> Far Edge </a><br>
 						<span class="tiny"> Zoom Factor of 200, around (17655, 6250) </span>
 					</div>
-					<div class="col s12">
+					<div class="col s8 offset-s2">
 						Notes:<br>
 						This noise is based on converging number series. An interesting implementation of a noise function, 
 						and the noise layers that are added are rotated from each other to mask the period of the noise.
@@ -572,7 +572,7 @@ float noise2d(float2 v) {
 						<a href="http://glslsandbox.com/e#35272.1"> Far Region</a><br>
 						<span class="tiny"> Zoom Factor of 100, around (26353600, 26353600) </span>
 					</div>
-					<div class="col s12">
+					<div class="col s8 offset-s2">
 						Notes:<br>
 						This version didn't come with any documentation comments, so I came up with the name myself.
 						The noise is constructed from many interlaced sin/cos functions based on the x and y positions of the points.
@@ -605,7 +605,7 @@ float noise2d(float2 v) {
 						<a href="http://glslsandbox.com/e#35273.3"> Distant Region</a><br>
 						<span class="tiny"> Zoom Factor of 2, around (80000, 0) </span>
 					</div>
-					<div class="col s12">
+					<div class="col s8 offset-s2">
 						Notes:<br>
 						This is a form of simplex noise, in this case, using a 3d simplex. (Tetrahedron). 
 						Similarly to how we did interpolation on the verticies of a square in 2d space,
@@ -617,11 +617,13 @@ float noise2d(float2 v) {
 			</div>
 					
 			<div class="col s12">
-				Degredation of noise happens for many reasons, but is present because graphics hardware is just not powerful enough to calculate
-				noise functions when the input positions get too far from the origin. The typical culprit is floating point rounding errors.
-				This happens earlier with processes that use both large and small numbers together, but eventually happens to every noise function.
-				There are ways to prevent, or minimize the amount of degredation present, but degredation is pretty much a given for any noise function.
-				
+				<p>
+					Degredation of noise happens for many reasons, but is present because graphics hardware is just not powerful enough to calculate
+					noise functions when the input positions get too far from the origin. The typical culprit is floating point rounding errors.
+					This happens earlier with processes that use both large and small numbers together, but eventually happens to every noise function.
+					There are ways to prevent, or minimize the amount of degredation present, but degredation is pretty much a given for any noise function. 
+					The specifics of why and how noise degrades depends on the specifics of the implementation of the noise, and the hardware it is run on.
+				</p>
 			</div>
 					
 				
