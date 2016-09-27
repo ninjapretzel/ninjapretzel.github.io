@@ -1,87 +1,114 @@
+var vertCode = `
+attribute vec4 position;
+void main() {
+	gl_Position = position;
+}
+`;
 var fragCode = `
 // fragment shaders don't have a default precision so we need
 // to pick one. mediump is a good default. It means "medium precision"
 precision mediump float;
- 
-void main() {
-  // gl_FragColor is a special variable a fragment shader
-  // is responsible for setting
-  gl_FragColor = vec4(1, 0, 0.5, 1); // return redish-purple
+
+#define PI 3.14159265359
+#define SCALE 64.0
+#define SEED 1337.37
+
+uniform vec2 resolution;
+uniform float time;
+
+float hash(float n) { return fract(sin(n)*SEED); }
+float lerp(float a, float b, float x) { return a + (b-a) * x; }
+float noise(vec3 x) {
+	vec3 p = floor(x);
+	vec3 f = fract(x);
+	f       = f*f*(3.0-2.0*f);
+	float n = p.x + p.y*157.0 + 113.0*p.z;
+
+	return mix(mix(	mix( hash(n+0.0), hash(n+1.0),f.x),
+			mix( hash(n+157.0), hash(n+158.0),f.x),f.y),
+		   mix(	mix( hash(n+113.0), hash(n+114.0),f.x),
+			mix( hash(n+270.0), hash(n+271.0),f.x),f.y),f.z);
 }
-`;
-var vertCode = `
-// an attribute will receive data from a buffer
-attribute vec4 a_position;
  
-// all shaders have a main function
 void main() {
- 
-  // gl_Position is a special variable a vertex shader
-  // is responsible for setting
-  gl_Position = a_position;
+	vec2 p = (gl_FragCoord.xy / resolution) - .5;
+	p += vec2(cos(time), sin(time));
+	p *= SCALE;
+	float v = noise(vec3(p, 0.0));
+  	gl_FragColor = vec4(v, v, v, 1);
 }
 `;
 
-function shader(gl, type, source) {
-	var s = gl.createShader(type);
-	gl.shaderSource(s, source);
-	gl.compileShader(s);
-	var success = gl.getShaderParameter(s, gl.COMPILE_STATUS);
-	if (success) { return s; }
-	console.log("Shader Compile FAIL: " + gl.getShaderInfoLog(s));
-	gl.deleteShader(s);
-}
+var fragCode2 = `
+// fragment shaders don't have a default precision so we need
+// to pick one. mediump is a good default. It means "medium precision"
+precision mediump float;
 
-function program(gl, vert, frag) {
-	var p = gl.createProgram();
-	gl.attachShader(p, vert);
-	gl.attachShader(p, frag);
-	gl.linkProgram(p);
-	
-	var success = gl.getProgramParameter(p, gl.LINK_STATUS);
-	if (success) { return p; }
-	
-	console.log("Program link FAIL: " + gl.getProgramInfoLog(p));
-	gl.deleteProgram(p);
-	
+#define PI 3.14159265359
+#define SCALE 64.0
+#define SEED 1337.37
+
+uniform vec2 resolution;
+uniform float time;
+
+float hash(float n) { return fract(sin(n)*SEED); }
+float lerp(float a, float b, float x) { return a + (b-a) * x; }
+float noise(vec3 x) {
+	vec3 p = floor(x);
+	vec3 f = fract(x);
+	f       = f*f*(3.0-2.0*f);
+	float n = p.x + p.y*157.0 + 113.0*p.z;
+
+	return mix(mix(	mix( hash(n+0.0), hash(n+1.0),f.x),
+			mix( hash(n+157.0), hash(n+158.0),f.x),f.y),
+		   mix(	mix( hash(n+113.0), hash(n+114.0),f.x),
+			mix( hash(n+270.0), hash(n+271.0),f.x),f.y),f.z);
 }
+ 
+void main() {
+	vec2 p = (gl_FragCoord.xy / resolution) - .5;
+	p += vec2(cos(time), sin(time));
+	p *= SCALE;
+	float r = noise(vec3(p, 0.0));
+	float g = noise(vec3(p, 1.0));
+	float b = noise(vec3(p, -1.0));
+	
+  	gl_FragColor = vec4(r,g,b, 1);
+}
+`;
 
 
 $(document).ready(function() {
-	var canvas = document.getElementById("c");
-	var gl = canvas.getContext("webgl");
+	var c = new GLContext("c");
+	var d = new GLContext("d");
 	
-	if (!gl) { console.log("Welp, no webgl for yuo"); return; }
+	var cprog = c.compile( {frag:fragCode} );
+	c.drawFrag(cprog);
+	setInterval( () => {
+		c.drawFrag(cprog);
+	}, 1000/60 )
 	
-	var vertShader = shader(gl, gl.VERTEX_SHADER, vertCode);
-	var fragShader = shader(gl, gl.FRAGMENT_SHADER, fragCode);
 	
-	var prog = program(gl, vertShader, fragShader);
-	
-	var paloc = gl.getAttribLocation(prog, "a_position");
-	var pbuff = gl.createBuffer();
-	gl.bindBuffer(gl.ARRAY_BUFFER, pbuff);
-	
-	var pos = [
-		0, 0,
-		0, .5,
-		.7, 0,
-	];
-	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(pos), gl.STATIC_DRAW);
-	gl.enableVertexAttribArray(paloc);
-	var size = 2;
-	var type = gl.FLOAT;
-	var normalize = false;
-	var stride = 0;
-	var offset = 0;
-	gl.vertexAttribPointer(paloc, size, type, normalize, stride, offset);
-	
-	gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
-	gl.useProgram(prog);
-	
-	var primType = gl.TRIANGLES;
-	var off = 0;
-	var cnt = 3;
-	gl.drawArrays(primType, off, cnt);
+	var dprog = d.compile( {frag:fragCode2} );
+	d.drawFrag(dprog);
+	setInterval( () => {
+		d.drawFrag(dprog);
+	}, 1000/60 )
 	
 });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
