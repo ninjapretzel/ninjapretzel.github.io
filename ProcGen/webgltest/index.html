@@ -1,0 +1,34 @@
+<html>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<head>
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.7/css/materialize.min.css">
+		<script src="https://code.jquery.com/jquery-3.1.0.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.7/js/materialize.min.js"></script>
+		
+		<script id="frag" type="notjs" src="frag.glsl"></script>
+		<script id="vert" type="notjs">
+// an attribute will receive data from a buffer
+attribute vec4 a_position;
+ 
+// all shaders have a main function
+void main() {
+ 
+  // gl_Position is a special variable a vertex shader
+  // is responsible for setting
+  gl_Position = a_position;
+}		
+		</script>
+		<script src="webgl.js"></script>
+		
+	</head>
+		
+	<body class="brown lighten-3">
+		<div class="container row brown lighten-2">
+			
+			<canvas id="c" width="400" height="300"></canvas>
+			
+		</div>
+		
+	</body>
+	
+</html>
