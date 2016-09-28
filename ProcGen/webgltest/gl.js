@@ -14,6 +14,11 @@ void main() {
 	gl_Position = position;
 }`;
 
+GLContext.prototype.screenClipVerts = [ 
+	-1, -1,		1, -1,		-1, 1, 
+	1, -1,		-1, 1,		1, 1,
+];
+
 GLContext.prototype.shader = function(type, source) {
 	var gl = this.gl;
 	var s = gl.createShader(type);
@@ -74,7 +79,7 @@ GLContext.prototype.drawFrag = function(prog) {
 	
 	gl.bindBuffer(gl.ARRAY_BUFFER, pbuff);
 	gl.bufferData(gl.ARRAY_BUFFER, 
-				  new Float32Array(screenClipVerts), 
+				  new Float32Array(this.screenClipVerts), 
 				  gl.STATIC_DRAW);
 	
 	gl.enableVertexAttribArray(paloc);
@@ -94,15 +99,6 @@ GLContext.prototype.drawFrag = function(prog) {
 }
 
 
-
-
-	
-var gl;
-var positionBuffer;
-var screenClipVerts = [ 
-	-1, -1,		1, -1,		-1, 1, 
-	1, -1,		-1, 1,		1, 1,
-];
 
 
 var start;

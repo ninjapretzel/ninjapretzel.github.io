@@ -30,6 +30,7 @@ float noise(vec3 x) {
 			mix( hash(n+270.0), hash(n+271.0),f.x),f.y),f.z);
 }
 float nnoise(vec3 pos, float factor) {
+	
 	float total = 0.0
 		, frequency = SCALE
 		, amplitude = 1.0
@@ -61,8 +62,9 @@ var fragCode = stdHeader + noisePrims + `
 #define ZOOM 4.0
 void main() {
 	vec2 p = (gl_FragCoord.xy / resolution) - .5;
-	p += vec2(cos(time), sin(time));
-	p *= ZOOM;
+	p *= ZOOM;	
+	p += vec2(cos(time), sin(time)) * 3.0;
+	
 	float v = nnoise(vec3(p, 0.0));
   	gl_FragColor = vec4(v, v, v, 1);
 }`;
@@ -71,11 +73,18 @@ var fragCode2 = stdHeader + noisePrims + `
 #define ZOOM 4.0
 void main() {
 	vec2 p = (gl_FragCoord.xy / resolution) - .5;
-	p += vec2(cos(time), sin(time));
 	p *= ZOOM;
-	float r = nnoise(vec3(p, 0.0));
-	float g = nnoise(vec3(p, 1.0));
-	float b = nnoise(vec3(p, -1.0));
+	float t = time * .2;
+	p += vec2(cos(t), sin(t)) * 3.0;
+	vec3 pos = vec3(p, 0.0);
+	vec3 rOff = vec3(.27 * sin(03.0 * t + 0.0 * PI / 3.0)); rOff.x *= -1.;
+	vec3 gOff = vec3(.35 * sin(03.0 * t + 1.0 * PI / 3.0)); gOff.z *= -1.;
+	vec3 bOff = vec3(.48 * sin(03.0 * t + 2.0 * PI / 3.0)); bOff.y *= -1.;
+	
+
+	float r = nnoise(pos + rOff);
+	float g = nnoise(pos + gOff);
+	float b = nnoise(pos + bOff);
 	
   	gl_FragColor = vec4(r,g,b, 1);
 }`;
