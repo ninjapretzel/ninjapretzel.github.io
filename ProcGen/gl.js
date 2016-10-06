@@ -7,6 +7,8 @@ function GLContext(canvasID) {
 	console.log("webgl successfully started in (#" + canvasID + ")");
 	this.start = new Date().getTime();
 }
+
+
 GLContext.prototype.defaultVertCode = 
 `
 attribute vec4 position;
@@ -19,8 +21,18 @@ function isNumber(v) { return typeof(v) === 'number'; }
 function isArray(v) { return Array.isArray(v); }
 function isObject(v) { return typeof(v) === 'object' && !isArray(v); }
 
+GLContext.prototype.setUniforms = function(prog, data) {
+	for (var key in data) {
+		if (!data.hasOwnProperty(key)) { continue; }
+		
+		var val = data[key];
+		this.setUniform(prog, key, val);
+	}	
+}
+
 GLContext.prototype.setUniform = function(prog, name, val){
 	var gl = this.gl;
+	gl.useProgram(prog);
 	var loc = gl.getUniformLocation(prog, name);
 	if (!loc) { return false; }
 	
@@ -127,6 +139,8 @@ GLContext.prototype.drawFrag = function(prog) {
 	var stride = 0;
 	var offset = 0;
 	var paloc = gl.getAttribLocation(prog, "position");
+	var resLoc = gl.getUniformLocation(prog, "resolution");
+	var timeLoc = gl.getUniformLocation(prog, "time");
 	
 	var pbuff = gl.createBuffer();
 	var width = gl.canvas.width;
@@ -148,6 +162,9 @@ GLContext.prototype.drawFrag = function(prog) {
 	
 	this.setUniform(prog, "time", time);
 	this.setUniform(prog, "resolution", [width, height]);
+	
+	//if (timeLoc) { gl.uniform1f(timeLoc, time); }
+	//if (resLoc) { gl.uniform2f(resLoc, width, height); }
 	gl.drawArrays(gl.TRIANGLES, 0, 6);
 	
 	

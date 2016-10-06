@@ -16,7 +16,26 @@ var noisePrims = `
 #define OCTAVES 8
 #define PERSISTENCE 0.65
 
-float hash(float n) { return fract(sin(n)*SEED); }
+uniform float seed;
+uniform float scale;
+uniform float persistence;
+
+float _seed;
+float _scale;
+float _persistence;
+void resetNoise() {
+	_seed = seed;
+	_scale = scale;
+	_persistence = persistence;
+}
+
+void defaultNoise() {
+	_seed = SEED;
+	_scale = SCALE;
+	_persistence = PERSISTENCE;
+}
+
+float hash(float n) { return fract(sin(n)*_seed); }
 float lerp(float a, float b, float x) { return a + (b-a) * x; }
 float noise(vec3 x) {
 	vec3 p = floor(x);
@@ -32,14 +51,14 @@ float noise(vec3 x) {
 float nnoise(vec3 pos, float factor) {
 	
 	float total = 0.0
-		, frequency = SCALE
+		, frequency = _scale
 		, amplitude = 1.0
 		, maxAmplitude = 0.0;
 	
 	for (int i = 0; i < OCTAVES; i++) {
 		total += noise(pos * frequency) * amplitude;
 		frequency *= 2.0, maxAmplitude += amplitude;
-		amplitude *= PERSISTENCE;
+		amplitude *= _persistence;
 	}
 	
 	float avg = maxAmplitude * .5;
@@ -61,6 +80,7 @@ float nnoise(vec3 pos) { return nnoise(pos, .5); }
 var fragCode = stdHeader + noisePrims + `
 #define ZOOM 4.0
 void main() {
+	defaultNoise();
 	vec2 p = (gl_FragCoord.xy / resolution) - .5;
 	p *= ZOOM;	
 	p += vec2(cos(time), sin(time)) * 3.0;
@@ -72,6 +92,8 @@ void main() {
 var fragCode2 = stdHeader + noisePrims + ` 
 #define ZOOM 4.0
 void main() {
+	defaultNoise();
+
 	vec2 p = (gl_FragCoord.xy / resolution) - .5;
 	p *= ZOOM;
 	float t = time * .2;
@@ -83,10 +105,29 @@ void main() {
 	
 
 	float r = nnoise(pos + rOff);
+	_seed = 137.0;
+	_scale = 4.0;
 	float g = nnoise(pos + gOff);
+	_seed = 157.0;
+	_scale = 1.5;
 	float b = nnoise(pos + bOff);
 	
   	gl_FragColor = vec4(r,g,b, 1);
+}`;
+
+var fragCode4 = stdHeader + noisePrims +`
+void main( void ) {
+	defaultNoise();
+	vec2 pos = ( gl_FragCoord.xy / resolution.xy ) - .5;
+	pos *= 5.0;
+	pos.y *= .50;
+	pos.x *= .10;
+	
+	float v = noise(vec3(time+pos.x*8., 0.0, 0.0)) - .5;
+	float d = length(pos.y - v) * 65.0;
+	
+	vec4 c = vec4(.03/d, .1/d, .3/d, 1);
+	gl_FragColor = c;
 }`;
 
 //it's complicated...
