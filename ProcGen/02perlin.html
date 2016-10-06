@@ -136,9 +136,127 @@ float noise(float3 x) {
 					<canvas id="perlin" width="600" height="300"></canvas><br>Combined wave
 				</div>
 			</div>
-
-		</div>
+			<div class="col s12">
+				<p>
+					Each successive octave of noise is applied at twice the 'frequency' of the last.
+					The 'period' of the noise is the distance between two 'samples', and just like with sound and music,
+					the frequency is the inverse of the 'period'. However, in this case, the wave doesn't 'repeat' the same way.
+					It still repeats, but over a much longer period, called the 'Tiling Period'.
+				</p>
+				<p>
+					The other measurement we make is the amplitude of each octave. This amplitude is reduced by a certain amount each octave,
+					Called "Persistence". The higher this value, the more of the amplitude 'persists' per octave.
+				</p>
+				<p>
+					Below is the code used to generate a noised value in the range (0, 1) using the 3d noise function defined above.
+					
+				</p>		
+				
+			</div>
 		
+			<div class="card blue-grey lighten-4 col s8 offset-s2">
+				<div class="chip">(NVidia Cg)</div><pre>
+//Defined externally from function
+//so other parts of the program can modify
+float scale;
+float persistence;
+int octaves;
+float nnoise(float3 pos, float factor) {
+    float total = 0.0        //Total noise accumulated
+        , frequency = scale  //Frequency of current octave
+        , amplitude = 1.0    //Amplitude of current octave
+        , maxAmplitude = 0.0;//Maximum for 'total'
+    
+	//Accumulate noise over 'octaves' octaves
+    for (int i = 0; i &lt octaves; i++) {
+        //Apply a single sample of noise at a given amplitude
+        total += noise(pos * frequency) * amplitude;
+        //Move to next octave
+        frequency *= 2.0, maxAmplitude += amplitude;
+        amplitude *= persistence;
+    }
+	
+    //Average expected value is half of maximum.
+    float avg = maxAmplitude * .5;
+    //Normalize the noise based on a 'factor'
+    //Factor value chooses how values are mapped to (0, 1)
+    //    .5 maps values from .25 to .75 into the range (0, 1)
+    //    .2 maps values from .4 to .6 into the range (0, 1)
+    //Values above or below the ranges all map to 0 or 1
+    if (factor > 0.0) {
+        float range = avg * clamp(factor, 0.0, 1.0);
+        float mmin = avg - range;
+        float mmax = avg + range;
+		
+        float val = clamp(total, mmin, mmax);
+        return val = (val - mmin) / (mmax - mmin);
+    } 
+	
+    //Quickly handles full saturation (factor &lt= 0)
+    if (total > avg) { return 1.0; }
+    return 0.0;
+}
+//Default value used for factor, if not specified.
+float nnoise(float3 pos) { return nnoise(pos, .5); } 
+</pre>
+				<span class="small">
+					Fractal noise using the same function defined further above.
+				</span>
+			</div>
+			<div class="col s12">
+				<p>
+					The mapping between 0 and 1 is a very useful feature to have. When applying multiple octaves,
+					the accumulated total gets higher and higher, and does eventually converge on some maximum value.
+					However, for very high persistence (0.9-1.0), this maximum is very high. 
+					Additionally, for any persistence, the output values tend to cluster around the average (1/2 max).
+					This makes unfiltered output very dull, with very little contrast.
+					This normalization provides additional contrast, and standardizes the output of the function.
+				</p>
+				<p>
+					Even just using 1d noise, it is possible to apply the noise to create 'visual interest' in graphics.
+					The following animation was made only noise based off of the x-coordinate of the screen.
+				</p>
+			</div>
+				
+			<div class="col s12 center card blue-grey darken-4 row">
+				<div class="col s10 offset-s1 center card blue-grey darken-3">
+					<canvas id="neonWires" width="600" height="300"></canvas>
+				</div>
+			</div>
+		
+			<div class="col s12">
+				<p>
+					Now, we can apply the same thing to 2d and 3d noises to create 2d and 3d fractal noises.
+				</p>
+			</div>
+				
+			<div class="col s12 center card blue-grey darken-4 row">
+				<div class="col s2 center card blue-grey darken-3">
+					<canvas id="tex1" width="150" height="150"></canvas>
+				</div>
+				<div class="col s2 center card blue-grey darken-3">
+					<canvas id="tex2" width="150" height="150"></canvas>
+				</div>
+				<div class="col s2 center card blue-grey darken-3">
+					<canvas id="tex3" width="150" height="150"></canvas>
+				</div>
+				<div class="col s2 center card blue-grey darken-3">
+					<canvas id="tex4" width="150" height="150"></canvas>
+				</div>
+				<div class="col s2 center card blue-grey darken-3">
+					<canvas id="tex5" width="150" height="150"></canvas>
+				</div>
+				<div class="col s2 center card blue-grey darken-3">
+					<canvas id="tex6" width="150" height="150"></canvas>
+				</div>
+				<div class="col s10 offset-s1 center card blue-grey darken-3">
+					<canvas id="texFull" width="600" height="150"></canvas>
+				</div>
+			</div>
+					
+			
+		
+		</div>
 	</body>
 	
 </html>

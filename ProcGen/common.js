@@ -10,3 +10,19 @@ function clickableImages() {
 		$(this).replaceWith(a);
 	});
 }
+
+function isElementInView(element, fullyInView) {
+	var pageTop = $(window).scrollTop();
+	var pageBottom = pageTop + window.innerHeight;
+	
+	var elementTop = $(element).offset().top;
+	var elementBottom = elementTop + $(element).height();
+	
+	if ((elementBottom >= pageTop && elementBottom <= pageBottom) ||
+		(elementTop <= pageBottom && elementTop >= pageTop)) {
+		return true;	
+	}
+	
+	
+	return false;
+}
