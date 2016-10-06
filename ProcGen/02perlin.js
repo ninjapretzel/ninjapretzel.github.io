@@ -82,8 +82,11 @@ void main( void ) {
 	
 	float v = noise(vec3(time*scale+pos.x*8., 0.0, 0.0)) - .5;
 	float d = length(pos.y - v) * 25.0;
+	float r = .1 + .1 * sin(time + 2.0 * PI * 0.0/3.0);
+	float g = .1 + .1 * sin(time + 2.0 * PI * 1.0/3.0);
+	float b = .1 + .1 * sin(time + 2.0 * PI * 2.0/3.0);
 	
-	vec4 c = vec4(.03/d, .1/d, .3/d, 1);
+	vec4 c = vec4(r/d, g/d, b/d, 1);
 	gl_FragColor = c;
 }`;
 
@@ -97,8 +100,11 @@ void main( void ){
 	
 	float v = nnoise(vec3(time*.5+pos.x*8., 0.0, 0.0)) - .5;
 	float d = length(pos.y - v) * 25.0;
-	
-	vec4 c = vec4(.03/d, .1/d, .3/d, 1);
+	float r = .1 + .1 * sin(time + 2.0 * PI * 0.0/3.0);
+	float g = .1 + .1 * sin(time + 2.0 * PI * 1.0/3.0);
+	float b = .1 + .1 * sin(time + 2.0 * PI * 2.0/3.0);
+
+	vec4 c = vec4(r/d, g/d, b/d, 1);
 	gl_FragColor = c;
 }`;
 
