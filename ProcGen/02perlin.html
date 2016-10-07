@@ -257,7 +257,13 @@ float nnoise(float3 pos) { return nnoise(pos, .5); }
 			<div class="col s12">
 				<p>
 					And then we can use this noise to produce textures. I took a look at a number of photoshop
-					tutorials, and adapted them to run off the graphics card.
+					tutorials, and adapted them to run off the graphics card. This is one for camo.
+					It's pretty simple: Apply multiple 'Difference clouds' on separate layers, then boost the
+					contrast so there are only two colors (black/white). Remove one, and replace the other with
+					the desired color.
+					The below shader does the same thing, automatically, using the noise function!
+					It can also be programmed to use different colors, and choose different cutoffs
+					for choosing what color to use.
 				</p>
 			</div>
 			
