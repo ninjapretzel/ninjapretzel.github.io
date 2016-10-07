@@ -274,6 +274,7 @@ $(document).ready(()=>{
 		color4:[0, 0, 0, 1],
 		clips:[.5,.5,.5,.5],
 	});
+	/*
 	startFrag("camoArctic", {frag:camo}, {
 		scale:.65, 
 		seed:143, 
@@ -294,8 +295,7 @@ $(document).ready(()=>{
 		color4:[80/255,79/255,48/255,1],
 		clips:[.7,.3,.3,.3],
 	});
-	
-	
+	//*/
 	
 	for (var i = 1; i <= 6; i++) {
 		var id = "octave" + i;
