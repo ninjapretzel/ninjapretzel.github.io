@@ -150,7 +150,7 @@ uniform float amp;
 void main( void ) {
 	resetNoise();
 	vec2 uv = ( gl_FragCoord.xy / resolution.xy ) - .5;
-	uv += vec2(sin(time * .51), cos(time * .51)) * 0.63;
+	uv += vec2(sin(time * .51), cos(time * .51)) * 0.5;
 	uv *= 10.;
 	//float sc = 4.;	
 	float v = (1.0 - amp) / 2.0 + noise(vec3(uv, 0) * _scale) * amp;
@@ -162,12 +162,67 @@ void main( void ) {
 	resetNoise();
 	vec2 uv = ( gl_FragCoord.xy / resolution.xy ) - .5;
 	uv.x *= 4.0;
-	uv += vec2(sin(time * .51), cos(time * .51)) * 0.63;
+	uv += vec2(sin(time * .51), cos(time * .51)) * 0.5;
 	uv *= 10.;
 	float v = nnoise(vec3(uv, 0));
 	vec4 c = vec4(v,v,v,1);
 	gl_FragColor = c;
 }`;
+
+//Idea taken from the tutorial at:
+//http://www.quantumpetshop.com/tutorials/camo.asp
+var camo = stdHeader + noisePrim + nnoise + `
+#define TAN vec4(125.0/255.0, 110.0/255.0, 75.0/255.0, 1.0)
+#define BROWN vec4(70.0/255.0, 50.0/255.0, 15.0/255.0, 1.0)
+#define GREEN vec4(50.0/255.0, 60.0/255.0, 25.0/255.0, 1.0)
+
+uniform vec4 color1;
+uniform vec4 color2;
+uniform vec4 color3;
+uniform vec4 color4;
+uniform vec4 clips;
+
+float diff(float a, float b) { return abs(a-b); }
+float diffNoise(vec3 pos) {
+	float v = nnoise(pos);
+	for (int i = 0; i < 3; i++) {
+		pos.z += 2.0;
+		v = diff(v, nnoise(pos));
+	}
+	return v;	
+}
+
+void main( void ) {
+	resetNoise();
+	vec2 uv = ( gl_FragCoord.xy / resolution.xy ) - .5;
+	uv += vec2(sin(time), cos(time)) * .5;
+	uv += vec2(time * .2);
+	vec3 pos = vec3(uv, 0) * 5.0;
+	
+	vec4 c;
+	float clip4 = diffNoise(pos);
+	if (clip4 < clips.w) {
+		pos.z += 3.0;
+		float clip3 = diffNoise(pos);
+		if (clip3 < clips.z) {
+			pos.z -= 5.0;
+			float clip2 = diffNoise(pos);
+			if (clip2 > clips.y) {
+				c = color1;
+			} else { 
+				c = color2; 
+			}
+		} else {
+			c = color3;
+		}
+		
+	} else {
+		c = color4;
+	}
+	
+	gl_FragColor = c;
+}
+`
 
 
 function responsiveCanvas(id) {
@@ -209,6 +264,36 @@ $(document).ready(()=>{
 	startFrag("perlin", {frag:perlinWave}, { scale:1.0, seed:1337.337, persistence:.65 });
 	startFrag("neonWires", {frag:neonWires}, { scale:.125, seed:1337.337, persistence:.75 });
 	startFrag("texFull", {frag:texFull}, { scale:.125, seed:1337.337, persistence:.75 });
+	startFrag("camoWoods", {frag:camo}, { 
+		scale:.5, 
+		seed:137, 
+		persistence:.35,
+		color1:[125/255, 110/255, 75/255, 1.0],
+		color2:[070/255, 050/255, 15/255, 1.0],
+		color3:[050/255, 060/255, 25/255, 1.0],
+		color4:[0, 0, 0, 1],
+		clips:[.5,.5,.5,.5],
+	});
+	startFrag("camoArctic", {frag:camo}, {
+		scale:.65, 
+		seed:143, 
+		persistence:.35,
+		color1:[.7,.9,.9,1],
+		color2:[.6,.8,.8,1],
+		color3:[1,1,1,1],
+		color4:[.85,.90,.95,1],
+		clips:[.5,.5,.5,.5],
+	});
+	startFrag("camoJungle", {frag:camo}, {
+		scale:.8, 
+		seed:222, 
+		persistence:.4,
+		color1:[25/255,44/255,35/255,1],
+		color2:[94/255,111/255,63/255,1],
+		color3:[130/255,133/255,79/255,1],
+		color4:[80/255,79/255,48/255,1],
+		clips:[.7,.3,.3,.3],
+	});
 	
 	
 	

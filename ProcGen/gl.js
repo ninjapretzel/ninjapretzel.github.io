@@ -71,7 +71,8 @@ GLContext.prototype.setUniform = function(prog, name, val){
 	}
 	if (arr) {
 		if (arr.length >= 4) {
-			gl.uniform1f(loc, arr[0], arr[1], arr[2], arr[3]);
+			console.log("Setting " + name + " to " + arr);
+			gl.uniform4f(loc, arr[0], arr[1], arr[2], arr[3]);
 		} else if (arr.length == 3) {
 			gl.uniform3f(loc, arr[0], arr[1], arr[2]);
 		} else if (arr.length == 2) {
