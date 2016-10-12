@@ -158,7 +158,7 @@ float diffNoise(vec3 pos) {
 
 //Idea taken from the tutorial at:
 //http://www.quantumpetshop.com/tutorials/camo.asp
-var camo = stdHeader + noisePrim + nnoise + diffNoise `
+var camo = stdHeader + noisePrim + nnoise + diffNoise + `
 #define TAN vec4(125.0/255.0, 110.0/255.0, 75.0/255.0, 1.0)
 #define BROWN vec4(70.0/255.0, 50.0/255.0, 15.0/255.0, 1.0)
 #define GREEN vec4(50.0/255.0, 60.0/255.0, 25.0/255.0, 1.0)
