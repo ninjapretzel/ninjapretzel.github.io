@@ -88,12 +88,7 @@ var stdHeader = `
 precision mediump float;
 #define PI 3.14159265359
 uniform vec2 resolution;
-uniform float time;
-
-#define PREV -1
-#define NEXT 1
-
-`;
+uniform float time;`;
 var noisePrim = `
 #define SCALE 2.0
 #define SEED 1333.0
@@ -194,37 +189,69 @@ float levels(float val, float a, float b, float c, float d) {
 	return map(val, a,b,c,d);
 }`;
 
+var voroniHeader = `
+#define NORMAL 0
+#define MANHATTAN 1
+vec3 _shift = vec3(1);
+float voroni(vec3 v, vec3 shift, vec4 comp, int distMode) {
+	vec3 p = floor(v);
+	vec3 f = fract(v);
+	
+	vec3 closest = vec3(2.0);
+
+	for (int k = -1; k <= 2; k++) {
+		for (int j = -1; j <= 2; j++) {
+			for (int i = -1; i <= 2; i++) {
+				vec3 sampleOffset = vec3(i,j,k);
+				vec3 featurePoint = sampleOffset - f + (shift * hash3(p + sampleOffset));
+				
+				float dist = 0.0;
+				if (distMode == MANHATTAN) {
+					featurePoint = abs(featurePoint);
+					dist = max(max(featurePoint.x, featurePoint.y), featurePoint.z);
+				} else if (distMode == NORMAL) {
+					dist = length(featurePoint);
+				}
+				
+				if (dist < closest[0]) { closest[2] = closest[1]; closest[1] = closest[0]; closest[0] = dist; }
+				else if (dist < closest[1]) { closest[2] = closest[1]; closest[1] = dist; }
+				else if (dist < closest[2]) { closest[2] = dist; }
+			}
+		}
+	}
+	return comp.w * (comp.x * closest.x + comp.y * closest.y + comp.z * closest.z);
+}
+float manhattan(vec3 v) { return voroni(v, vec3(1,1,0), vec4(-1,1,0,1), MANHATTAN); }
+float voroni1f(vec3 v) { return voroni(v, vec3(1,1,1), vec4(1,0,0,1), NORMAL); }
+float voroni2f(vec3 v) { return voroni(v, vec3(1,1,1), vec4(0,1,0,1), NORMAL); }
+float worley(vec3 v) { return voroni(v, vec3(1,1,1), vec4(-1,1,0,1), NORMAL); }
+`;
+
+
 //Manhattan distance voroni
 var mvoroni = `
 float mvoroni(vec3 v) {
 	vec3 p = floor(v);
 	vec3 f = fract(v);
 	
-	vec3 res = vec3(1.0);
-	for (int k = PREV; k <= NEXT; k++) {
-		for (int j = PREV; j <= NEXT; j++) {
-			for (int i = PREV; i <= NEXT; i++) {
+	float closest = 2.0;
+	float second = 2.0;
+	for (int k = -1; k <= 2; k++) {
+		for (int j = -1; j <= 2; j++) {
+			for (int i = -1; i <= 2; i++) {
 				vec3 sampleOffset = vec3(i,j,k);
 				vec3 featurePoint = sampleOffset - f + hash3(p + sampleOffset);
 				featurePoint = abs(featurePoint);
-				float d = max(max(featurePoint.x, featurePoint.y), featurePoint.z);
+				float dist = max(max(featurePoint.x, featurePoint.y), featurePoint.z);
 				
-				if (d < res.x) { 
-					res.z = res.y;
-					res.y = res.x;
-					res.x = d;
-				} else if (d < res.y) { 
-					res.z = res.y;
-					res.y = d;
-				} else if (d < res.z) {
-					res.z = d;	
-				}
+				if (dist < closest) { second = closest; closest = dist; }
+				else if (dist < second) { second = dist;}
 			}
 		}
 	}	
 	
-	
-	return (res.y - res.x);
+	float val = second - closest;
+	return 3. * val ;
 }`;
 
 //Closest Point distance voroni
@@ -233,20 +260,20 @@ float d1voroni(vec3 v) {
 	vec3 p = floor(v);
 	vec3 f = fract(v);
 	
-	float closest = 1.0;
-	for (int k = PREV; k <= NEXT; k++) {
-		for (int j = PREV; j <= NEXT; j++) {
-			for (int i = PREV; i <= NEXT; i++) {
+	float closest = 2.0;
+	for (int k = -1; k <= 2; k++) {
+		for (int j = -1; j <= 2; j++) {
+			for (int i = -1; i <= 2; i++) {
 				vec3 sampleOffset = vec3(i,j,k);
 				vec3 featurePoint = sampleOffset - f + hash3(p + sampleOffset);
 				
-				float d = length(featurePoint);
-				if (d < closest) { closest = d; }
+				float dist = length(featurePoint);
+				if (dist < closest) { closest = dist; }
 			}
 		}
 	}	
 	
-	return closest * .9;
+	return closest * .8;
 }`;
 
 //Second Closest Point distance voroni
@@ -255,17 +282,17 @@ float d2voroni(vec3 v) {
 	vec3 p = floor(v);
 	vec3 f = fract(v);
 	
-	float closest = 1.0;
-	float second = 1.5;
-	for (int k = PREV; k <= NEXT; k++) {
-		for (int j = PREV; j <= NEXT; j++) {
-			for (int i = PREV; i <= NEXT; i++) {
+	float closest = 2.0;
+	float second = 2.0;
+	for (int k = -1; k <= 2; k++) {
+		for (int j = -1; j <= 2; j++) {
+			for (int i = -1; i <= 2; i++) {
 				vec3 sampleOffset = vec3(i,j,k);
 				vec3 featurePoint = sampleOffset - f + hash3(p + sampleOffset);
 				
-				float d = length(featurePoint);
-				if (d < closest) { second = closest; closest = d; }
-				else if (d < second) { second = d;}
+				float dist = length(featurePoint);
+				if (dist < closest) { second = closest; closest = dist; }
+				else if (dist < second) { second = dist;}
 			}
 		}
 	}	
@@ -281,15 +308,15 @@ float wvoroni(vec3 v) {
 	
 	float closest = 1.0;
 	float second = 1.0;
-	for (int k = PREV; k <= NEXT; k++) {
-		for (int j = PREV; j <= NEXT; j++) {
-			for (int i = PREV; i <= NEXT; i++) {
+	for (int k = -1; k <= 2; k++) {
+		for (int j = -1; j <= 2; j++) {
+			for (int i = -1; i <= 2; i++) {
 				vec3 sampleOffset = vec3(i,j,k);
 				vec3 featurePoint = sampleOffset - f + hash3(p + sampleOffset);
 				
-				float d = length(featurePoint);
-				if (d < closest) { second = closest; closest = d; }
-				else if (d < second) { second = d;}
+				float dist = length(featurePoint);
+				if (dist < closest) { second = closest; closest = dist; }
+				else if (dist < second) { second = dist; }
 			}
 		}
 	}	

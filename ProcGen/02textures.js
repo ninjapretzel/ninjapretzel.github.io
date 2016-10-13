@@ -115,9 +115,12 @@ void main( void ) {
 
 }`;
 
-var voroex1 = stdHeader + noisePrim + mvoroni + d1voroni + d2voroni + wvoroni + `
+var voroex1 = stdHeader + noisePrim + voroniHeader + mvoroni + d1voroni + d2voroni + wvoroni + `
 void main( void ) {
 	resetNoise();
+
+	_shift = vec3(-.3, .7, .4);
+	
 	//vec2 uv = ( gl_FragCoord.xy / resolution.xy ) - .5;
 	vec2 scaledPos = (gl_FragCoord.xy / resolution.xy) * vec2(4.0, 2.0);
 	vec2 cell = floor(scaledPos);
@@ -129,13 +132,13 @@ void main( void ) {
 	
 	float v;
 	if (cell.x < 1.0) {
-		v = mvoroni(pos);
+		v = manhattan(pos);
 	} else if (cell.x < 2.0) {
-		v = d1voroni(pos);
+		v = voroni1f(pos);
 	} else if (cell.x < 3.0) {
-		v = d2voroni(pos);
+		v = voroni2f(pos);
 	} else {
-		v = wvoroni(pos);
+		v = worley(pos);
 	}
 	
 	if (cell.y < 1.0) {

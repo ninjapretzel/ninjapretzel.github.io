@@ -89,6 +89,21 @@ GLContext.prototype.screenClipVerts = [
 	1, -1,		-1, 1,		1, 1,
 ];
 
+function printLines(str) {
+	var sbuild = "";
+	var lines = str.split("\n");
+	
+	for (var i = 0; i < lines.length; i++) {
+		var line = (1+i);
+		while (line.length < 4) { line = " " + line; }
+		
+		line += ": " + lines[i];
+		
+		sbuild += line + '\n';
+	}
+	
+	console.log(sbuild);
+}
 GLContext.prototype.shader = function(type, source) {
 	var gl = this.gl;
 	var s = gl.createShader(type);
@@ -97,6 +112,7 @@ GLContext.prototype.shader = function(type, source) {
 	var success = gl.getShaderParameter(s, gl.COMPILE_STATUS);
 	if (success) { return s; }
 	console.log("Shader Compile FAIL: " + gl.getShaderInfoLog(s));
+	printLines(source);
 	gl.deleteShader(s);
 }
 
