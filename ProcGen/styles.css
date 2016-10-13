@@ -10,6 +10,11 @@ ul li {
 	list-style-type: disc;
 }
 
+a {
+	color: #023;
+	text-shadow: 0 0 1px #08A;
+}
+
 .graph-lines {
 	stroke-width: .1;
 	stroke: #0FF;

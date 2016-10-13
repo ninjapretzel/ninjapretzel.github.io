@@ -14,27 +14,145 @@
 		<div class="container row brown lighten-2">
 			<div class="card blue-grey lighten-4 center"> 
 				<h1>Procedural Generation</h1>
-				<h3>Generating Textures</h3>
+				<h3>Generating Textures/Cellular Noise</h3>
 			</div>
 
 			<div class="col s12">
 				<p>
+					<h5>Building textures</h5>
 					Lets look at the process of building these camo textures, and some other textures.
 					The first thing we do, is build 'difference noise'
+					I based the shader off of a tutorial found at
+					<a href="http://www.quantumpetshop.com/tutorials/camo.asp">Quantum Pet Shop</a>.
 				</p>
+				
 				<p>
 					This is a noise variation that is built from taking the differences between multiple samples of noise.
 					The output value is 0 when the noises are the same, and 1 when the noises are maximally different (0 and 1 or 1 and 0).
 					This creates an interesting pattern with 'ribbon' like features stretching across the noise field.
 				</p>
+					
 			</div>
 			
 			<div class="col s12 center card blue-grey darken-4 row">
-				<div class="col s4 offset-s4 center card blue-grey darken-3">
-					<canvas id="diffNoise" width="200" height="200"></canvas>
+				<div class="col s12 row center card blue-grey darken-3">
+					<div class="col s4 tiny card blue-grey darken-3 white-text">NF1 (Noise Field 1)</div>
+					<div class="col s4 tiny card blue-grey darken-3 white-text">NF2 (Noise Field 2)</div>
+					<div class="col s4 tiny card blue-grey darken-3 white-text">abs(NF1 - NF2)</div>
+					<canvas id="dNoiseEx" width="600" height="200"></canvas>
 				</div>
 			</div>
-					
+			
+			<div class="col s12">
+				<p>
+					We can do this a number of times, and compile a bunch of difference noise ontop of itself.
+				</p>
+			</div>
+			
+			<div class="col s12 center card blue-grey darken-4 row">
+				
+				<div class="col s12 row center card blue-grey darken-3">
+					<div class="col s4 offset-s4 tiny card blue-grey darken-3 white-text">4 layers of difference noise</div>
+					<div class="col s12">
+						<canvas id="dNoise" width="200" height="200"></canvas>
+					</div>
+				</div>
+				
+			</div>
+			
+			<div class="col s12">
+				<p>
+					The next step was is to increase the contrast of difference noise, so that there's only black and white output.
+					This creates two separate regions. One of these regions can be used, and the other can be discarded.
+					Then we do this 3 times, and assign each one a different color.
+				</p>
+			</div>
+			
+			<div class="col s12 center card blue-grey darken-4 row">
+				
+				<div class="col s12 row center card blue-grey darken-3">
+					<div class="col s4 offset-s4 tiny card blue-grey darken-3 white-text">Clipped Difference Noise</div>
+					<div class="col s12">
+						<canvas id="dNoiseClip" width="600" height="200"></canvas>
+					</div>
+				</div>
+			</div>
+			
+			<div class="col s12">
+				<p>
+					Then, we just composite all of these on top of eachother, and assign a 'background' color.
+				</p>
+			</div>
+				
+			<div class="col s12 center card blue-grey darken-4 row">
+				<div class="col s12 row center card blue-grey darken-3">
+					<div class="col s4 offset-s4 tiny card blue-grey darken-3 white-text">Combined Clipped Differense Noises</div>
+					<div class="col s12">
+						<canvas id="camoWoods2" width="200" height="200"></canvas>
+					</div>
+				</div>
+			</div>
+			
+			<div class="col s12">
+				<p>
+					And then, we can change parameters for colors, seed, scale, etc, to generate different textures.
+					View a few example variants <a href="02_camos.html">Here</a>.
+					The code is included in the source for each page, and this <a href="common.js">common.js</a> file included in each page.
+				</p>
+				<p>
+					I also converted this other tutorial on creating
+					<a href="http://www.quantumpetshop.com/tutorials/elecrings.asp">Electric arcs</a>.
+					I had to do some research on how the 'curves' and 'levels' filters work in Photoshop.
+				</p>
+			</div>
+				
+			<div class="col s12 center card blue-grey darken-4 row">
+				<div class="col s12 row center card blue-grey darken-3">
+					<div class="col s4 offset-s4 tiny card blue-grey darken-3 white-text">Electric Ring</div>
+					<div class="col s12">
+						<canvas id="ering" width="200" height="200"></canvas>
+					</div>
+				</div>
+			</div>
+			
+			<div class="col s12">
+				<p>
+					I do a few extra things as well, like rotating the ring over time,
+					and offsetting the time of the animation by the distance from the center.
+				</p>
+			</div>
+			<div class="col s12">
+				<p>
+					<h5>Cellular Noise</h5>
+					Sometimes, we need a different kind of noise, to generate other interesting looking things.
+					We can build a 3d 'voroni distance' noise out of our noise function.
+				</p>
+			</div>
+			
+			<div class="col s12 center card blue-grey darken-4 row">
+				<div class="col s12 row center card blue-grey darken-3">
+					<div class="col s3 tiny card blue-grey darken-3 white-text">Manhatten Voroni Distance Noise</div>
+					<div class="col s3 tiny card blue-grey darken-3 white-text">Closest-Point Voroni Distance Noise</div>
+					<div class="col s3 tiny card blue-grey darken-3 white-text">Second-Closest Voroni Distance Noise</div>
+					<div class="col s3 tiny card blue-grey darken-3 white-text">"Worley" Voroni Distance Noise</div>
+					<div class="col s12">
+						<canvas id="voroex1" width="800" height="400"></canvas>
+					</div>
+				</div>
+			</div>
+	
+			<div class="col s12">
+				These are referred to as 'cellular noise', and are a very useful noise 'primitive'.
+				These noises are based off of the distance from the point a pixel is at, to the closest 'feature'.
+				To get these feature points, we sample a hash function at some offset from the original pixel,
+				and use the resulting value from the hash function to offset the position of the 'feature' point from the
+				fixed grid we're sampling on.
+				
+				
+			</div>
+			
+				
+			
 			
 		</div>
 	</body>

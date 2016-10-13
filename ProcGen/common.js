@@ -26,6 +26,9 @@ function isElementInView(element, fullyInView) {
 	
 	return false;
 }
+
+var frags = {};
+
 function redrawFragment(ctx, prog, rate) {
 	setInterval( () => {
 		if (isElementInView(ctx.canvas)) {
@@ -39,6 +42,15 @@ function startFrag(id, progData, uniforms) {
 	var prog = ctx.compile(progData);
 	ctx.setUniforms(prog, uniforms);
 	redrawFragment(ctx, prog, 1000/frameRate);
+	frags[id] = {id, prog, ctx, progData, uniforms};
+}
+
+function drawFrag(id, progData, uniforms) {
+	var ctx = new GLContext(id);
+	var prog = ctx.compile(progData);
+	ctx.setUniforms(prog, uniforms);
+	ctx.drawFrag(prog);
+	frags[id] = {id, prog, ctx, progData, uniforms};
 }
 
 function hexToColor(hex) {
@@ -77,6 +89,10 @@ precision mediump float;
 #define PI 3.14159265359
 uniform vec2 resolution;
 uniform float time;
+
+#define PREV -1
+#define NEXT 1
+
 `;
 var noisePrim = `
 #define SCALE 2.0
@@ -104,6 +120,7 @@ void defaultNoise() {
 }
 
 float hash(float n) { return fract(sin(n)*_seed); }
+float hash3(vec3 v) { return hash(v.x + v.y * 113.0 + v.z * 157.0); }
 float lerp(float a, float b, float x) { return a + (b-a) * x; }
 float noise(vec3 x) {
 	vec3 p = floor(x);
@@ -156,6 +173,130 @@ float diffNoise(vec3 pos) {
 	return v;	
 }`;
 
+var filters = `
+float map(float val, float olda, float oldb, float newa, float newb) {
+	float oldRange = olda-oldb;
+	float newRange = newa-newb;
+	float p = (val - olda) / oldRange;
+	return newa + (newRange * p);
+}
+float curvesMid(float val) {
+	val = clamp(val, 0.0, 1.0);
+	if (val < .5) {
+		val = map(val, 0.0, .5, .0, 1.);	
+	} else {
+		val = map(val, .5, 1., 1., 0.);	
+	}
+	return val;
+}
+float levels(float val, float a, float b, float c, float d) {
+	val = clamp(val, a, b);
+	return map(val, a,b,c,d);
+}`;
+
+//Manhattan distance voroni
+var mvoroni = `
+float mvoroni(vec3 v) {
+	vec3 p = floor(v);
+	vec3 f = fract(v);
+	
+	vec3 res = vec3(1.0);
+	for (int k = PREV; k <= NEXT; k++) {
+		for (int j = PREV; j <= NEXT; j++) {
+			for (int i = PREV; i <= NEXT; i++) {
+				vec3 sampleOffset = vec3(i,j,k);
+				vec3 featurePoint = sampleOffset - f + hash3(p + sampleOffset);
+				featurePoint = abs(featurePoint);
+				float d = max(max(featurePoint.x, featurePoint.y), featurePoint.z);
+				
+				if (d < res.x) { 
+					res.z = res.y;
+					res.y = res.x;
+					res.x = d;
+				} else if (d < res.y) { 
+					res.z = res.y;
+					res.y = d;
+				} else if (d < res.z) {
+					res.z = d;	
+				}
+			}
+		}
+	}	
+	
+	
+	return (res.y - res.x);
+}`;
+
+//Closest Point distance voroni
+var d1voroni = `
+float d1voroni(vec3 v) {
+	vec3 p = floor(v);
+	vec3 f = fract(v);
+	
+	float closest = 1.0;
+	for (int k = PREV; k <= NEXT; k++) {
+		for (int j = PREV; j <= NEXT; j++) {
+			for (int i = PREV; i <= NEXT; i++) {
+				vec3 sampleOffset = vec3(i,j,k);
+				vec3 featurePoint = sampleOffset - f + hash3(p + sampleOffset);
+				
+				float d = length(featurePoint);
+				if (d < closest) { closest = d; }
+			}
+		}
+	}	
+	
+	return closest * .9;
+}`;
+
+//Second Closest Point distance voroni
+var d2voroni = `
+float d2voroni(vec3 v) {
+	vec3 p = floor(v);
+	vec3 f = fract(v);
+	
+	float closest = 1.0;
+	float second = 1.5;
+	for (int k = PREV; k <= NEXT; k++) {
+		for (int j = PREV; j <= NEXT; j++) {
+			for (int i = PREV; i <= NEXT; i++) {
+				vec3 sampleOffset = vec3(i,j,k);
+				vec3 featurePoint = sampleOffset - f + hash3(p + sampleOffset);
+				
+				float d = length(featurePoint);
+				if (d < closest) { second = closest; closest = d; }
+				else if (d < second) { second = d;}
+			}
+		}
+	}	
+	
+	return second * .8;
+}`;
+
+//Worley noise
+var wvoroni = `
+float wvoroni(vec3 v) {
+	vec3 p = floor(v);
+	vec3 f = fract(v);
+	
+	float closest = 1.0;
+	float second = 1.0;
+	for (int k = PREV; k <= NEXT; k++) {
+		for (int j = PREV; j <= NEXT; j++) {
+			for (int i = PREV; i <= NEXT; i++) {
+				vec3 sampleOffset = vec3(i,j,k);
+				vec3 featurePoint = sampleOffset - f + hash3(p + sampleOffset);
+				
+				float d = length(featurePoint);
+				if (d < closest) { second = closest; closest = d; }
+				else if (d < second) { second = d;}
+			}
+		}
+	}	
+	
+	return (second-closest);
+}`;
+
 //Idea taken from the tutorial at:
 //http://www.quantumpetshop.com/tutorials/camo.asp
 var camo = stdHeader + noisePrim + nnoise + diffNoise + `
@@ -198,4 +339,6 @@ void main( void ) {
 	}
 	
 	gl_FragColor = c;
-}`
+}`;
+
+
