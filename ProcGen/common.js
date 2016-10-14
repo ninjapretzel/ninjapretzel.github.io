@@ -219,12 +219,13 @@ float voroni(vec3 v, vec3 shift, vec4 comp, int distMode) {
 			}
 		}
 	}
-	return comp.w * (comp.x * closest.x + comp.y * closest.y + comp.z * closest.z);
+	return comp.w * abs(comp.x * closest.x + comp.y * closest.y + comp.z * closest.z);
 }
-float manhattan(vec3 v) { return voroni(v, vec3(1,1,0), vec4(-1,1,0,1), MANHATTAN); }
-float voroni1f(vec3 v) { return voroni(v, vec3(1,1,1), vec4(1,0,0,1), NORMAL); }
-float voroni2f(vec3 v) { return voroni(v, vec3(1,1,1), vec4(0,1,0,1), NORMAL); }
-float worley(vec3 v) { return voroni(v, vec3(1,1,1), vec4(-1,1,0,1), NORMAL); }
+float manhattan(vec3 v) { return voroni(v, vec3(1,1,0), vec4(-1,1,0,1.5), MANHATTAN); }
+float manhattan3(vec3 v) { return voroni(v, vec3(1,1,1), vec4(-1,.5,.5,1.7), MANHATTAN); }
+float voroni1f(vec3 v) { return voroni(v, vec3(1,1,1), vec4(1,0,0,.8), NORMAL); }
+float voroni2f(vec3 v) { return voroni(v, vec3(1,1,1), vec4(0,1,0,.8), NORMAL); }
+float worley(vec3 v) { return voroni(v, vec3(1,1,1), vec4(-1,1,0,1.5), NORMAL); }
 `;
 
 

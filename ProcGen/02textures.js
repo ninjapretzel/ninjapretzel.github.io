@@ -132,6 +132,7 @@ void main( void ) {
 	
 	float v;
 	if (cell.x < 1.0) {
+		pos.z = 0.;
 		v = manhattan(pos);
 	} else if (cell.x < 2.0) {
 		v = voroni1f(pos);
