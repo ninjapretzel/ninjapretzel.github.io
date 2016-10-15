@@ -10,9 +10,8 @@ function sin(n) { return Math.sin(n); }
 SEED = 123.456;
 
 //Raw 1d hash function
-function hash(n) {
-	return frac(sin(n)*SEED);
-}
+function hash(n) { return frac(sin(n)*SEED); }
+
 //Linear interpolate
 function lerp(a, b, x) { return a + (b-a) * x; }
 //Cosine interpolate

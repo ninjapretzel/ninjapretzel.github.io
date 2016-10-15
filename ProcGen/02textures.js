@@ -90,9 +90,9 @@ void main( void ) {
 	
 	float t = time * .22;
 	float angle = atan(uv.y, uv.x);
-	uv *= 1.0 + .0152 * sin(angle * PI * 16.0 + time * .6);
+	uv *= 1.0 + .0152 * sin(angle * 32.0 + time * .6);
 	float d = length(uv);
-	float a = .1 * angle + .3 * sin(d * 2.3 * sin(t * 3.3));
+	float a = time * .5 + .125 * angle + .125 * PI * sin(d * 2.3 * sin(t * 3.3));
 	//d = max(d, 1.0);
 	
 	mat2 rot = mat2(cos(a), -sin(a),
@@ -103,7 +103,7 @@ void main( void ) {
 	float v = 0.;
 	v = diffNoise(pos);
 	float grad = length(uv) / 4.0;
-	v = lerp(v, grad, .6);
+	v = mix(v, grad, .6);
 	
 	v = levels(v, .38, .49, 0.0, 1.0);
 	v = curvesMid(v);
@@ -115,11 +115,56 @@ void main( void ) {
 
 }`;
 
-var voroex1 = stdHeader + noisePrim + voroniHeader + mvoroni + d1voroni + d2voroni + wvoroni + `
+var eringex = stdHeader + noisePrim + nnoise + diffNoise + filters + `
 void main( void ) {
 	resetNoise();
+	
+	vec2 scaledPos = (gl_FragCoord.xy / resolution.xy);
+	scaledPos.y = 1.0 - scaledPos.y;
+	scaledPos *= vec2(3.0, 2.0);
+	vec2 cellCoord = floor(scaledPos);
 
-	_shift = vec3(-.3, .7, .4);
+	int cell = int(cellCoord.x + (cellCoord.y * 3.0));
+	vec2 uv = scaledPos - cellCoord - .5;
+	uv *= 10.;
+	//gl_FragColor = vec4(uv, cell / 6.0, 1);
+	vec3 pos = vec3(uv * 1.0, -200. + time * .2 );
+	float v = 0.;
+	v = diffNoise(pos);
+	
+	if (cell >= 1) {
+		float grad = length(uv)/(4.0 + sin(time));
+		v = mix(v, grad, .6);
+	}
+
+	if (cell >= 2) {
+		v = levels(v, .38, .49, 0.0, 1.0);
+	}
+
+	if (cell >= 3) {
+	}
+
+	if (cell >= 4) { 
+		v = curvesMid(v);
+	}
+	
+	float d = max(1.0, length(uv));
+	vec4 color;
+	if (cell >= 5) { 
+		color = vec4(0.51 * v/d, 2.0 *v/d, 15.0 *v/d, 1);
+		d *= .2 + .5 * (1.0 + sin(time));
+	} else if (cell >= 3) {
+		color = vec4(vec3(v/d), 1.0);
+	} else {
+		color = vec4(vec3(v), 1.0);
+	}
+	gl_FragColor = color;
+	
+}`;
+
+var voroex1 = stdHeader + noisePrim + voroniHeader + `
+void main( void ) {
+	resetNoise();
 	
 	//vec2 uv = ( gl_FragCoord.xy / resolution.xy ) - .5;
 	vec2 scaledPos = (gl_FragCoord.xy / resolution.xy) * vec2(4.0, 2.0);
@@ -132,7 +177,7 @@ void main( void ) {
 	
 	float v;
 	if (cell.x < 1.0) {
-		pos.z = 0.;
+		//pos.z = 0.;
 		v = manhattan(pos);
 	} else if (cell.x < 2.0) {
 		v = voroni1f(pos);
@@ -179,6 +224,11 @@ $(document).ready(()=>{
 		clips:[.7,.3,.3,.3],
 	});
 	startFrag("ering", {frag:ering}, { 
+		scale:.15, 
+		seed:3337, 
+		persistence:.85,
+	});
+	startFrag("eringex", {frag:eringex}, { 
 		scale:.15, 
 		seed:3337, 
 		persistence:.85,

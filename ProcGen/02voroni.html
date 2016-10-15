@@ -1,0 +1,253 @@
+<html>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<head>
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.7/css/materialize.min.css">
+		<link rel="stylesheet" href="./styles.css">
+		<script src="https://code.jquery.com/jquery-3.1.0.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.7/js/materialize.min.js"></script>
+		<script src="common.js"></script>
+		<script src="gl.js"></script>
+		<script src="02voroni.js"></script>
+		
+	</head>
+	<body class="brown lighten-3">
+		<div class="container row brown lighten-2">
+			<div class="card blue-grey lighten-4 center"> 
+				<h1>Procedural Generation</h1>
+				<h3>Cellular (Voroni Distance) Noise</h3>
+			</div>
+
+			<div class="col s12">
+				<p>
+					Voroni distance noise separates regions of space into 'cells' by taking the distance from some target point,
+					to the closest 'feature point' around it.
+					Outside of a shader, the points may just be a set of data, a list of coordinates in space.
+					Inside of a shader, we can't really use a set of points, so we have to build them.
+					We first set up a lattice that we sample from, much like how coherent noise works, so we can get the same sets of points.
+				</p>
+			</div>
+			<div class="col s12 card blue-grey darken-4 center row white-text">
+				<h5>Example Lattice</h5>
+				<svg id="exampleLattice" viewbox="-5 -5 10 10" height="400" xmlns="http://www.w3.org/2000/svg">
+					<g stroke-width=".12" stroke="#C84">
+						<line x1="0" x2="0" y1="-10" y2="10" />
+						<line x1="-10" x2="10" y1="0" y2="0" />
+					</g>
+				</svg>
+				<p>
+					The purple points are the 'Feature' points, and the blue lines connect them to their lattice points.
+					
+				</p>
+				
+				
+				<h5>Local Feature Neighborhood</h5>
+				<svg id="exampleLattice2" viewbox="9.3 9.3 4.4 4.4" height="400"  xmlns="http://www.w3.org/2000/svg">
+					<g stroke-width=".12" stroke="#C84">
+						<line x1="0" x2="0" y1="-100" y2="100" />
+						<line x1="-100" x2="100" y1="0" y2="0" />
+						<g fill="#C84" stroke="#421" stroke-width=".03" >
+							<circle cx="11.3" cy="11.2" r=".051"/>
+							<text x="11.4" y="11.5" font-size=".5" stroke-width="0">t</text>
+						</g>
+						<g fill="#C21" stroke="#611" stroke-width=".03">
+							<circle cx="11" cy="11" r=".051"  />
+							<text x="10.72" y="10.9" font-size=".5" stroke-width="0">p</text>
+						</g>
+						<g fill="#148800" stroke="#074400" stroke-width=".02">
+							<circle cx="11.25" cy="10.95" r=".06"  />
+							<text x="11.32" y="10.8" font-size=".5" stroke-width="0" fill="#148800">f1</text>
+							<line x1="11.25" y1="10.95" x2="11.3" y2="11.2" stroke-width=".05"/>
+							
+						</g>
+					</g>
+				</svg>
+				
+				<p>All of the 'feature' points are looked at, and compared to the target point.</p>
+				<p>Then, the distance of the closest feature point is used as the value of the noise.</p>
+				<p>Many variants of this noise instead use the second or third point distances.</p>
+				<p>Other variants use the difference between the distances of the first and second point.</p>
+			</div>
+			
+			<div class="card blue-grey lighten-4 col s10 offset-s1">
+				<div class="chip">(NVidia Cg)</div><pre>
+//Using orignal hash function defined in part 1...
+float hash3(float3 v) { return hash(v.x + v.y * 113.0 + 153 * v.z); }
+float voronif1(float3 v) {
+    float3 p = floor(v);
+    float3 f = frac(v);
+	
+    float closest = 2.0;
+    for (int k = -1; k &lt;= 2; k++) {
+        for (int j = -1; j &lt;= 2; j++) {
+            for (int i = -1; i &lt;= 2; i++) {
+                float3 sampleOffset = float3(k, j, i);
+                float3 featureDiff = sampleOffset - f + hash3(p + sampleOffset);
+                float dist = length(featureDiff);
+                if (dist &lt; closest) { closest = dist; }
+            }
+        }
+    }
+    return closest;
+}
+</pre>
+				<span class="small">
+					Adaptation of closest-point voroni distance noise.
+				</span>
+			</div>
+			
+			<div class="col s12">
+				<p>
+					Looking at the code for the 3d closest-point voroni distance noise, we can see it samples a 4x4x4 space of points.
+					For the single-closest point, changing this down to only the 2x2x2 neighborhood around the point probably wouldn't
+					cause the output to be any different. However, when moving into the second closest point, it may cause some difference.
+				</p>
+			</div>
+			
+			<div class="card blue-grey lighten-4 col s10 offset-s1">
+				<div class="chip">(NVidia Cg)</div><pre>
+//Using orignal hash function defined in part 1
+//and the hash3 function defined above...
+float voronif2(float3 v) {
+    float3 p = floor(v);
+    float3 f = frac(v);
+    
+    float closest = 2.0;
+    float second = 2.0;
+    for (int k = -1; k &lt;= 2; k++) {
+        for (int j = -1; j &lt;= 2; j++) {
+            for (int i = -1; i &lt;= 2; i++) {
+                float3 sampleOffset = float3(k, j, i);
+                float3 featureDiff = sampleOffset - f + hash3(p + sampleOffset);
+                float dist = length(featureDiff);
+                if (dist &lt; closest) { second = closest; closest = dist; }
+                if (dist &lt; second) { second = dist; }
+            }
+        }
+    }
+    return second;
+}
+</pre>
+				<span class="small">
+					Adaptation of second-closest-point voroni distance noise.
+				</span>
+			</div>
+			
+			<div class="col s12">
+				<p>
+					There is also a variant that would return <tt>second-closest</tt>, 
+					as well as variants that use the 'manhattan distance' rather than eculidean distance.
+				</p>
+				<p>
+					Just below is a grid of 8 variants of voroni noise.
+					Each of these variants uses a slight variation of the noise function.
+					The worley noise version uses the difference between the first two distances (second - first).
+				</p>
+			</div>
+			
+			<div class="col s12 center card blue-grey darken-4 row">
+				<div class="col s12 row center card blue-grey darken-3">
+					<div class="col s3 tiny card blue-grey darken-3 white-text">Manhatten Voroni Distance Noise</div>
+					<div class="col s3 tiny card blue-grey darken-3 white-text">Closest-Point Voroni Distance Noise</div>
+					<div class="col s3 tiny card blue-grey darken-3 white-text">Second-Closest Voroni Distance Noise</div>
+					<div class="col s3 tiny card blue-grey darken-3 white-text">"Worley" Voroni Distance Noise</div>
+					<div class="col s12">
+						<canvas id="voroex1" width="800" height="400"></canvas>
+					</div>
+					<div class="col s12 tiny card blue-grey darken-3 white-text">1 - (Above noise)</div>
+				</div>
+			</div>
+			
+			<div class="col s12">
+				<p>
+					We can also make a generalized function that can calculate various kinds of voroni noises.
+				</p>
+			</div>
+			
+			<div class="card blue-grey lighten-4 col s10 offset-s1">
+				<div class="chip">(NVidia Cg)</div><pre>
+//Mode constants
+#define NORMAL 0
+#define MANHATTAN 1
+
+float voroni(float3 v, float3 shift, float4 comp, int distMode) {
+    //Integer and fracional components
+    float3 p = floor(v);
+    float3 f = frac(v);
+    
+    //Closest point distances
+    float3 closest = float3(2.0, 2.0, 2.0);
+    
+    //Loop over the (4x4x4) local neighborhood
+    for (int k = -1; k &lt;= 2; k++) {
+        for (int j = -1; j &lt;= 2; j++) {
+            for (int i = -1; i &lt;= 2; i++) {
+                //Offset of current sample
+                float3 sampleOffset = float3(i,j,k);
+                //Difference to current feature point
+                float3 featurePoint = sampleOffset - f + (shift * hash3(p + sampleOffset));
+                
+                float dist = 0.0;
+                //Different distance modes
+                if (distMode == MANHATTAN) {
+                    //Uses the highest cardinal direction distance
+                    featurePoint = abs(featurePoint);
+                    dist = max(max(featurePoint.x, featurePoint.y), featurePoint.z);
+                } else if (distMode == NORMAL) {
+                    //Otherwise uses the eculidean length
+                    dist = length(featurePoint);
+                }
+                
+                //Properly track the closest 3 point distances
+                if (dist &lt; closest.x) { 
+                    closest.z = closest.y; 
+                    closest.y = closest.x; 
+                    closest.x = dist; 
+                } else if (dist &lt; closest.y) { 
+                    closest.z = closest.y; 
+                    closest.y = dist; 
+                } else if (dist &lt; closest.z) { closest.z = dist; }
+            }
+        }
+    }
+    //Combine the 3 distances based on the 'comp' parameter
+    return comp.w * abs(comp.x * closest.x + comp.y * closest.y + comp.z * closest.z);
+}
+//Some functions that use the above function with different parameters
+float manhattan(float3 v) { return voroni(v, float3(1,1,1), vec4(-1,1,.30,1.), MANHATTAN); }
+float manhattan3(float3 v) { return voroni(v, float3(1,1,1), vec4(-1,.5,.5,1.7), MANHATTAN); }
+float voroni1f(float3 v) { return voroni(v, float3(1,1,1), vec4(1,0,0,.8), NORMAL); }
+float voroni2f(float3 v) { return voroni(v, float3(1,1,1), vec4(0,1,0,.8), NORMAL); }
+float worley(float3 v) { return voroni(v, float3(1,1,1), vec4(-1,1,0,1.5), NORMAL); }
+
+</pre>
+				<span class="small">
+					More modular version of the noise function
+				</span>
+			</div>
+			
+			<div class="col s12 center card blue-grey darken-4 row">
+				<div class="col s12 row center card blue-grey darken-3">
+					<div class="col s6 tiny card blue-grey darken-3 white-text">Manhatten Distance version</div>
+					<div class="col s6 tiny card blue-grey darken-3 white-text">Euclidean Distance version</div>
+					<div class="col s12">
+						<canvas id="voroex2" width="600" height="600"></canvas>
+					</div>
+					<div class="col s12 tiny card blue-grey darken-3 white-text">1-(above)</div>
+				</div>
+			</div>
+			
+			<div class="col s12">
+				<p>
+					Using this programmable function, many more noise fields can be used 
+					(and, even better, switched between without having to recompile the shader program!).
+					This may become useful to create many effects. 
+					Some examples might be The segmenting for stained glass or uneven stone tiles, 
+					cellular 'fleshy' textures, and even the patterns of circuit boards can be created using
+					various voroni distance noise fields.
+				</p>
+			</div>
+			
+		</div>
+			
+	</body>
+</html>
