@@ -1,0 +1,396 @@
+<html>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<head>
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.7/css/materialize.min.css">
+		<link rel="stylesheet" href="./styles.css">
+		<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+		<script src="https://code.jquery.com/jquery-3.1.0.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.7/js/materialize.min.js"></script>
+		<script src="common.js"></script>
+		<script src="03surfaces.js"></script>
+		
+	</head>
+		
+	<body class="brown lighten-3">
+		<div class="container row brown lighten-2">
+			<div class="card blue-grey lighten-4 center"> 
+				<h1>Procedural Generation</h1>
+				<h3>Projecting procedural textures onto 3d surfaces</h3>
+			</div>
+			
+			<div class="col s12">
+				<h5>Background </h5>
+				<p>
+					A little bit of background before we dive right into projecting our textures onto 3d objects:
+				</p>
+				<p>
+					So far, we have only been working with one kind of shader program: Fragment shaders.
+					A full shader program is comprised of both a Vertex and a Fragment shader.
+					I can't do a good job explaining how these two things work in tandem, thankfully, there's
+					a few animations that do it much better than I could explain
+					<a href="http://webglfundamentals.org/webgl/lessons/webgl-how-it-works.html">Here</a>.
+					
+					The two animations to look at are the one near the top, just under the first block of code,
+					and another one further down, with a triangle with very jagged, pixelated edges.
+				</p>
+				<p>
+					The primary differences between the 'vertex' and 'fragment' shaders are:
+					<ol>
+						<li>The vertex shader processes verticies</li>
+						<li>The fragment shader processes pixels</li>
+						<li>The fragment shader (typically) runs more times, and does more work</li>
+					</ol>
+					In the last 'paper', most of the examples were simply fragment shaders,
+					running for every pixel in a canvas object. Behind that, there was a vertex shader,
+					which didn't do much, just to make the entire canvas be used.
+				</p>
+				
+				<p>
+					In this 'paper', we are moving on to write shaders for the Unity3d game engine.
+					Shaders for this platform are a bit different, and come in many varieties.
+					One method of producing shaders allows for controlling the legacy 'Fixed Function' pipeline.
+					This is a bit less useful for us, since we want to be able to write more complex programs,
+					rather than just telling the graphics card how to sample and blend texture images.
+					We will be focusing on using Surface Shaders. This kind of shader works a bit differently
+					than what we have been doing so far.
+				</p>
+					
+				<p>
+					Unity's surface shader expects more than just a single color as output, instead, it
+					expects a much larger struct, containing more information about the pixel.
+				</p>
+			</div>
+			<div class="card blue-grey lighten-4 col s8 offset-s2">
+				<div class="chip">Given by Unity's built-in documentation:</p></div>
+				<pre>
+    fixed3 Albedo;      // base (diffuse or specular) color
+    fixed3 Specular;    // specular color
+    fixed3 Normal;      // tangent space normal, if written
+    half3 Emission
+    half Metallic;      // 0=non-metal, 1=metal
+    half Smoothness;    // 0=rough, 1=smooth
+    half Occlusion;     // occlusion (default 1)
+    fixed Alpha;        // alpha for transparencies
+</pre>
+				
+			</div>
+			
+			<div class="col s12">
+				<p>
+					They also provide a version that takes also has a 'fixed3 Specular' property for specular highlight color.
+					This struct is then used by a lighting function to produce the actual color of the pixel.
+				</p>
+					<ol>
+						<li>Albedo is the primary output for surfaces, which is what recieves the light.</li>
+						<li>Specular controls the color of specular reflections. 
+								By default, this is just white (100% of whatever light is being reflected)</li>
+						<li>The Emission property is light that is always present (Emitted by the surface), and used for glows.</li>
+						<li>Metallic and Smoothness properties determine the general reflectiveness of the surface,
+								both to light sources and to the ambient environment reflections.</li>
+						<li>Occulsion determines how exposed that part of the surface is to light.
+								This adds to the appearance of depth on the surface.</li>
+						<li>Alpha has no use for opaque surfaces, but can be used to either fade transparent surfaces,
+								Or 'clip' pixels off of partial surfaces, like leaves.</li>
+					</ol>
+					
+				<p>
+				</p>
+				<p>
+					Our 'surface' shader writes to these properties of a struct, 
+					and then that struct is unpacked and processed by a lighting function.
+					
+					Unity's shader system is pretty extensible, and even allows for custom user lighting functions.
+					The lighting function is what actually does what our fragment shaders were doing previously 
+					(determining a single color).
+					
+					However, the presence of other properties gives us other places where we can provide details
+					to make the surfaces have more detail.
+					
+					For example, besides the Albedo property,
+					we could vary the Metallic and Smoothness properties based on our noise functions,
+					as well the Occulsion, Normal, and Emissive properties.
+				</p>
+				<p>
+					Unity's pipeline also does a lot of other useful stuff, like providing different information
+					into the fragment/surface shaders, through a user-defined struct (Input) which can
+					hold whatever information is needed, as well as allowing users to provide information themselves
+					through custom vertex functions, as well as automatically compiling a number of different variants
+					of the surface shader for different 'passes', and in different rendering modes.
+					It also creates a way to pipe information about the shader for each 'material' that uses that shader program.
+				</p>
+				<p>
+					Unfortunately, Unity has retired their Web Player plugin, and doesn't properly support
+					complex shaders in their WebGL pipeline, yet.
+					So, there's no graceful way to embed these examples into the pages this time.
+					Instead, there will be embedded images or videos.
+				</p>
+				<p>
+					Also, much of the stuff that has been done, has been ported to Nvidia Cg, (C for Graphics).
+					Most of the common functions have been separated into cginclude files, similar to headers.
+					<h5>CGIncludes</h5>
+					<ol>
+						<li><a href="inc/noiseprims.cginc">noiseprims.cginc - Holds the hash and basic noise functions</a></li>
+						<li><a href="inc/fbm.cginc">fbm.cginc - Holds the fractal noise function </a></li>
+						<li><a href="inc/voroni.cginc">voroni.cginc - Holds the voroni noise functions </a></li>
+						<li><a href="inc/fbmnormal.cginc">fbmnormal.cginc - Holds a helper function to generate normals for surfaces </a></li>
+						<li><a href="inc/procheight.cginc">procheight.cginc - Holds a helper function to parallax surfaces </a></li>
+						
+					</ol>
+				</p>
+				
+				<p>
+					For starters, lets look at a 3d-projection of the camo created in the last 'paper':
+				</p>
+				<h5>Camo Surface Shader Code</h5>
+			</div>
+				
+			<div class="card blue-grey lighten-4 col s8 offset-s2">
+				<div class="chip">Full Unity Shader File: (Camo.shader)</p></div>
+				<ul class="collapsible" data-collapsible="accordion">
+					<li class="nodisc">
+						<div class="collapsible-header">Code (ITS BIG)  <i class="material-icons">more_vert</i></div>
+						<div class="collapsible-body">
+				<pre>Shader "Procedural/Camo" {
+    Properties {
+        [Toggle(SWIZLE_OCTAVES)] _SWIZLE_OCTAVES("Swizle Octaves", Float) = 1
+        _Color1 ("Color 1", Color) = (.490,.431,.294,1)
+        _Color2 ("Color 2", Color) = (.274,.196,.059,1)
+        _Color3 ("Color 3", Color) = (.196,.235,.098,1)
+        _Color4 ("Camo Base Color", Color) = (.098, .078, .094, 1)
+        
+        _Clips ("Clips", Vector) = (1.4, .17, .29, .26)
+        _Glossiness ("Smoothness", Range(0,1)) = 0.333
+        _Metallic ("Metallic", Range(0,1)) = 0.395
+        
+        _Seed ("Seed", Float) = 13337.13
+        
+        _Octaves ("NoiseOctaves", Range(1, 12)) = 4
+        _DiffLayers ("Difference Noise Layers", Range(1, 8)) = 3
+        _DiffNoiseJump ("Difference Noise Jump", Range(1, 8)) = 2.5
+        _Persistence ("NoisePersistence", Range(0, 1)) = .596
+        _Scale ("NoiseScale", Float) = 2.15
+        
+        
+        _BumpOctaves ("BumpOctaves", Range(1, 8)) = 5.0
+        _BumpScale ("Bumpiness Spread", Range(1.337, 33.37)) = 4.5
+        _BumpPersistence ("Bump Persistence", Range(0, 1)) = .579
+        _BumpAmt ("Bumpiness Amount", Range(.01, 2)) = 1.46
+        
+        _Offset ("NoiseOffset (x,y,z) * w", Vector) = (0, 0, 0, 1)
+    }
+        
+    SubShader {
+        Tags { 
+            "RenderType"="Opaque" 
+            "DisableBatching" = "True" 
+        }
+        LOD 200
+        
+        CGPROGRAM
+        #pragma surface surf Standard fullforwardshadows
+        #pragma target 3.0
+        #pragma multi_compile __ SWIZLE_OCTAVES
+        
+        #include "inc/noiseprims.cginc"
+        #include "inc/fbm.cginc"
+        #include "inc/fbmnormal.cginc"
+        
+        struct Input {
+            float3 worldPos;
+            float3 viewDir;
+        };
+        
+        half _Glossiness;
+        half _Metallic;
+        fixed4 _Color1;
+        fixed4 _Color2;
+        fixed4 _Color3;
+        fixed4 _Color4;
+        int _DiffLayers;
+        float _DiffNoiseJump;
+        float4 _Offset;
+        float4 _Clips;
+        
+        //Difference noise function
+        float diffNoise(float3 pos) {
+            float v = nnoise(pos);
+            for (int i = 0; i &lt; _DiffLayers; i++) {
+                pos.z += _DiffNoiseJump;
+                v = abs(v-nnoise(pos));
+            }
+            return v;
+        }
+        void surf (Input IN, inout SurfaceOutputStandard o) {
+            resetNoise();
+            
+            //Translate world position into local model position
+            float4 wpos = float4(IN.worldPos, 1);
+            float3 pos = mul(unity_WorldToObject, wpos);
+            pos += _Offset.xyz * _Offset.w;
+            
+            //Pretty much the same as the GLSL shader
+            float4 c;
+            float clip4 = diffNoise(pos);
+            if (clip4 &lt; _Clips.w) {
+                pos.z -= 3.0;
+                float clip3 = diffNoise(pos);
+                if (clip3 &lt; _Clips.z) {
+                    pos.z -= 5.0;
+                    float clip2 = diffNoise(pos);
+                    if (clip2 &gt; _Clips.y) { c = _Color1; }
+                    else { c = _Color2; }
+                } else { c = _Color3; }
+            } else { c = _Color4; }
+            
+            //Assign output color
+            o.Albedo = c.rgb;
+            //Assign surface orientation
+            o.Normal = fbmNormal(pos);
+            //Shinyness
+            o.Metallic = _Metallic;
+            o.Smoothness = _Glossiness;
+            //Does nothing, but is still output
+            o.Alpha = c.a;
+        }
+        ENDCG
+    } 
+    FallBack "Diffuse"
+}
+
+</pre>
+				</div></li>
+			</div>
+			<div class="col s12">
+				<p>
+					Wow, that was a huge amount of stuff. It starts with the properties block. This defines what data is piped into the shader
+					from the engine, allowing people other than the programmer to define things about the shader. Each of the lines in this section
+					corrospond to a variable defined below (the variables starting with _). 
+					Then there's a bunch of #include directives pointing to some of the cginc files listed above, and some other compile directive stuff.
+					
+					Below, towards the bottom, the last few lines assign to the surface outputs.
+					The middle part is still relatively the same.
+				</p>
+				<p>
+					The surface produced by this shader (with default settings) looks like the following:
+				</p>
+			</div>
+			<div class="card blue-grey darken-3 col s3">
+				<div class="card-image"> <img src="images/Camobox.png" /> </div>
+			</div>
+			<div class="card blue-grey darken-3 col s3">
+				<div class="card-image"> <img src="images/Camoball.png" /> </div>
+			</div>
+			<div class="card blue-grey darken-3 col s3">
+				<div class="card-image"> <img src="images/Camocap.png" /> </div>
+			</div>
+			<div class="card blue-grey darken-3 col s3">
+				<div class="card-image"> <img src="images/Camocyl.png" /> </div>
+			</div>
+			
+			<div class="col s12">
+				<p>
+					Lookin pretty good. Another benefit from using procedural textures, is it's extremely easy to modify what the surface looks like.
+				</p>
+				<h5>Changing shader properties</h5>
+			</div>
+			
+			<div class="card blue-grey darken-2 col s12 row">
+				<ul class="collapsible" data-collapsible="accordion">
+					<li class="nodisc">
+						<div class="blue-grey collapsible-header"> Basic Properties <i class="material-icons">more_vert</i> </div>
+						
+						<div class="col s12  row collapsible-body">
+							<p>
+								These properties apply to all of the procedural shaders, as they effect variables defined in 'noiseprims.cginc',
+								which are used by pretty much every noise function. They have similar effect on each different shader.
+							</p>
+							<div class="card medium blue-grey darken-3 col s3">
+								<div class="card-image"> 
+									<video width="100%" height="240" autoplay="autoplay" loop="true" >
+										<source src="webm/camoSeed.webm" type="video/mp4" />
+									</video>
+								</div>
+								<div class="card-content">
+									<span class="card-title">_Seed</span>
+									<p>
+										Changes quickly changes the spread of the noise.
+										This allows for basically an unlimited number of variations to a texture to be made.
+									</p>
+								</div>
+							</div>
+
+							<div class="card medium blue-grey darken-3 col s3">
+								<div class="card-image"> 
+									<video width="100%" height="240" autoplay="autoplay" loop="true" >
+										<source src="webm/camoOctaves.webm" type="video/mp4" />
+									</video>
+								</div>
+								<div class="card-content">
+									<span class="card-title">_Octaves</span>
+									<p>
+										Changing the octaves changes the deepness of the fractalization of the noise.
+									</p>
+								</div>
+							</div>
+
+							<div class="card medium blue-grey darken-3 col s3">
+								<div class="card-image"> 
+									<video width="100%" height="240" autoplay="autoplay" loop="true" >
+										<source src="webm/camoPersistence.webm" type="video/mp4" />
+									</video>
+								</div>
+								<div class="card-content">
+									<span class="card-title">_Persistence</span>
+									<p>
+										Persistence changes the amplitude of deeper fractal layers.
+									</p>
+								</div>
+							</div>
+
+							<div class="card medium blue-grey darken-3 col s3">
+								<div class="card-image"> 
+									<video width="100%" height="240" autoplay="autoplay" loop="true" >
+										<source src="webm/camoScale.webm" type="video/mp4" />
+									</video>
+								</div>
+								<div class="card-content">
+									<span class="card-title">_Scale</span>
+									<p>
+										Scale changes the base 'frequency' of the noise field.
+									</p>
+								</div>
+							</div>
+						
+						</div>
+					</li>
+				</ul>
+			</div>
+					
+			<div class="col s12 divider blue-grey darken-3"><p>.</p></div>
+
+			<div class="col s12">
+				<p>
+					.
+				</p>
+			</div>
+			
+		</div>
+		
+	</body>
+	
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
