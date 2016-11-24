@@ -94,18 +94,19 @@
 					</ol>
 					
 				<p>
-				</p>
-				<p>
 					Our 'surface' shader writes to these properties of a struct, 
 					and then that struct is unpacked and processed by a lighting function.
-					
+				</p>
+				<p>	
 					Unity's shader system is pretty extensible, and even allows for custom user lighting functions.
 					The lighting function is what actually does what our fragment shaders were doing previously 
 					(determining a single color).
-					
+				</p>
+				<p>
 					However, the presence of other properties gives us other places where we can provide details
 					to make the surfaces have more detail.
-					
+				</p>
+				<p>	
 					For example, besides the Albedo property,
 					we could vary the Metallic and Smoothness properties based on our noise functions,
 					as well the Occulsion, Normal, and Emissive properties.
@@ -117,6 +118,10 @@
 					through custom vertex functions, as well as automatically compiling a number of different variants
 					of the surface shader for different 'passes', and in different rendering modes.
 					It also creates a way to pipe information about the shader for each 'material' that uses that shader program.
+				</p>
+				<p>
+					We use this system to grab the worldspace coordinates of the pixel that is being rendered, (The 'worldPos' field in the 'Input' struct)
+					and we use that information to sample the noise fields to build the texture. 
 				</p>
 				<p>
 					Unfortunately, Unity has retired their Web Player plugin, and doesn't properly support
