@@ -134,11 +134,11 @@
 					Most of the common functions have been separated into cginclude files, similar to headers.
 					<h5>CGIncludes</h5>
 					<ol>
-						<li><a href="inc/noiseprims.cginc">noiseprims.cginc - Holds the hash and basic noise functions</a></li>
-						<li><a href="inc/fbm.cginc">fbm.cginc - Holds the fractal noise function </a></li>
-						<li><a href="inc/voroni.cginc">voroni.cginc - Holds the voroni noise functions </a></li>
-						<li><a href="inc/fbmnormal.cginc">fbmnormal.cginc - Holds a helper function to generate normals for surfaces </a></li>
-						<li><a href="inc/procheight.cginc">procheight.cginc - Holds a helper function to parallax surfaces </a></li>
+						<li><a href="Shaders/inc/noiseprims.cginc">noiseprims.cginc - Holds the hash and basic noise functions</a></li>
+						<li><a href="Shaders/inc/fbm.cginc">fbm.cginc - Holds the fractal noise function </a></li>
+						<li><a href="Shaders/inc/voroni.cginc">voroni.cginc - Holds the voroni noise functions </a></li>
+						<li><a href="Shaders/inc/fbmnormal.cginc">fbmnormal.cginc - Holds a helper function to generate normals for surfaces </a></li>
+						<li><a href="Shaders/inc/procheight.cginc">procheight.cginc - Holds a helper function to parallax surfaces </a></li>
 						
 					</ol>
 				</p>
@@ -150,7 +150,7 @@
 			</div>
 				
 			<div class="card blue-grey lighten-4 col s8 offset-s2">
-				<div class="chip">Full Unity Shader File: (Camo.shader)</p></div>
+				<div class="chip">Full Unity Shader File: <a href="Shaders/Camo.shader">Camo.shader</a></p></div>
 				<ul class="collapsible" data-collapsible="accordion">
 					<li class="nodisc">
 						<div class="collapsible-header">Code (ITS BIG)  <i class="material-icons">more_vert</i></div>
@@ -297,6 +297,7 @@
 					Lookin pretty good. Another benefit from using procedural textures, is it's extremely easy to modify what the surface looks like.
 				</p>
 				<h5>Changing shader properties</h5>
+				<p class="tiny">(Click to expand)</p>
 			</div>
 			
 			<div class="card blue-grey darken-2 col s12 row">
@@ -362,9 +363,9 @@
 					</li>
 				</ul>
 			</div>
-					
+			<!--
 			<div class="col s12 divider blue-grey darken-3"><p>.</p></div>
-
+			-->
 			<div class="card blue-grey darken-2 col s12 row">
 				<ul class="collapsible" data-collapsible="accordion">
 					<li class="nodisc">
@@ -414,9 +415,9 @@
 					</li>
 				</ul>
 			</div>
-
+			<!--
 			<div class="col s12 divider blue-grey darken-3"><p>.</p></div>
-
+			-->
 			<div class="card blue-grey darken-2 col s12 row">
 				<ul class="collapsible" data-collapsible="accordion">
 					<li class="nodisc">
@@ -458,42 +459,268 @@
 				<p>
 					So, changing the properties changes the noise fields, or how the samples are used to generate the texture.
 					The parameters that can be piped into shaders are pretty limitless, as are the kinds of things that one can do with the shaders.
-					Heres a bunch of other, similar effects I've written using the same noise primitives and CGIncludes:
+				</p>
+				<p>
+					Heres a bunch of other, similar effects I've written using the same noise primitives and CGIncludes.
+					The first two, 'Marble' and 'Digital Brain', I didn't come up with myself, like with the camo pattern, but the rest are all creations of my own.
+					The Camo, Marble, and Tech effects I wrote to get my bearings in the world of making shaders.
+					I then used similar techniques to create the other effects.
+				</p>
+				<p>
+					Click one to show more info about it.
 				</p>
 				
 				
 			</div>
-			<div class="card blue-grey darken-2 col s3"> 
-				<div class="card-image"> <img src="images/Brickball.png" /> </div> 
-				<div class="card-content"> <span class="card-title">Bricks</span></div>
-			</div>
-			<div class="card blue-grey darken-2 col s3"> 
-				<div class="card-image"> <img src="images/Stoneball.png" /> </div>
-				<div class="card-content"> <span class="card-title">'Lumpy'</span></div>
-			</div>
-			<div class="card blue-grey darken-2 col s3"> 
-				<div class="card-image"> <img src="images/PlanetBall.png" /> </div> 
-				<div class="card-content"> <span class="card-title">'Planet'</span></div>
-			</div>
-			<div class="card blue-grey darken-2 col s3"> 
-				<div class="card-image"> <img src="images/Moonball.png" /> </div> 
-				<div class="card-content"> <span class="card-title">'Moon'</span></div>
-			</div>
-			<div class="card blue-grey darken-2 col s3"> 
-				<div class="card-image"> <img src="images/Techball.png" /> </div>
-				<div class="card-content"> <span class="card-title">'Tech'</span></div>
-			</div>
-			<div class="card blue-grey darken-2 col s3"> 
+			<div class="card blue-grey darken-2 col s2" id="marble"> 
 				<div class="card-image"> <img src="images/MarbleBall.png" /> </div> 
 				<div class="card-content"> <span class="card-title">'Marble'</span></div>
 			</div>
-
-			<div class="col s12">
-				
+			<div class="card blue-grey darken-2 col s2" id="tech"> 
+				<div class="card-image"> <img src="images/Techball.png" /> </div>
+				<div class="card-content"> <span class="card-title">'Digital Brain'</span></div>
+			</div>
+			<div class="card blue-grey darken-2 col s2" id="stone"> 
+				<div class="card-image"> <img src="images/Stoneball.png" /> </div>
+				<div class="card-content"> <span class="card-title">'Lumpy'</span></div>
+			</div>
+			<div class="card blue-grey darken-2 col s2" id="planet"> 
+				<div class="card-image"> <img src="images/PlanetBall.png" /> </div> 
+				<div class="card-content"> <span class="card-title">'Planet'</span></div>
+			</div>
+			<div class="card blue-grey darken-2 col s2" id="moon"> 
+				<div class="card-image"> <img src="images/Moonball.png" /> </div> 
+				<div class="card-content"> <span class="card-title">'Moon'</span></div>
+			</div>
+			<div class="card blue-grey darken-2 col s2" id="bricks"> 
+				<div class="card-image"> <img src="images/Brickball.png" /> </div> 
+				<div class="card-content"> <span class="card-title">'Bricks'</span></div>
 			</div>
 
-
 			
+			<div class="col s12 card blue-grey darken-1 row" id="marbleinfo">
+				<h5>Marble</h5>
+				<div class="col s12">
+					<p> Code <a href="Shaders/Marble.shader">Here</a> </p>
+					<p>
+						This is one of the simpler effects. Again, I didn't come up with this myself, but have seen it used in numerous places.
+						The meat of the effect is the calculation of the value:
+					</p>
+					<p><tt>float v = ( 1 + sin( ( pos.x + nnoise(pos, _Factor) ) * 50 ) ) / 2;</tt></p>
+					<p>
+						Which is used to lerp between two colors.
+						
+						The inputs to the sin function are the x position (which always increases)
+						and the noise value at the point (which is essentially random).
+						This creates a sort of 'grain' in the surface.
+						This effect might be good for creating a bit of regularity in a surface, such as the grain of wood, or layers in sandstone.
+					</p>
+					<div class="card medium blue-grey darken-3 col s3">
+						<div class="card-image"> 
+							<video width="100%" height="240" autoplay="autoplay" loop="true" >
+								<source src="webm/marbleMorph.webm" type="video/mp4" />
+							</video>
+						</div>
+						<div class="card-content">
+							<span class="card-title">Marble morphing</span><br>
+							Morph between two settings for 'marble'
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="col s12 card blue-grey darken-1 row" id="techinfo">
+				<h5>Digital Brain</h5>
+				<div class="col s12">
+					<p> Code <a href="Shaders/VTech3dTransparent.shader">Here</a> </p>
+					<p>
+						This is a bit of a different effect. It's also transparent, so it writes to the <tt>o.Alpha</tt> output field,
+						and is compiled with the <tt>pragma</tt> <tt>alpha:fade</tt>.
+					</p>
+					<p>
+						It's a pretty simple effect that is a bunch of layers of voroni noise, but the neato part is the 'electrons'
+						moving across the 'wires'.
+						On octaves deeper than the first, there's an additional sample of the noise function used to animate the electrons.
+						This extra field is panned across the first field, which is what makes the electrons move.
+						Only a small section of the field is animated this way (sample value between certain values), so the electrons
+						are confined to the 'wires' instead of the 'cells'.
+					</p>
+					<p>
+						This is the last effect I used someone else's work on.
+						The original effect I based this on can be found <a href="http://glslsandbox.com/e#35914.0">Here</a>.
+						This is one of the effects that I got inspired by, and got me writing these effects in the first place,
+						and even after all this time (and that I undestand pretty much exactly how it works), I still find it a really cool effect.
+					</p>
+				</div>
+				<div class="card medium blue-grey darken-3 col s3">
+					<div class="card-image"> 
+						<video width="100%" height="240" autoplay="autoplay" loop="true" >
+							<source src="webm/techPulse.webm" type="video/mp4" />
+						</video>
+					</div>
+					<div class="card-content">
+						<span class="card-title">Digital Brain 3d</span><br>
+						Animated, Transparent, Procedural texture.
+					</div>
+				</div>
+			</div>
+			<div class="col s12 card blue-grey darken-1 row" id="stoneinfo">
+				<h5>'Lumpy'/Stones</h5>
+				<div class="col s12">
+					<p> Code <a href="Shaders/Lumpy.shader">Here</a> </p>
+					<p> Another variant <a href="Shaders/MovingLumpy.shader">Here</a> </p>
+					<p>
+						This effect turned out way better than I expected.
+						I used a technique for parallax, where the height of the surface is controlled by a Voroni Cellular noise.
+						The parallax calculation is fairly simple for the visual interest it adds. It's included in the 'procheight.cginc' file:
+					</p>
+				</div>
+				<div class="card blue-grey lighten-4 col s8 offset-s2">
+					<div class="chip">Excerpt from <a href="Shaders/inc/procheight.cginc">procheight.cginc</a></p></div>
+					<pre>inline float3 parallax3d(Input IN, float3 h) {
+    const float3 nrm = normalize(IN.wNormal);
+    const float hv = h * _Parallax - _Parallax * _Bias;
+    const float3 eye = normalize(IN.viewDir);
+    float3 dir = eye - nrm * dot(eye, nrm) / dot(nrm, nrm);
+    return hv * -dir;
+}</pre>				
+				</div>
+				<div class="col s12">
+					<p>
+						That is used to offset the sample for the actual texture.
+						The eye direction (<tt>dir</tt>) on the last line can be flipped to taste, neither looks perfect, as this technique works 
+						much more simply in 2 dimensions rather than 3.
+						In 3 dimensions, the normal component of the surface (orientation) must be removed from the eye direction, 
+						in order to make the resulting direction tangent to the surface, and make the parallax work more properly.
+						Unfortunately, there's no way to stabilize the direction that this offset is in, unlike in 2d.
+					</p>
+						
+					<p>
+						Then, the noise field is re-sampled at the offset position.
+						Then, the result is used to calculate albedo, normals, and is also applied to the 'Glossiness' and 'Metallic'ness of the pixel.
+						I added another feature (_Polish) which changes how much 'Glossiness' and 'Metallic'ness the pixel has based on the 'height' of the pixel.
+					</p>
+					<p>
+						Not being content, I took a technique from the previous 'Digital Brain' effect, and added another set of samples
+						to the voroni noise function, this time, 3 of them, at different frequencies. Then blended an amount of the resulting samples
+						to the output, and panned those extra samples across the surface, creating an animated, liquid covered texture.
+					</p>
+					<p>
+						I then modified this water texture to be like a slime covered rock, panning at a slower speed,
+						with lower amounts of higher frequency noise blended.
+					</p>
+					<div class="card medium blue-grey darken-3 col s3">
+						<div class="card-image"> 
+							<video width="100%" height="240" autoplay="autoplay" loop="true" >
+								<source src="webm/waterRock.webm" type="video/mp4" />
+							</video>
+						</div>
+						<div class="card-content">
+							<span class="card-title">Running Water</span><br>
+						</div>
+					</div>
+					<div class="card medium blue-grey darken-3 col s3">
+						<div class="card-image"> 
+							<video width="100%" height="240" autoplay="autoplay" loop="true" >
+								<source src="webm/fleshRock.webm" type="video/mp4" />
+							</video>
+						</div>
+						<div class="card-content">
+							<span class="card-title">Slimy/Fleshy Version</span><br>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="col s12 card blue-grey darken-1 row" id="planetinfo">
+				<h5>Planet</h5>
+				<div class="col s12">
+					<p> Code <a href="Shaders/SimplePlanet.shader">Here</a> </p>
+					<p>
+						This one is another adapted 2d texture, but one I had made earlier when experementing with 'mode7' like projections.
+					</p>
+					<p>
+						My original effect can be found <a href="http://glslsandbox.com/e#28656.18">Here</a>
+					</p>
+					<p>
+						The original effect sampled the noise function a few times, for 'height' and 'moisture' values, then, like the camo effect,
+						'Clips' the texture into different regions, but instead, based on the combination of the values.
+					</p>
+					<p>
+						This adaptation works much the same way, but with improved surfaces, and adjustments to 'height'/'moisture'
+						based on the distance from the 'equator' (or to the x/z plane).
+					</p>
+					<div class="card medium blue-grey darken-3 col s3">
+						<div class="card-image"> 
+							<video width="100%" height="240" autoplay="autoplay" loop="true" >
+								<source src="webm/planetMorph.webm" type="video/mp4" />
+							</video>
+						</div>
+						<div class="card-content">
+							<span class="card-title">Planet Morphing</span><br>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="col s12 card blue-grey darken-1 row" id="mooninfo">
+				<h5>Moon</h5>
+				<div class="col s12">
+					<p> Code <a href="Shaders/Moon.shader">Here</a> </p>
+					<p>
+						This one was very interesting to write, and looks very convincing until you get right up close to it.
+						It's a simple Euclidean-distance voroni noise, filtered and processed in such a way that not all holes pass.
+						Then, the edges of the holes are adjusted they are smooth, rounded craters, with a slight lip around the edge.
+						And, of course, the craters are fractalized, and it uses the same height-parallax technique the 'Lumpy' shader does.
+					</p>
+					<div class="card medium blue-grey darken-3 col s3">
+						<div class="card-image"> 
+							<video width="100%" height="240" autoplay="autoplay" loop="true" >
+								<source src="webm/moonMorph.webm" type="video/mp4" />
+							</video>
+						</div>
+						<div class="card-content">
+							<span class="card-title">Moon Morphing</span><br>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="col s12 card blue-grey darken-1 row" id="brickinfo">
+				<h5>Bricks</h5>
+				<div class="col s12">
+					<p> Code <a href="Shaders/Bricks.shader">Here</a> </p>
+					<p>
+						This is likely the most complicated shader I have written so far.
+						There's a ton of parameters for all sorts of things, such as the size of the bricks, offsets per 'layer',
+						factors for 'relaxing' the noise, blending different noise layers, and changing the border size between the tiles.
+					</p>
+						
+					<div class="card medium blue-grey darken-3 col s3">
+						<div class="card-image"> 
+							<video width="100%" height="240" autoplay="autoplay" loop="true" >
+								<source src="webm/bricksMorph.webm" type="video/mp4" />
+							</video>
+						</div>
+						<div class="card-content">
+							<span class="card-title">Moon Morphing</span><br>
+						</div>
+					</div>
+						
+						
+				</div>
+			</div>
+			
+			<div class="col s12">
+				<p>Here are the shaders applied to some models that were graciously given to public domain by 
+					<a href="http://opengameart.org/users/yughues">'Yughues'</a>
+					of Open Game Art:
+				</p>
+			</div>	
+			<div class="card blue-grey darken-2 col s6"> 
+				<div class="card-image"> <img src="images/PicAsteroids.png" /> </div> 
+				<div class="card-content"> <span class="card-title">'Asteroids'</span></div>
+			</div>
+			<div class="card blue-grey darken-2 col s6"> 
+				<div class="card-image"> <img src="images/PicWoodSurfaces.png" /> </div> 
+				<div class="card-content"> <span class="card-title">'Wood Crates'</span></div>
+			</div>
 		</div>
 		
 	</body>

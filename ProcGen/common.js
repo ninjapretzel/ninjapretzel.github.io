@@ -37,6 +37,16 @@ function addGridLines(id, start, end, step) {
 	return group;
 }
 
+function show(id) {
+	var e = document.getElementById(id);
+	e.style.display = 'block';
+}
+
+function hide(id) {
+	var e = document.getElementById(id);
+	e.style.display = 'none';
+}
+
 ///Refresh a given SVG element
 ///Modifying a SVG with jQuery does not properly refresh
 ///So this must be called once all modifications are complete.
