@@ -467,7 +467,7 @@
 					I then used similar techniques to create the other effects.
 				</p>
 				<p>
-					Click one to show more info about it.
+					<h5>Click one to show more info about it.</h5>
 				</p>
 				
 				
@@ -586,7 +586,6 @@
 						Parallax calculations in 2d and 3d both rely on projecting the eye vector onto the surface 
 						and offseting the texture sample in that direction by some distance, based on the height sample.
 					</p>
-						
 					<p>
 						Then, the noise field is re-sampled at the offset position.
 						Then, the result is used to calculate albedo, normals, and is also applied to the 'Glossiness' and 'Metallic'ness of the pixel.
@@ -594,13 +593,27 @@
 					</p>
 					<p>
 						Not being content, I took a technique from the previous 'Digital Brain' effect, and added another set of samples
-						to the voroni noise function, this time, 3 of them, at different frequencies. Then blended an amount of the resulting samples
-						to the output, and panned those extra samples across the surface, creating an animated, liquid covered texture.
+						to the voroni noise function, this time, 3 of them, at different frequencies. Unlike in digital brain, this is applied across the entire space,
+						rather than just along the 'circuits'. Then, the samples panned and blended, creating an animated, liquid covered texture.
+					</p>
+					<p>
+						This effect comes out of the 'water' samples affecting the height (and thereby, the parallax of any pixel), as well as a bit of color.
+						This gives the 'lower' regions between the stones some color.
+						One cool side effect of the way this is done, is the panning is in whatever space the texture is in (world or local).
+						When using the worldspace, the water always flows in the worldspace direction (as shown in webm below).
 					</p>
 					<p>
 						I then modified this water texture to be like a slime covered rock, panning at a slower speed,
 						with lower amounts of higher frequency noise blended.
 					</p>
+					<div class="card blue-grey darken-3 col s3">
+						<div class="card-image"> 
+							<video width="100%" height="240" autoplay="autoplay" loop="true" >
+								<source src="webm/stonesMorph.webm" type="video/mp4" />
+							</video>
+						</div>
+						<div class="card-content"> Stone Morph </div>
+					</div>
 					<div class="card blue-grey darken-3 col s3">
 						<div class="card-image"> 
 							<video width="100%" height="240" autoplay="autoplay" loop="true" >
@@ -657,6 +670,41 @@
 						Then, the edges of the holes are adjusted they are smooth, rounded craters, with a slight lip around the edge.
 						And, of course, the craters are fractalized, and it uses the same height-parallax technique the 'Lumpy' shader does.
 					</p>
+					<p>
+						Going into more detail, the craters are determined by the distance to the closest point. That distance is applied to a curve, roughly as follows:
+					</p>
+				</div>
+				<div class="col s4 card blue-grey darken-3">
+					<svg id="exampleLattice" viewbox="-8 -2 18 14" height="220" xmlns="http://www.w3.org/2000/svg">
+						<g stroke-width=".12" stroke="#C84">
+							<line x1="0" x2="0" y1="0" y2="10" />
+							<line x1="0" x2="10" y1="10" y2="10" />
+							
+						</g>
+						<g class="graph-labels">
+							<text x="-5" y="5" font-size=".1em">Value</text>
+							<text x="-5" y="6" font-size=".1em">(Height)</text>
+							<text x="3" y="11" font-size=".1em">Distance</text>
+							<text x="-1" y="1" font-size=".1em">1</text>
+							<text x="-1" y="9.5" font-size=".1em">0</text>
+							<text x="0" y="11" font-size=".1em">0</text>
+							<text x="9.5" y="11" font-size=".1em">1</text>
+						</g>
+						<g stroke-width=".12">
+							<polyline points="10,3 3,3 2.5,0 0,10 " style="fill:none;stroke:#000744" ></polyline>
+						</g>
+							
+							
+					</svg>
+				</div>
+				<div class="col s12">
+					<p>
+						There is some smoothing applied within the shader for this curve, but this makes it so only  positions very close to feature points 
+						become craters, there's a nice lip at points just outside of those craters, and the rest of the points not close to feature points are flat.
+					</p>
+					<p>
+						The height parallax then adds to the illusion that there is depth on the surface, 
+					</p>
 					<div class="card blue-grey darken-3 col s3">
 						<div class="card-image"> 
 							<video width="100%" height="240" autoplay="autoplay" loop="true" >
@@ -676,6 +724,22 @@
 						There's a ton of parameters for all sorts of things, such as the size of the bricks, offsets per 'layer',
 						factors for 'relaxing' the noise, blending different noise layers, and changing the border size between the tiles.
 					</p>
+					
+					<p>
+						The basic effect works by this process:
+						<ol>
+							<li>Taking the sample point, and determining the 3d cell it resides within</li>
+							<li>Blend between 'grout' and 'brick' based on the distance from the sample point to the cell edges.</li>
+							<li>Sample 'texture' for height value, offset sample point with parallax</li>
+							<li>Re-determine cell, 'grout'/'brick' blend etc.</li>
+							<li>Sample offset sample point for color, normal</li>
+						</ol>
+					</p>
+					
+					<p>
+						Then, I decided to apply the water texture on-top of the bricks, much like the 'Lumpy' effect.
+						This is applied the same way (Once for the height/parallax, and once for color).
+					</p>
 						
 					<div class="card blue-grey darken-3 col s3">
 						<div class="card-image"> 
@@ -686,7 +750,15 @@
 						<div class="card-content"> Bricks Morphing </div>
 					</div>
 						
-						
+							
+					<div class="card blue-grey darken-3 col s3">
+						<div class="card-image"> 
+							<video width="100%" height="240" autoplay="autoplay" loop="true" >
+								<source src="webm/waterBricks.webm" type="video/mp4" />
+							</video>
+						</div>
+						<div class="card-content"> Water on Bricks </div>
+					</div>
 				</div>
 			</div>
 			
@@ -698,11 +770,11 @@
 			</div>	
 			<div class="card blue-grey darken-2 col s6"> 
 				<div class="card-image"> <img src="images/PicAsteroids.png" /> </div> 
-				<div class="card-content"> <span class="card-title">'Asteroids'</span></div>
+				<div class="card-content"> <span class="card-title">'Asteroids'</span> using 'Planet' and 'Moon' textures</div>
 			</div>
 			<div class="card blue-grey darken-2 col s6"> 
 				<div class="card-image"> <img src="images/PicWoodSurfaces.png" /> </div> 
-				<div class="card-content"> <span class="card-title">'Wood Crates'</span></div>
+				<div class="card-content"> <span class="card-title">'Wood Crates'</span> using 'Marble' texture</div>
 			</div>
 		</div>
 		
