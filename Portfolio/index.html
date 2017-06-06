@@ -31,22 +31,17 @@
 				<div class="col s12">
 					<h1>Intro</h1>
 					<p>
-						I am a programmer. I do gameplay, system, and graphics programming. 
-						I have been programming as a hobby since I was 7 years old.
+						I am a programmer.
+                        <br />
+                        I do gameplay, system, and graphics programming. 
+						I have been programming as a hobby since I was about 7 years old.
 						I constantly strive to improve my knowledge and understanding of computer programming.
 						I have been mostly focused on learning how to program games, but, 
 							games are easily some of the most complicated programs that are written.
 					</p>
 					<p> 
-						In order to program games, I have had to learn much about many different domains of programming, including:
-					</p>
-					<ul class="barf">
-						<li>Structuring and manipulating large amounts of specific data</li>
-						<li>Properly handling data in files, from user input, or over network connections. </li>
-						<li>2d Image and 3d mesh formats, and manipulation and procedural generation of both. </li>
-						<li>Using source control software for its vast number of benefits </li>
-						<li>Automating tasks when possible to increase efficiency </li>
-					</ul>
+						
+                    </p>
 					
 				</div>
 				
@@ -55,10 +50,15 @@
 						
 						<div class="collapsible-header invis"> 
 							<h1>Games</h1> 
-							I make games in Unity3d. I have been using the engine since 2010, and have used it both as a hobbyist and professionally.
+							I make games. I've mostly been using Unity3d. I have been using the engine since 2010, and have used it both as a hobbyist and professionally.
+                            <br />
+                            I have also played with other games.
 							<br />
 							I have worked on mobile (Android/iOS) games, as well as games for PC. 
-							<br /> I cannot list all of the games I have worked on, but here is a sample of a few.
+                            <br />
+                            I at one point had some embedable demos of Unity games I've made that could be played in the browser, but Unity has removed support for that part of the engine.
+                            <br />
+                            Inside is a small sample of games I have worked on: 
 							
 							<i class="material-icons right">more_vert</i>
 							<span class="tinytext amber-text right">(click to expand)</span>
@@ -183,46 +183,23 @@
 								</div>
 							</div>
 
-							<div class="col s4 card alphaBG-blue-lighten grey-text">
+                            
+							 <div class="card col s4 alphaBG-blue-lighten grey-text">
 								<div class="card-image">
 									<video width="100%" height="220" autoplay="autoplay" loop="true">
-										<source src="webm/rappyToon.webm" type="video/mp4" />
-									</video>
-
-								</div>
-								<div class="card-content">
-									<span class="card-title activator grey-text">Toon Variant<i class="material-icons right">more_vert</i></span>
-								</div>
-								<div class="card-reveal alphaBG-blue-overlay">
-									<span class="card-title white-text">Recolorable Toon<i class="material-icons right">close</i></span>
-									<p>
-										A Toon-lighting variation of the recolorable shader. Also has a 'saturation' option.
-									</p>
-									<p>
-										Note: Model is a 'Rappy' from 'Phantasy Star Online'
-									</p>
-								</div>
-							</div>
-							
-							
-							
-							
-							<div class="card col s4 alphaBG-blue-lighten grey-text">
-								<div class="card-image">
-									<video width="100%" height="220" autoplay="autoplay" loop="true">
-										<source src="../ProcGen/webm/bricksMorph.webm" type="video/webm" />
+										<source src="./webm/neatoThing.webm" type="video/webm" />
 									</video>
 								</div>
 								<div class="card-content">
-									<span class="card-title activator grey-text">Procedural Textures<i class="material-icons right">more_vert</i></span>
+									<span class="card-title activator grey-text">Neato Effects<i class="material-icons right">more_vert</i></span>
 								</div>
 								<div class="card-reveal alphaBG-blue-overlay">
-									<span class="card-title white-text">Procedural Bricks<i class="material-icons right">close</i></span>
+									<span class="card-title white-text">Things...<i class="material-icons right">close</i></span>
 									<p>
-										This is a procedural brick texture, morphing between two settings.
-										I made a number of procedural textures for Unity3d as a part of an independent study I did during the Fall 2016 semester.<br>
-										The Independent Study 'writeup' is <a href="../ProcGen/index.html">Here</a>,
-										and information about the shaders can be found <a href="../ProcGen/03surfaces.html">Here</a>.
+										This is a little effect I whipped up in a few hours. Just using a lot of basic ideas from shader programming.
+                                        Rendering objects based on distance, using sin() a lot to change details over time, and layering lots of effects.
+                                        <br>
+                                        The code can be found <a href="http://glslsandbox.com/e#40714.5">Here.</a>
 									</p>
 										
 										
@@ -272,7 +249,30 @@
 										
 								</div>
 							</div>
+                            
+                           
+                            
 							
+							<div class="card col s4 alphaBG-blue-lighten grey-text">
+								<div class="card-image">
+									<video width="100%" height="220" autoplay="autoplay" loop="true">
+										<source src="./webm/slimeFreeze.webm" type="video/webm" />
+									</video>
+								</div>
+								<div class="card-content">
+									<span class="card-title activator grey-text">Procedural Textures<i class="material-icons right">more_vert</i></span>
+								</div>
+								<div class="card-reveal alphaBG-blue-overlay">
+									<span class="card-title white-text">Procedural Moon Variant<i class="material-icons right">close</i></span>
+									<p>
+										This is a another variant of the procedural moon texture, morphing between two settings.
+                                        These settings are very different from the standard settings, one looking slimy, and the other looking icy.
+										More information about the shaders can be found <a href="../ProcGen/03surfaces.html">Here</a>.
+									</p>
+										
+										
+								</div>
+							</div>
 							
 							
 							
@@ -347,7 +347,7 @@
 				
 			<div class="col s12 center footer"> <h1>.</h1> </div>
 			<div class="col s12 center footer"> <h1>.</h1> </div>
-			<div class="col s12 center footer"> Last Updated: 4/15/2016</div>
+			<div class="col s12 center footer"> Last Updated: 6/2/2017</div>
 				
 		
 		</div>
