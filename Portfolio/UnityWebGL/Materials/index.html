@@ -1,11 +1,12 @@
 <!DOCTYPE html>
 <html lang="en-us">
 	<head>
-		<script src="https://code.jquery.com/jquery-1.12.0.min.js"></script>
-		<script src="../../materialize/js/materialize.js"></script>
+		<title> WebGL | Interactive Materials </title>
 		<meta charset="utf-8">
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-		<title>Unity WebGL Player | Interactive Materials </title>
+		
+		<script src="https://code.jquery.com/jquery-1.12.0.min.js"></script>
+		<script src="../../materialize/js/materialize.js"></script>
 		<link rel="shortcut icon" href="TemplateData/favicon.ico">
 		<link rel="stylesheet" href="TemplateData/style.css">
 		<script src="TemplateData/UnityProgress.js"></script>  
@@ -18,21 +19,49 @@
 		<link rel="stylesheet" type="text/css" href="../../styles.css" />
 	</head>
 	<body class="bgg">
-      
-		<div class="container extended alphaBG-blue white-text row">
-			<div class="col s12">
-				<div class="webgl-content">
-					<div id="gameContainer" style="width: 1200px; height: 600px"></div>
-					<div class="footer">
-						<div class="title"> Interactive Materials </div>
-					</div>
-				</div>
-			</div>
-			<div class="col s12">
-				Version 0.1.0
+		
+		<div class="alphaBG-blue darken-4 white-text">
+			<div class="darken-4 blue-grey-text text-darken-4">.</div>
+			<div class="row">
+				<div class="col s2 center"><h2>.</h2></div>
+				<div class="col s4 center cyan-text"><h2>Jon Cohen</h2></div>
+				
+				<div class="col s4 center amber-text"><h2>Portfolio</h2></div>
+				<div class="col s2 center"><h2>.</h2></div>
+				
+				<div class="col s12 center tinytext">Github: <a href="https://github.com/ninjapretzel/">https://github.com/ninjapretzel/</a> </div>
 			</div>
 		</div>
 		
-		
+		<div class="container extended alphaBG-blue white-text">
+			<div class="row">
+      
+				<div class="col s12 center"> <h2>Interactive Materials</h2> </div>
+				<div class="col s12 tinytext">
+					Version 0.1.1
+					<br />
+					Created by Jonathan Cohen, 2017
+				</div>
+			
+				<div class="col s12 center">
+					<div class="blue-grey-text text-lighten-4">
+						<h3>Instructions</h3>
+					</div>
+					<div class="blue-grey-text text-lighten-2">
+						Click the material buttons in the top to select a preset
+						<br />
+						Use the controls below to change the properties of the material, live, in the browser!
+						<br />
+						Properties such as '_Persistence' and '_Octaves' have a big effect on the resulting quality
+						<br />
+						'_Seed' can be used to generate many variations of the same texture
+						
+					</div>
+					<div id="gameContainer"></div>
+				</div>
+				
+
+			</div>
+		</div>
   	</body>
 </html>
