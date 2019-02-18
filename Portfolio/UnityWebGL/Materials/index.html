@@ -38,7 +38,7 @@
       
 				<div class="col s12 center"> <h2>Interactive Materials</h2> 
 					<div class="col s12">
-						Version 0.1.1
+						Version 0.2.0
 						<br />
 					</div>
 					<div class="tinytext">
@@ -48,7 +48,11 @@
 						<br />
 						Also, if you are running on older graphics hardware, the shaders might just not compile, and give you a nasty pink box
 					</div>
-					
+					<div>
+						There are no textures in this example (save for the UI).
+						<br />
+						Everything is created using procedurally shaders and configured using material parameters.
+					</div>
 				</div>
 				<div class="col s12 center">
 					<div id="gameContainer"></div>
@@ -56,11 +60,14 @@
 						<div class="blue-grey-text text-lighten-4">
 							<h3>Instructions</h3>
 						</div>
-						Click the material buttons in the top to select a preset
+						Rotate the camera by right-clicking and dragging in the 3d view area
 						<br />
-						Use the controls below to change the properties of the material, live, in the browser!
+						Zoom in and out with the scroll wheel
 						<br />
-						Rotate the camera with WASD or Arrow Keys.
+						
+						Click the buttons in the top to change meshes or materials.
+						<br />
+						Use the slider and text field controls below to change the properties of the material.
 						<br />
 						Each Kind of material has its own property list.
 						<br />
@@ -68,24 +75,23 @@
 						<br />
 						'_Seed' can be used to generate many variations of the same texture
 						<br />
+
 						<br />
-						Created by Jonathan Cohen, 2017
-						<br>
-						Some of the effects are adaptations of formulas. Their creators can be found below.
+						Created by Jonathan Cohen, 2017-2019
+						<br />
 						<div class="tinytext">
+							Some of the effects are ports/modified adaptations of formulas discovered. Their original creators can be found below.
 							<br />
 							StarNest is an adaptation of the effect by Pablo RomÃ¡n Andrioli or 'Kali' <a href="https://www.youtube.com/watch?v=4kmlmuyzBp4">Here</a>.
 							<br /> 
 							My variation of this effect is as a skybox, using the look vector of the camera, rather than a surface, using a fixed look vector for every pixel.
-							<br />
-
 							<br />
 							VTech is an adaptation of the Digital Brain effect by struss <a href="http://glslsandbox.com/e#35914.0">Here</a>.
 							<br />
 							My variation of this effect uses 3d noise, rather than 2d noise. 
 							<br />
 							<br />
-							I adapted the code of the effects listed above. All other effects effects were created by me.
+							I ported/modified the code of the effects listed above. All other effects (Bricks, Camo, Moon, Lumpy, Marble) were entirely created by me.
 							<br />
 							Technical details of how I made these effects can be found <a href="https://ninjapretzel.github.io/ProcGen/">Here</a>.
 						</div>
