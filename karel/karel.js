@@ -244,9 +244,11 @@ $(document).ready(()=>{
 		})
 	}, 100);
 	
-	$("#k").mousedown((event)=>{ 
-		//console.log(event);
-		mouse.drag = true; 
+	$("#k").click((event)=>{ 
+		if (mouse.dragged) { 
+			mouse.dragged = false;
+			return;
+		}
 		if (hasFocusedWall()) {
 			const fw = uniforms.focWall;
 			let key = `${fw[0]},${fw[1]}`;
@@ -298,7 +300,7 @@ $(document).ready(()=>{
 			}
 				
 		}
-	})
+	 })
 	$("#k").keydown((event)=>{
 		// console.log(event);
 		const k = event.originalEvent.key;
@@ -310,6 +312,8 @@ $(document).ready(()=>{
 			}
 		}
 	})
+	
+	$("#k").mousedown((event)=>{ mouse.drag = true; })
 	$("#k").mouseup((event)=>{ mouse.drag = false; })
 	$("#k").mouseleave((event)=>{ mouse.drag = false; })
 	$("#k").bind('DOMMouseScroll mousewheel', (event)=>{
@@ -324,6 +328,7 @@ $(document).ready(()=>{
 	})
 	$("#k").mousemove((event)=>{
 		if (mouse.drag) {
+			mouse.dragged = true;
 			if (mouse.x != null && mouse.y != null) {
 				let diffx = (mouse.x - event.pageX) * uniforms.zoom / 500;
 				let diffy = (mouse.y - event.pageY) * uniforms.zoom / 500;
