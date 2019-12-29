@@ -226,7 +226,12 @@ $(document).ready(()=>{
 	$("#load").click(()=>{ loadWorld( $("#world").val() ); });
 	
 	setTimeout(()=>{
-		startFrag("k", {frag: karelfrag}, uniforms)
+		let extra = "";
+		if (urlParam("fancy")) {
+			extra = "#define FANCYMODE\n";
+		}
+		
+		startFrag("k", {frag: extra+karelfrag}, uniforms)
 
 		$(".preload").addClass("hidden");
 		$(".main").removeClass("hidden");
@@ -395,4 +400,15 @@ function redrawFragment(ctx, prog, rate) {
 			ctx.drawFrag(prog);
 		}
 	}, rate)
+}
+
+function urlParam(parameterName) {
+	let result = null;
+	let tmp = [];
+	let items = location.search.substr(1).split("&");
+	for (let i = 0; i < items.length; i++) {
+		tmp = items[i].split("=");
+		if (tmp[0] === parameterName) { result = decodeURIComponent(tmp[1]); }
+	}
+	return result;
 }
