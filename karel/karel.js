@@ -50,6 +50,7 @@ const world = {
 		"-2,2": 1,
 	},
 }
+let codeEditor = undefined;
 
 function prepareUniforms(world) {
 	bots.length = 0;
@@ -212,19 +213,6 @@ function loadWorld(json) {
 }
 
 $(document).ready(()=>{
-	updateWorldText();
-	prepareUniforms(world);
-	updateUniforms();
-	$(".preload").removeClass("hidden");
-	$(".main").addClass("hidden");
-	$("#reset").click(()=>{
-		M.toast({html: "Reset Not yet implemented. Sorry.", classes:"yellow black-text" } );
-	});
-	$("#run").click(()=>{
-		M.toast({html: "Run Not yet implemented. Sorry.", classes:"yellow black-text" } );
-	});
-	$("#load").click(()=>{ loadWorld( $("#world").val() ); });
-	
 	setTimeout(()=>{
 		let extra = "";
 		if (urlParam("fancy")) {
@@ -236,8 +224,8 @@ $(document).ready(()=>{
 		$(".preload").addClass("hidden");
 		$(".main").removeClass("hidden");
 		responsiveCanvas("#k");
-		let mirror = CodeMirror(document.getElementById("scriptEntry"), {
-			value: "\nfunction main() {\n\tconsole.log('hello world');\n}",
+		codeEditor = CodeMirror(document.getElementById("scriptEntry"), {
+			value: "\nfunction main() {\n\tconsole.log('hello world');\n}\nmain();",
 			mode: "javascript",	
 			theme: "solarized dark",
 			indentUnit: 4,
@@ -248,6 +236,30 @@ $(document).ready(()=>{
 			lineNumbers: true,
 		})
 	}, 100);
+	
+	updateWorldText();
+	prepareUniforms(world);
+	updateUniforms();
+	
+	$(".preload").removeClass("hidden");
+	$(".main").addClass("hidden");
+	$("#reset").click(()=>{
+		M.toast({html: "Reset Not yet implemented. Sorry.", classes:"yellow black-text" } );
+	});
+	$("#run").click(()=>{
+		//M.toast({html: "Run Not yet implemented. Sorry.", classes:"yellow black-text" } );
+		let script = codeEditor.getValue();
+		
+		try {
+			let result = evaluate(script, "dynamic");
+			M.toast({html: "Run Finished.", classes:"green black-text" } );
+		} catch (e) {
+			M.toast({html:`Script error. ${e}`, classes:"red" })
+			console.error(e);
+		}
+	});
+	$("#load").click(()=>{ loadWorld( $("#world").val() ); });
+	
 	
 	$("#k").click((event)=>{ 
 		if (mouse.dragged) { 

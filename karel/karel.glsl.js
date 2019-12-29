@@ -2,9 +2,8 @@ const karelfrag = `
 #ifdef GL_ES
 precision mediump float;
 #endif
-// A shader for rendering Karel the Robot.
+// A shader for rendering "Karel the Robot" worlds.
 // cobbled together by ninjapretzel
-// Was this renderer here before hooking it up to the running environment
 
 // Fancy mode for pretty grafix
 // #define FANCYMODE
