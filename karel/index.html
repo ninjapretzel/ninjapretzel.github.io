@@ -33,17 +33,33 @@
 		<div class="preload col s12 card small blue-grey darken-2">
 			Please wait, loading. Initial may take some time...
 		</div>
+		<div class="main col s12 card blue-grey blue-grey-text">.</div>
+		<div class="main col s6 card blue-grey darken-1"> <h4>Script Entry </h4></div>
+		<div class="main col s6 card blue-grey darken-1"> <h4>World Display/Editor </h4></div>
+		<div class="main col s12 card blue-grey blue-grey-text">.</div>
 		<div class="main col s6 card large blue-grey darken-2">
 			<div id="scriptEntry"></div>
 			<br>
 			<button id="reset" class="btn waves-effect waves-dark">Reset</button>
 			<button id="run" class="btn waves-effect waves-dark">Run</button>
-			<br> World JSON:
-			<textarea id="world"></textarea>
-			<button id="load" class="btn waves-effect waves-dark">Load World</button>
 		</div>
 		<div class="main col s6 card large blue-grey darken-2">
 			<canvas id="k" tabindex='1'></canvas>
+		</div>
+		<div class="main col s6 card tiny blue-grey darken-2">
+			<h5>World JSON:</h5>
+			<textarea id="world"></textarea>
+			<button id="load" class="btn waves-effect waves-dark">Load World</button> <br>
+			The JSON data for the world automatically updates as you edit. <br>
+			Feel free to copy/paste to import/export. <br>
+		</div>
+		<div class="main col s6 card tiny blue-grey darken-2">
+			<h5>Editor Instructions:</h5> <br>
+			Click and drag to pan. Mouse Scroll to zoom in/out. <br>
+			Click on grid lines to toggle walls. <br>
+			Click on grid cells to add beepers. Shift click to remove beepers. <br>
+			Click on Karel to rotate him. Shift click to rotate the other way. <br>
+			Hover over a cell and hit 'k' to place Karel. <br>
 		</div>
 	</div>
 </body>

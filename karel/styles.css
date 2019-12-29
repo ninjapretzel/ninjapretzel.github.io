@@ -5,3 +5,9 @@ textarea {
   font-family:Consolas,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New, monospace;
   resize: none;
 }
+.tiny {
+	height: 200px;
+}
+.card {
+	margin: 0;
+}
