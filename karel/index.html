@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta http-equiv="X-UA-Compatible" content="ie=edge">
+	<title>Karel</title>
+	
+	<!-- Jquery -->
+	<script src="https://code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
+	<!-- Materialize -->
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css" />
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+	
+	<link rel="stylesheet" href="lib/codemirror.css" />
+	<link rel="stylesheet" href="lib/solarized.css" />
+	<script src="lib/codemirror.js"></script>
+	<script src="lib/javascript.js"></script>
+	
+	
+	
+	<link rel="stylesheet" href="styles.css" />
+	<script src="gl.js"></script>
+	<script src="karel.glsl.js"></script>
+	<script src="karel.js"></script>
+	
+</head>
+<body class="brown darken-2">
+	<div class="container row brown darken-3">
+		<div class="col s12 blue-grey darken-2">
+			<h1>Karel.js</h1>	
+		</div>
+		<div class="preload col s12 card small blue-grey darken-2">
+			Please wait, loading. Initial may take some time...
+		</div>
+		<div class="main col s6 card large blue-grey darken-2">
+			<div id="scriptEntry"></div>
+			<br>
+			<button id="reset" class="btn waves-effect waves-dark">Reset</button>
+			<button id="run" class="btn waves-effect waves-dark">Run</button>
+			<br> World JSON:
+			<textarea id="world"></textarea>
+			<button id="load" class="btn waves-effect waves-dark">Load World</button>
+		</div>
+		<div class="main col s6 card large blue-grey darken-2">
+			<canvas id="k" tabindex='1'></canvas>
+		</div>
+	</div>
+</body>
+</html>
