@@ -328,12 +328,15 @@ $(document).ready(()=>{
 	})
 	$("#k").mousemove((event)=>{
 		if (mouse.drag) {
-			mouse.dragged = true;
 			if (mouse.x != null && mouse.y != null) {
 				let diffx = (mouse.x - event.pageX) * uniforms.zoom / 500;
 				let diffy = (mouse.y - event.pageY) * uniforms.zoom / 500;
 				scrollUniform[0] += diffx;
 				scrollUniform[1] -= diffy;
+				
+				if (abs(mouse.x - event.pageX) > 1 || abs(mouse.y - event.pageY) > 1) {
+					mouse.dragged = true;
+				}
 				//console.log(`Mouse drag delta=${diffx},${diffy}`);
 			}
 			mouse.x = event.pageX;
