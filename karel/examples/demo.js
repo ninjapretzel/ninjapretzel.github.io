@@ -19,7 +19,7 @@ const demoJs = `// Karel.js Demo
 // Karel is able to pick up and carry beepers.
 // 'takeBeeper()' tells him to pick one up
 //				  he will crash if he is not on one, so
-// 'nearBeeper()' will have him check for beepers,
+// 'isNearBeeper()' will have him check for beepers,
 //				  coming back true if he is near one,
 //				  and false if there are none.
 // 'placeBeeper()' will make him put a beeper on the ground
@@ -48,7 +48,7 @@ const demoJs = `// Karel.js Demo
 function turnRight() { turnLeft(); turnLeft(); turnLeft(); }
 // Teach him to check before taking a beeper!
 function safeTakeBeeper() { 
-	if (nearBeeper()) { takeBeeper(); }	
+	if (isNearBeeper()) { takeBeeper(); }	
 }
 
 step();
@@ -78,7 +78,7 @@ turnRight();
 step();
 turnRight();
 step();
-while (nearBeeper()) { takeBeeper(); }
+while (isNearBeeper()) { takeBeeper(); }
 
 turnLeft();
 while(hasBeeper()) { step(); placeBeeper(); }

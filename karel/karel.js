@@ -186,7 +186,7 @@ async function isBlocked() {
 	let key = `${blockX},${blockY}`
 	return (world[blockedBy][key]);
 }
-async function nearBeeper() {
+async function isNearBeeper() {
 	let bot = world.karel;
 	await pause(delay);
 	if (!running) { throw INTERRUPTED }
@@ -231,7 +231,7 @@ async function takeBeeper() {
 	
 const karelFunctions = {
 	step, turnLeft, isBlocked,
-	nearBeeper, takeBeeper, 
+	isNearBeeper, takeBeeper, 
 	hasBeeper, placeBeeper,
 }
 
