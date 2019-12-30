@@ -21,6 +21,11 @@ const uniforms = {
 	focWall: focWallUniform,
 	zoom: 10,
 };
+
+let codeEditor = undefined;
+let delay = 50;
+let running = false;
+
 const minZoom = 5;
 const maxZoom = 30;
 
@@ -50,7 +55,57 @@ const world = {
 		"-2,2": 1,
 	},
 }
-let codeEditor = undefined;
+let snapshot = {};
+function takeSnapshot() { 
+	snapshot = JSON.parse(JSON.stringify(world)); 
+	// console.log(`Took snapshot: `)
+	// console.log(snapshot)
+}
+function loadSnapshot() {
+	// console.log(`Loading Snapshot:`)
+	// console.log(snapshot)
+	world.karel.x = snapshot.karel.x;	world.karel.y = snapshot.karel.y;
+	world.karel.angle = snapshot.karel.angle;	
+	world.karel.beepers = snapshot.karel.beepers;
+	world.horizontalWalls = {}
+	for (let k of Object.keys(snapshot.horizontalWalls)) { world.horizontalWalls[k] = snapshot.horizontalWalls[k]; }
+	world.verticalWalls = {}
+	for (let k of Object.keys(snapshot.verticalWalls)) { world.verticalWalls[k] = snapshot.verticalWalls[k]; }
+	world.beepers = {}
+	for (let k of Object.keys(snapshot.beepers)) { world.beepers[k] = snapshot.beepers[k]; }
+	
+	console.log(world);
+}
+
+/** Promise wrapper to run code after a delay */
+function wait(ms) {
+	return new Promise((resolve, reject) => { setTimeout( ()=>{resolve(); }, ms); });
+}
+/** directly async version of 'wait' */
+async function pause(ms) { await wait(ms); }
+const karelFunctions = {
+	step: async () => { 
+		await pause(delay);
+		let x = this.x; let y = this.y;
+		let dir = Math.round((this.angle / 90) % 4);
+		let dx = 0;		let dy = 0;
+		if (dir == 0) { dx =  1; }
+		if (dir == 1) { dy =  1; }
+		if (dir == 2) { dx = -1; }
+		if (dir == 3) { dy = -1; }
+		// 0 = right, 1 = up, 2 = left, 3 = down
+		let blockedBy = (dir == 0 || dir == 2) ? "verticalWalls" : "horizontalWalls";
+		let blockX = dir == 0 ? (x+1) : x;
+		let blockY = dir == 1 ? (y+1) : y;
+		let key = `${blockX},${blockY}`
+		if (world[blockedBy][key]) {
+			throw "KarelCrash! Karel crashed into a wall!"
+		}
+		this.x += dx;
+		this.y += dy;
+	}	
+}
+
 
 function prepareUniforms(world) {
 	bots.length = 0;
@@ -113,7 +168,9 @@ function updateUniforms() {
 }
 
 function updateWorldText() {
-	$("#world").val(JSON.stringify(world));
+	if (!running) {
+		$("#world").val(JSON.stringify(world));
+	}
 }
 		
 	
@@ -244,19 +301,34 @@ $(document).ready(()=>{
 	$(".preload").removeClass("hidden");
 	$(".main").addClass("hidden");
 	$("#reset").click(()=>{
-		M.toast({html: "Reset Not yet implemented. Sorry.", classes:"yellow black-text" } );
+		try {
+			loadSnapshot();
+			
+			M.toast({html: "Reset Finished.", classes:"green", displayLength: 1000 } );
+		} catch (err) { 
+			
+			M.toast({html: `Reset failed: ${e}`, classes: "red" } );
+		}
+		$("#reset").addClass("disabled");
+		$("#run").removeClass("disabled");
+		running = false;
 	});
-	$("#run").click(()=>{
+	$("#reset").addClass("disabled");
+	$("#run").click(async ()=>{
+		takeSnapshot();
 		//M.toast({html: "Run Not yet implemented. Sorry.", classes:"yellow black-text" } );
 		let script = codeEditor.getValue();
 		
 		try {
-			let result = evaluate(script, "dynamic");
-			M.toast({html: "Run Finished.", classes:"green black-text" } );
+			let result = await evaluate(script, "dynamic");
+			M.toast({html: "Run Finished.", classes:"green", displayLength: 1000  } );
 		} catch (e) {
 			M.toast({html:`Script error. ${e}`, classes:"red" })
 			console.error(e);
 		}
+		running = true;
+		$("#reset").removeClass("disabled");
+		$("#run").addClass("disabled");
 	});
 	$("#load").click(()=>{ loadWorld( $("#world").val() ); });
 	
