@@ -209,6 +209,7 @@ async function placeBeeper() {
 	if (bot.beepers > 0) {
 		bot.beepers -= 1;
 		addBeeper(bot.x, bot.y);
+		updateBeeperText();
 	} else {
 		throw "KarelCrash! Karel tried to place a beeper, but doesn't have any!";
 	}
@@ -221,6 +222,7 @@ async function takeBeeper() {
 	if (beeperExists(bot.x, bot.y)) {
 		bot.beepers += 1;
 		removeBeeper(bot.x, bot.y);
+		updateBeeperText();
 	} else {
 		throw "KarelCrash! Karel tried to take a beeper, but isn't near one!";
 	}
@@ -298,6 +300,11 @@ function updateWorldText() {
 	if (!running) {
 		$("#world").val(JSON.stringify(world));
 	}
+}
+
+function updateBeeperText() {
+	$("#karelBeepers").val(world.karel.beepers.toFixed(0));
+	
 }
 		
 	
@@ -420,6 +427,7 @@ $(document).ready(()=>{
 	}, 100);
 	
 	updateWorldText();
+	updateBeeperText();
 	prepareUniforms(world);
 	updateUniforms();
 	
@@ -428,6 +436,7 @@ $(document).ready(()=>{
 	$("#reset").click(()=>{
 		try {
 			loadSnapshot();
+			updateBeeperText();
 			
 			M.toast({html: "Reset Finished.", classes:"green", displayLength: 1000 } );
 		} catch (err) { 
@@ -461,6 +470,25 @@ $(document).ready(()=>{
 	});
 	$("#load").click(()=>{ loadWorld( $("#world").val() ); });
 	
+	$("#karelBeepers").keydown((event)=>{
+		let num = Number($("#karelBeepers").val());
+		if (num && num > 0) { world.karel.beepers = num; } else { updateBeeperText(); }
+	});
+	$("#karelBeepers").keyup((event)=>{
+		let num = Number($("#karelBeepers").val());
+		if (num && num > 0) { world.karel.beepers = num; } else { updateBeeperText(); }
+	});
+	$("#addBeeper").click(()=>{ 
+		world.karel.beepers += 1; 
+		updateBeeperText(); 
+		updateWorldText();
+	});
+	$("#removeBeeper").click(()=>{ 
+		world.karel.beepers -= 1; 
+		if (world.karel.beepers <= 0) { world.karel.beepers = 0; }
+		updateBeeperText(); 
+		updateWorldText();
+	});
 	
 	$("#k").click((event)=>{ 
 		if (mouse.dragged) { 

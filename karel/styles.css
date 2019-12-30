@@ -11,3 +11,6 @@ textarea {
 .card {
 	margin: 0;
 }
+.smallerText { 
+	font-size: .65em;
+}
