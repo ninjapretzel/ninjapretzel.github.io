@@ -406,7 +406,8 @@ $(document).ready(()=>{
 		$(".main").removeClass("hidden");
 		responsiveCanvas("#k");
 		codeEditor = CodeMirror(document.getElementById("scriptEntry"), {
-			value: "\nfunction main() {\n\tconsole.log('hello world');\n}\nmain();",
+			value: demoJs,
+			// value: "\nfunction main() {\n\tconsole.log('hello world');\n}\nmain();",
 			mode: "javascript",	
 			theme: "solarized dark",
 			indentUnit: 4,
