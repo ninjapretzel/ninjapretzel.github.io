@@ -25,12 +25,15 @@ const uniforms = {
 let codeEditor = undefined;
 let delay = 50;
 let running = false;
+const INTERRUPTED = "INTERRUPTED.";
 
 const minZoom = 5;
 const maxZoom = 30;
 
+// Math...
 const floor = Math.floor;
 const abs = Math.abs;
+const round = Math.round;
 
 // Mouse info
 const mouse = {};
@@ -77,35 +80,157 @@ function loadSnapshot() {
 	console.log(world);
 }
 
+function toggleWall(fw) {
+	let key = `${fw[0]},${fw[1]}`;
+	let wallCount = 0;
+	wallCount += Object.keys(world.horizontalWalls).length;
+	wallCount += Object.keys(world.verticalWalls).length;
+	
+	if (wallCount >= 511) {
+		M.toast({html: "Too Many Walls! Walls may not display properly! [Renderer limitation].", classes: "yellow black-text", displayLength: 1000 } )
+	}
+	if (focusedWallIsHorizontal()) {
+		if (world.horizontalWalls.hasOwnProperty(key)) {
+			delete world.horizontalWalls[key];
+		} else {
+			world.horizontalWalls[key] = 1;
+		}
+	} else {
+		if (world.verticalWalls.hasOwnProperty(key)) {
+			delete world.verticalWalls[key];
+		} else {
+			world.verticalWalls[key] = 1;
+		}
+	}
+}
+
+function beeperExists(x, y) {
+	let key = `${x},${y}`
+	return world.beepers.hasOwnProperty(key) && world.beepers[key];
+}
+
+function removeBeeper(x, y) {
+	let key = `${x},${y}`
+	if (world.beepers.hasOwnProperty(key)) {
+		let cnt = world.beepers[key];
+		cnt -= 1;
+		if (cnt === 0) {
+			delete world.beepers[key];
+		} else {
+			world.beepers[key] = cnt;
+		}
+	}
+}
+
+function addBeeper(x,y) {
+	let key = `${x},${y}`
+	if (world.beepers.hasOwnProperty(key)) {
+		world.beepers[key] += 1;
+	} else {
+		world.beepers[key] = 1;
+	}
+}
+
 /** Promise wrapper to run code after a delay */
 function wait(ms) {
 	return new Promise((resolve, reject) => { setTimeout( ()=>{resolve(); }, ms); });
 }
 /** directly async version of 'wait' */
 async function pause(ms) { await wait(ms); }
-const karelFunctions = {
-	step: async () => { 
-		let bot = world.karel;
-		await pause(delay);
-		
-		let x = bot.x; let y = bot.y;
-		let dir = Math.round((bot.angle / 90) % 4);
-		let dx = 0;		let dy = 0;
-		if (dir == 0) { dx =  1; }
-		if (dir == 1) { dy =  1; }
-		if (dir == 2) { dx = -1; }
-		if (dir == 3) { dy = -1; }
-		// 0 = right, 1 = up, 2 = left, 3 = down
-		let blockedBy = (dir == 0 || dir == 2) ? "verticalWalls" : "horizontalWalls";
-		let blockX = dir == 0 ? (x+1) : x;
-		let blockY = dir == 1 ? (y+1) : y;
-		let key = `${blockX},${blockY}`
-		if (world[blockedBy][key]) {
-			throw "KarelCrash! Karel crashed into a wall!"
-		}
-		bot.x += dx;
-		bot.y += dy;
+
+async function step() { 
+	let bot = world.karel;
+	await pause(delay);
+	if (!running) { throw INTERRUPTED; }
+	
+	let x = bot.x; let y = bot.y;
+	let dir = round((bot.angle / 90) % 4);
+	
+	let dx = 0;		let dy = 0;
+	if (dir == 0) { dx =  1; }
+	if (dir == 1) { dy =  1; }
+	if (dir == 2) { dx = -1; }
+	if (dir == 3) { dy = -1; }
+	// 0 = right, 1 = up, 2 = left, 3 = down
+	let blockedBy = (dir == 0 || dir == 2) ? "verticalWalls" : "horizontalWalls";
+	let blockX = dir == 0 ? (x+1) : x;
+	let blockY = dir == 1 ? (y+1) : y;
+	let key = `${blockX},${blockY}`
+	//console.log(`Moving in dir=${dir} at=${x},${y} d=${dx},${dy} block=${blockX},${blockY}`)
+	// Don't want to wait again, so we check directly.
+	if (world[blockedBy][key]) {
+		throw "KarelCrash! Karel crashed into a wall!"
 	}
+	bot.x += dx;
+	bot.y += dy;
+}
+async function turnLeft() {
+	let bot = world.karel;
+	await pause(delay);
+	if (!running) { throw INTERRUPTED }
+	
+	bot.angle = (bot.angle + 90) % 360;
+	if (bot.angle < 0) { bot.angle += 360; }
+	
+}
+async function isBlocked() {
+	let bot = world.karel;
+	await pause(delay);
+	if (!running) { throw INTERRUPTED }
+	
+	let x = bot.x; let y = bot.y;
+	let dir = round((bot.angle / 90) % 4);
+	let blockedBy = (dir == 0 || dir == 2) ? "verticalWalls" : "horizontalWalls";
+	let blockX = dir == 0 ? (x+1) : x;
+	let blockY = dir == 1 ? (y+1) : y;
+	let key = `${blockX},${blockY}`
+	return (world[blockedBy][key]);
+}
+async function nearBeeper() {
+	let bot = world.karel;
+	await pause(delay);
+	if (!running) { throw INTERRUPTED }
+	
+	let had = beeperExists(bot.x, bot.y);
+	return had;
+}
+async function hasBeeper() {
+	let bot = world.karel;
+	await pause(delay);
+	if (!running) { throw INTERRUPTED }
+	
+	return bot.beepers > 0;
+}
+async function placeBeeper() {
+	let bot = world.karel;
+	await pause(delay);
+	if (!running) { throw INTERRUPTED }
+	
+	if (bot.beepers > 0) {
+		bot.beepers -= 1;
+		addBeeper(bot.x, bot.y);
+	} else {
+		throw "KarelCrash! Karel tried to place a beeper, but doesn't have any!";
+	}
+}
+async function takeBeeper() {
+	let bot = world.karel;
+	await pause(delay);
+	if (!running) { throw INTERRUPTED }
+	
+	if (beeperExists(bot.x, bot.y)) {
+		bot.beepers += 1;
+		removeBeeper(bot.x, bot.y);
+	} else {
+		throw "KarelCrash! Karel tried to take a beeper, but isn't near one!";
+	}
+}
+
+	
+const karelFunctions = {
+	step, turnLeft, isBlocked,
+	nearBeeper, takeBeeper, 
+	hasBeeper, placeBeeper,
 }
 
 
@@ -162,7 +287,7 @@ function updateUniforms() {
 		hc[0] = Infinity; hc[1] = Infinity;
 	} else {
 		if (mouse.hasOwnProperty("wx") && mouse.hasOwnProperty("wy")) {
-			hc[0] = Math.floor(mouse.wx); hc[1] = Math.floor(mouse.wy);	
+			hc[0] = floor(mouse.wx); hc[1] = floor(mouse.wy);	
 		} else {
 			hc[0] = Infinity; hc[1] = Infinity;
 		}
@@ -183,10 +308,7 @@ function updateFocusedWall(){
 	const ix = mouse.ix;			let iy = mouse.iy;
 	const px = mouse.px;			let py = mouse.py;
 	const ddx = .5 - abs(px - .5);	let ddy = .5 - abs(py - .5);
-	
-	
 	// console.log(`cell:${cx.toFixed(3)},${cy.toFixed(3)} dd:${ddx.toFixed(3)},${ddy.toFixed(3)} i:${ix},${iy}`)
-	
 	fw[0] = 0;	fw[1] = 0;
 	fw[2] = 0;	fw[3] = 0;
 	
@@ -319,19 +441,22 @@ $(document).ready(()=>{
 	$("#run").click(async ()=>{
 		takeSnapshot();
 		//M.toast({html: "Run Not yet implemented. Sorry.", classes:"yellow black-text" } );
-		let script = codeEditor.getValue();
-		
-		try {
-			let result = await evaluate(script, "dynamic", 1, karelFunctions);
-			console.log(result);
-			M.toast({html: "Run Finished.", classes:"green", displayLength: 1000  } );
-		} catch (e) {
-			M.toast({html:`Script error. ${e}`, classes:"red" })
-			console.error(e);
-		}
 		running = true;
 		$("#reset").removeClass("disabled");
 		$("#run").addClass("disabled");
+		let script = codeEditor.getValue();
+		
+		try {
+			await evaluate(script, "dynamic", 1, karelFunctions);
+			M.toast({html: "Run Finished.", classes:"green", displayLength: 1000  } );
+		} catch (e) {
+			if (e === INTERRUPTED) {
+				M.toast({html:`${e} Karel will wait.`, classes:"yellow black-text"});
+			} else {
+				M.toast({html:`Script error. ${e}`, classes:"red" })
+				console.error(e);
+			}
+		}
 	});
 	$("#load").click(()=>{ loadWorld( $("#world").val() ); });
 	
@@ -343,52 +468,26 @@ $(document).ready(()=>{
 		}
 		if (hasFocusedWall()) {
 			const fw = uniforms.focWall;
-			let key = `${fw[0]},${fw[1]}`;
-			let wallCount = 0;
-			wallCount += Object.keys(world.horizontalWalls).length;
-			wallCount += Object.keys(world.verticalWalls).length;
-			
-			if (wallCount >= 511) {
-				M.toast({html: "Too Many Walls! Walls may not display properly! [Renderer limitation].", classes: "yellow black-text", displayLength: 1000 } )
-			}
-			if (focusedWallIsHorizontal()) {
-				if (world.horizontalWalls.hasOwnProperty(key)) {
-					delete world.horizontalWalls[key];
-				} else {
-					world.horizontalWalls[key] = 1;
-				}
-			} else {
-				if (world.verticalWalls.hasOwnProperty(key)) {
-					delete world.verticalWalls[key];
-				} else {
-					world.verticalWalls[key] = 1;
-				}
-			}
+			toggleWall(fw);
 			updateWorldText();
 		} else {
 			let key = `${mouse.ix},${mouse.iy}`;
 			let dir = event.originalEvent.shiftKey ? -1 : 1;
 			
 			if (world.karel.x === mouse.ix && world.karel.y === mouse.iy) {
-				world.karel.angle += 90 * dir;
-				updateWorldText();
-			} else if (world.beepers.hasOwnProperty(key)) {
-				let cnt = world.beepers[key];
-				let next = cnt + dir;
-				if (next === 0) {
-					delete world.beepers[key];
-				} else {
-					world.beepers[key] = next;
-				}
+				world.karel.angle = (world.karel.angle + 90 * dir) % 360;
+				if (world.karel.angle < 0) { world.karel.angle += 360; }
 				updateWorldText();
 			} else {
-				if (Object.keys(world.beepers).length >= 255) {
-					M.toast({html: "Too Many Beepers! Beepers may not display properly! [Renderer limitation].", classes: "yellow black-text", displayLength: 1000 } )
-				}
 				if (dir === 1) {
-					world.beepers[key] = 1;
-					updateWorldText();
+					addBeeper(mouse.ix, mouse.iy);
+					if (Object.keys(world.beepers).length >= 255) {
+						M.toast({html: "Too Many Beepers! Beepers may not display properly! [Renderer limitation].", classes: "yellow black-text", displayLength: 1000 } )
+					}
+				} else {
+					removeBeeper(mouse.ix, mouse.iy);
 				}
+				updateWorldText();
 			}
 				
 		}
