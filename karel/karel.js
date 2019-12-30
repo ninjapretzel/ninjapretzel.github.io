@@ -431,6 +431,16 @@ $(document).ready(()=>{
 	prepareUniforms(world);
 	updateUniforms();
 	
+	$("#delay").val(delay);
+	$("#delay").keydown((event)=>{
+		let num = Number($("#delay").val());
+		if (num && num > 0) { delay = num; } else { $("#delay").val(delay); }
+	})
+	$("#delay").keyup((event)=>{
+		let num = Number($("#delay").val());
+		if (num && num > 0) { delay = num; } else { $("#delay").val(delay); }
+	})
+	
 	$(".preload").removeClass("hidden");
 	$(".main").addClass("hidden");
 	$("#reset").click(()=>{
