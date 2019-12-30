@@ -210,37 +210,18 @@ async function maybeWaitFor(v) {
 			let result = await v;
 			return result;
 		} catch (err) {
-			return err;
+			throw err;
 		}
 	} else {
 		return v;
 	}
-	
-}
-
-function cannotWaitFor(v) {
-	if (typeof(v) === "object" && v.constructor.name === "Promise") {
-		let i = v.inspect();
-		if (i.state !== "fulfilled") {
-			v.reject("Panic! PENDING Promise was returned in an area that requires synchronous completion or failure!");
-			throw "Panic! PENDING Promise was returned in an area that requires synchronous completion or failure!"
-		} else {
-			if (i.state === "rejected") { 
-				throw i.reason;
-			} else {
-				return i.value;
-			}
-		}
-	}
-	return v;
 }
 
 function putValue(v, w, vn) {
 	if (v instanceof Reference){
 		return (v.base || global)[v.propertyName] = w;
 	}
-	throw new ReferenceError("Invalid assignment left-hand side",
-							 vn.filename, vn.lineno);
+	throw new ReferenceError("Invalid assignment left-hand side", vn.filename, vn.lineno);
 }
 
 function isPrimitive(v) {
@@ -269,8 +250,7 @@ function toObject(v, r, rn) {
 		if (v !== null) { return v; }
 	}
 	var message = r + " (type " + (typeof v) + ") has no properties";
-	throw rn ? new TypeError(message, rn.filename, rn.lineno)
-			 : new TypeError(message);
+	throw rn ? new TypeError(message, rn.filename, rn.lineno) : new TypeError(message);
 }
 
 async function execute(n, x) {
@@ -901,7 +881,7 @@ function FunctionObject(node, scope) {
 
 var FOp = FunctionObject.prototype = {
 	// Internal methods.
-	__call__: function (t, a, x) {
+	__call__: async function (t, a, x) {
 		var x2 = new ExecutionContext(FUNCTION_CODE);
 		x2.thisObject = t || global;
 		x2.caller = x;
@@ -912,7 +892,7 @@ var FOp = FunctionObject.prototype = {
 
 		ExecutionContext.current = x2;
 		try {
-			cannotWaitFor(execute(f.body, x2));
+			await maybeWaitFor(execute(f.body, x2));
 		} catch (e) {
 			if (e == RETURN) {
 				return x2.result;
@@ -928,7 +908,7 @@ var FOp = FunctionObject.prototype = {
 		return undefined;
 	},
 
-	__construct__: function (a, x) {
+	__construct__: async function (a, x) {
 		var o = new Object;
 		var p = this.prototype;
 		if (isObject(p)) {
@@ -936,7 +916,7 @@ var FOp = FunctionObject.prototype = {
 		}
 		// else { o.__proto__ defaulted to Object.prototype }
 
-		var v = this.__call__(o, a, x);
+		var v = await maybeWaitFor(this.__call__(o, a, x));
 		if (isObject(v)) {
 			return v;
 		}
@@ -944,13 +924,15 @@ var FOp = FunctionObject.prototype = {
 	},
 
 	__hasInstance__: function (v) {
-		if (isPrimitive(v))
+		if (isPrimitive(v)){
 			return false;
+		}
+			
 		var p = this.prototype;
 		if (isPrimitive(p)) {
-			throw new TypeError("'prototype' property is not an object",
-								this.node.filename, this.node.lineno);
+			throw new TypeError("'prototype' property is not an object", this.node.filename, this.node.lineno);
 		}
+		
 		var o;
 		while ((o = v.__proto__)) {
 			if (o == p) {
@@ -966,7 +948,7 @@ var FOp = FunctionObject.prototype = {
 		return this.node.getSource();
 	},
 
-	apply: function (t, a) {
+	apply: async function (t, a) {
 		// Curse ECMA again!
 		if (typeof this.__call__ != "function") {
 			throw new TypeError("Function.prototype.apply called on" + " uncallable object");
@@ -994,13 +976,13 @@ var FOp = FunctionObject.prototype = {
 								this.node.filename, this.node.lineno);
 		}
 
-		return this.__call__(t, a, ExecutionContext.current);
+		return await maybeWaitFor(this.__call__(t, a, ExecutionContext.current));
 	},
 
-	call: function (t) {
+	call: async function (t) {
 		// Curse ECMA a third time!
 		var a = Array.prototype.splice.call(arguments, 1);
-		return this.apply(t, a);
+		return await maybeWaitFor(this.apply(t, a));
 	}
 };
 
@@ -1046,6 +1028,11 @@ async function evaluate(source, filename, lineNumber, injected) {
 	}
 	var x = ExecutionContext.current;
 	var x2 = new ExecutionContext(GLOBAL_CODE);
+	
+	// Inject the object and prevent it from being directly modified.
+	let injHolder = { object: injected, parent: x2.scope };
+	x2.scope = { object: {}, parent: injHolder };
+	
 	ExecutionContext.current = x2;
 	try {
 		await maybeWaitFor(execute(parse(source, filename, lineNumber), x2));

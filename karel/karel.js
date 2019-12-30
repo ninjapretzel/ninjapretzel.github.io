@@ -320,7 +320,10 @@ $(document).ready(()=>{
 		let script = codeEditor.getValue();
 		
 		try {
-			let result = await evaluate(script, "dynamic");
+			let result = await evaluate(script, "dynamic", 1, {
+				test: function() { console.log("YEEETED"); }
+			});
+			console.log(result);
 			M.toast({html: "Run Finished.", classes:"green", displayLength: 1000  } );
 		} catch (e) {
 			M.toast({html:`Script error. ${e}`, classes:"red" })
