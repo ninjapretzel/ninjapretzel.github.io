@@ -85,9 +85,11 @@ function wait(ms) {
 async function pause(ms) { await wait(ms); }
 const karelFunctions = {
 	step: async () => { 
+		let bot = world.karel;
 		await pause(delay);
-		let x = this.x; let y = this.y;
-		let dir = Math.round((this.angle / 90) % 4);
+		
+		let x = bot.x; let y = bot.y;
+		let dir = Math.round((bot.angle / 90) % 4);
 		let dx = 0;		let dy = 0;
 		if (dir == 0) { dx =  1; }
 		if (dir == 1) { dy =  1; }
@@ -101,9 +103,9 @@ const karelFunctions = {
 		if (world[blockedBy][key]) {
 			throw "KarelCrash! Karel crashed into a wall!"
 		}
-		this.x += dx;
-		this.y += dy;
-	}	
+		bot.x += dx;
+		bot.y += dy;
+	}
 }
 
 
@@ -320,9 +322,7 @@ $(document).ready(()=>{
 		let script = codeEditor.getValue();
 		
 		try {
-			let result = await evaluate(script, "dynamic", 1, {
-				test: function() { console.log("YEEETED"); }
-			});
+			let result = await evaluate(script, "dynamic", 1, karelFunctions);
 			console.log(result);
 			M.toast({html: "Run Finished.", classes:"green", displayLength: 1000  } );
 		} catch (e) {
