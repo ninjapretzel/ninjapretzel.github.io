@@ -197,10 +197,40 @@ Reference.prototype.toString = function () { return this.node.getSource(); }
 function getValue(v) {
 	if (v instanceof Reference) {
 		if (!v.base) {
-			throw new ReferenceError(v.propertyName + " is not defined",
-									 v.node.filename, v.node.lineno);
+			throw new ReferenceError(v.propertyName + " is not defined", v.node.filename, v.node.lineno);
 		}
 		return v.base[v.propertyName];
+	}
+	return v;
+}
+
+async function maybeWaitFor(v) {
+	if (typeof(v) === "object" && v.constructor.name === "Promise") {
+		try {
+			let result = await v;
+			return result;
+		} catch (err) {
+			return err;
+		}
+	} else {
+		return v;
+	}
+	
+}
+
+function cannotWaitFor(v) {
+	if (typeof(v) === "object" && v.constructor.name === "Promise") {
+		let i = v.inspect();
+		if (i.state !== "fulfilled") {
+			v.reject("Panic! PENDING Promise was returned in an area that requires synchronous completion or failure!");
+			throw "Panic! PENDING Promise was returned in an area that requires synchronous completion or failure!"
+		} else {
+			if (i.state === "rejected") { 
+				throw i.reason;
+			} else {
+				return i.value;
+			}
+		}
 	}
 	return v;
 }
@@ -236,15 +266,14 @@ function toObject(v, r, rn) {
 	  case "function":
 		return v;
 	  case "object":
-		if (v !== null)
-			return v;
+		if (v !== null) { return v; }
 	}
 	var message = r + " (type " + (typeof v) + ") has no properties";
 	throw rn ? new TypeError(message, rn.filename, rn.lineno)
 			 : new TypeError(message);
 }
 
-function execute(n, x) {
+async function execute(n, x) {
 	var a, f, i, j, r, s, t, u, v;
 
 	switch (n.type) {
@@ -281,8 +310,7 @@ function execute(n, x) {
 			u = a[i];
 			s = u.name;
 			if (u.readOnly && hasDirectProperty(t, s)) {
-				throw new TypeError("Redeclaration of const " + s,
-									u.filename, u.lineno);
+				throw new TypeError("Redeclaration of const " + s, u.filename, u.lineno);
 			}
 			if (u.readOnly || !hasDirectProperty(t, s)) {
 				t.__defineProperty__(s, undefined, x.type != EVAL_CODE, u.readOnly);
@@ -292,21 +320,21 @@ function execute(n, x) {
 
 	  case BLOCK:
 		for (i = 0, j = n.length; i < j; i++) {
-			execute(n[i], x);
+			await maybeWaitFor(execute(n[i], x));
 		}
 		
 		break;
 
 	  case IF:
-		if (getValue(execute(n.condition, x))) {
-			execute(n.thenPart, x);
+		if (getValue(await maybeWaitFor(execute(n.condition, x)))) {
+			await maybeWaitFor(execute(n.thenPart, x));
 		} else if (n.elsePart) {
-			execute(n.elsePart, x);
+			await maybeWaitFor(execute(n.elsePart, x));
 		}
 		break;
 
 	  case SWITCH:
-		s = getValue(execute(n.discriminant, x));
+		s = getValue(await maybeWaitFor(execute(n.discriminant, x)));
 		a = n.cases;
 		var matchDefault = false;
 	  switch_loop:
@@ -321,7 +349,7 @@ function execute(n, x) {
 			}
 			t = a[i];					   // next case (might be default!)
 			if (t.type == CASE) {
-				u = getValue(execute(t.caseLabel, x));
+				u = getValue(await maybeWaitFor(execute(t.caseLabel, x)));
 			} else {
 				if (!matchDefault) {	 // not defaulting, skip for now
 					continue;
@@ -332,7 +360,7 @@ function execute(n, x) {
 				for (;;) {				  // this loop exits switch_loop
 					if (t.statements.length) {
 						try {
-							execute(t.statements, x);
+							await maybeWaitFor(execute(t.statements, x));
 						} catch (e) {
 							if (e == BREAK && x.target == n) {
 								break switch_loop;
@@ -352,12 +380,12 @@ function execute(n, x) {
 		break;
 
 	  case FOR:
-		n.setup && getValue(execute(n.setup, x));
+		n.setup && getValue(await maybeWaitFor(execute(n.setup, x)));
 		// FALL THROUGH
 	  case WHILE:
-		while (!n.condition || getValue(execute(n.condition, x))) {
+		while (!n.condition || getValue(await maybeWaitFor(execute(n.condition, x)))) {
 			try {
-				execute(n.body, x);
+				await maybeWaitFor(execute(n.body, x));
 			} catch (e) {
 				if (e == BREAK && x.target == n) {
 					break;
@@ -368,17 +396,17 @@ function execute(n, x) {
 				}		
 			}
 			
-			n.update && getValue(execute(n.update, x));
+			n.update && getValue(await maybeWaitFor(execute(n.update, x)));
 		}
 		break;
 
 	  case FOR_IN:
 		u = n.varDecl;
 		if (u) {
-			execute(u, x);
+			await maybeWaitFor(execute(u, x));
 		}
 		r = n.iterator;
-		s = execute(n.object, x);
+		s = await maybeWaitFor(execute(n.object, x));
 		v = getValue(s);
 
 		// ECMA deviation to track extant browser JS implementation behavior.
@@ -388,9 +416,9 @@ function execute(n, x) {
 			a.push(i);
 		}
 		for (i = 0, j = a.length; i < j; i++) {
-			putValue(execute(r, x), a[i], r);
+			putValue(await maybeWaitFor(execute(r, x)), a[i], r);
 			try {
-				execute(n.body, x);
+				await maybeWaitFor(execute(n.body, x));
 			} catch (e) {
 				if (e == BREAK && x.target == n) {
 					break;
@@ -406,7 +434,7 @@ function execute(n, x) {
 	  case DO:
 		do {
 			try {
-				execute(n.body, x);
+				await maybeWaitFor(execute(n.body, x));
 			} catch (e) {
 				if (e == BREAK && x.target == n) {
 					break;
@@ -416,7 +444,7 @@ function execute(n, x) {
 					throw e;
 				}
 			}
-		} while (getValue(execute(n.condition, x)));
+		} while (getValue(await maybeWaitFor(execute(n.condition, x))));
 		break;
 
 	  case BREAK:
@@ -426,7 +454,7 @@ function execute(n, x) {
 
 	  case TRY:
 		try {
-			execute(n.tryBlock, x);
+			execute(await maybeWaitFor(n.tryBlock, x));
 		} catch (e) {
 			if (e == THROW && (j = n.catchClauses.length)) {
 				e = x.result;
@@ -441,11 +469,11 @@ function execute(n, x) {
 					// Object.defineProperty(x.scope.object, t.varName, { value: e, writable: true, configurable: true, enumerable: true } )
 					x.scope.object.__defineProperty__(t.varName, e, true);
 					try {
-						if (t.guard && !getValue(execute(t.guard, x))) {
+						if (t.guard && !getValue(await maybeWaitFor(execute(t.guard, x)))) {
 							continue;
 						}
 							
-						execute(t.block, x);
+						await maybeWaitFor(execute(t.block, x));
 						break;
 					} finally {
 						x.scope = x.scope.parent;
@@ -456,25 +484,25 @@ function execute(n, x) {
 			}
 		} finally {
 			if (n.finallyBlock) {
-				execute(n.finallyBlock, x);
+				await maybeWaitFor(execute(n.finallyBlock, x));
 			}	
 		}
 		break;
 
 	  case THROW:
-		x.result = getValue(execute(n.exception, x));
+		x.result = getValue(await maybeWaitFor(execute(n.exception, x)));
 		throw THROW;
 
 	  case RETURN:
-		x.result = getValue(execute(n.value, x));
+		x.result = getValue(await maybeWaitFor(execute(n.value, x)));
 		throw RETURN;
 
 	  case WITH:
-		r = execute(n.object, x);
+		r = await maybeWaitFor(execute(n.object, x));
 		t = toObject(getValue(r), r, n.object);
 		x.scope = {object: t, parent: x.scope};
 		try {
-			execute(n.body, x);
+			await maybeWaitFor(execute(n.body, x));
 		} finally {
 			x.scope = x.scope.parent;
 		}
@@ -493,7 +521,7 @@ function execute(n, x) {
 					break;
 				}
 			}
-			u = getValue(execute(u, x));
+			u = getValue(await maybeWaitFor(execute(u, x)));
 			if (n.type == CONST) {
 				s.object.__defineProperty__(t, u, x.type != EVAL_CODE, true);
 			} else {
@@ -507,13 +535,13 @@ function execute(n, x) {
 
 	  case SEMICOLON:
 		if (n.expression) {
-			x.result = getValue(execute(n.expression, x));
+			x.result = getValue(await maybeWaitFor(execute(n.expression, x)));
 		}	
 		break;
 
 	  case LABEL:
 		try {
-			execute(n.statement, x);
+			await maybeWaitFor(execute(n.statement, x));
 		} catch (e) {
 			if (e == BREAK && x.target == n) {
 				// no-op
@@ -525,16 +553,16 @@ function execute(n, x) {
 
 	  case COMMA:
 		for (i = 0, j = n.length; i < j; i++)
-			v = getValue(execute(n[i], x));
+			v = getValue(await maybeWaitFor(execute(n[i], x)));
 		break;
 
 	  case ASSIGN:
-		r = execute(n[0], x);
+		r = await maybeWaitFor(execute(n[0], x));
 		t = n[0].assignOp;
 		if (t) {
 			u = getValue(r);
 		}
-		v = getValue(execute(n[1], x));
+		v = getValue(await maybeWaitFor(execute(n[1], x)));
 		if (t) {
 			switch (t) {
 			  case BITWISE_OR:  v = u | v; break;
@@ -554,69 +582,84 @@ function execute(n, x) {
 		break;
 
 	  case HOOK:
-		v = getValue(execute(n[0], x)) ? getValue(execute(n[1], x))
-									   : getValue(execute(n[2], x));
+		v = getValue(await maybeWaitFor(execute(n[0], x))) 
+				? getValue(await maybeWaitFor(execute(n[1], x)))
+				: getValue(await maybeWaitFor(execute(n[2], x)));
 		break;
 
 	  case OR:
-		v = getValue(execute(n[0], x)) || getValue(execute(n[1], x));
+		v = getValue(await maybeWaitFor(execute(n[0], x))) 
+				|| getValue(await maybeWaitFor(execute(n[1], x)));
 		break;
 
 	  case AND:
-		v = getValue(execute(n[0], x)) && getValue(execute(n[1], x));
+		v = getValue(await maybeWaitFor(execute(n[0], x))) 
+				&& getValue(await maybeWaitFor(execute(n[1], x)));
 		break;
 
 	  case BITWISE_OR:
-		v = getValue(execute(n[0], x)) | getValue(execute(n[1], x));
+		v = getValue(await maybeWaitFor(execute(n[0], x))) 
+				| getValue(await maybeWaitFor(execute(n[1], x)));
 		break;
 
 	  case BITWISE_XOR:
-		v = getValue(execute(n[0], x)) ^ getValue(execute(n[1], x));
+		v = getValue(await maybeWaitFor(execute(n[0], x))) 
+				^ getValue(await maybeWaitFor(execute(n[1], x)));
 		break;
 
 	  case BITWISE_AND:
-		v = getValue(execute(n[0], x)) & getValue(execute(n[1], x));
+		v = getValue(await maybeWaitFor(execute(n[0], x))) 
+				& getValue(await maybeWaitFor(execute(n[1], x)));
 		break;
 
 	  case EQ:
-		v = getValue(execute(n[0], x)) == getValue(execute(n[1], x));
+		v = getValue(await maybeWaitFor(execute(n[0], x))) 
+				== getValue(await maybeWaitFor(execute(n[1], x)));
 		break;
 
 	  case NE:
-		v = getValue(execute(n[0], x)) != getValue(execute(n[1], x));
+		v = getValue(await maybeWaitFor(execute(n[0], x))) 
+				!= getValue(await maybeWaitFor(execute(n[1], x)));
 		break;
 
 	  case STRICT_EQ:
-		v = getValue(execute(n[0], x)) === getValue(execute(n[1], x));
+		v = getValue(await maybeWaitFor(execute(n[0], x))) 
+				=== getValue(await maybeWaitFor(execute(n[1], x)));
 		break;
 
 	  case STRICT_NE:
-		v = getValue(execute(n[0], x)) !== getValue(execute(n[1], x));
+		v = getValue(await maybeWaitFor(execute(n[0], x))) 
+				!== getValue(await maybeWaitFor(execute(n[1], x)));
 		break;
 
 	  case LT:
-		v = getValue(execute(n[0], x)) < getValue(execute(n[1], x));
+		v = getValue(await maybeWaitFor(execute(n[0], x)))
+				< getValue(await maybeWaitFor(execute(n[1], x)));
 		break;
 
 	  case LE:
-		v = getValue(execute(n[0], x)) <= getValue(execute(n[1], x));
+		v = getValue(await maybeWaitFor(execute(n[0], x))) 
+				<= getValue(await maybeWaitFor(execute(n[1], x)));
 		break;
 
 	  case GE:
-		v = getValue(execute(n[0], x)) >= getValue(execute(n[1], x));
+		v = getValue(await maybeWaitFor(execute(n[0], x))) 
+				>= getValue(await maybeWaitFor(execute(n[1], x)));
 		break;
 
 	  case GT:
-		v = getValue(execute(n[0], x)) > getValue(execute(n[1], x));
+		v = getValue(await maybeWaitFor(execute(n[0], x))) 
+				> getValue(await maybeWaitFor(execute(n[1], x)));
 		break;
 
 	  case IN:
-		v = getValue(execute(n[0], x)) in getValue(execute(n[1], x));
+		v = getValue(await maybeWaitFor(execute(n[0], x))) 
+				in getValue(await maybeWaitFor(execute(n[1], x)));
 		break;
 
 	  case INSTANCEOF:
-		t = getValue(execute(n[0], x));
-		u = getValue(execute(n[1], x));
+		t = getValue(await maybeWaitFor(execute(n[0], x)));
+		u = getValue(await maybeWaitFor(execute(n[1], x)));
 		if (isObject(u) && typeof u.__hasInstance__ == "function")
 			v = u.__hasInstance__(t);
 		else
@@ -624,48 +667,56 @@ function execute(n, x) {
 		break;
 
 	  case LSH:
-		v = getValue(execute(n[0], x)) << getValue(execute(n[1], x));
+		v = getValue(await maybeWaitFor(execute(n[0], x))) 
+				<< getValue(await maybeWaitFor(execute(n[1], x)));
 		break;
 
 	  case RSH:
-		v = getValue(execute(n[0], x)) >> getValue(execute(n[1], x));
+		v = getValue(await maybeWaitFor(execute(n[0], x))) 
+				>> getValue(await maybeWaitFor(execute(n[1], x)));
 		break;
 
 	  case URSH:
-		v = getValue(execute(n[0], x)) >>> getValue(execute(n[1], x));
+		v = getValue(await maybeWaitFor(execute(n[0], x))) 
+				>>> getValue(await maybeWaitFor(execute(n[1], x)));
 		break;
 
 	  case PLUS:
-		v = getValue(execute(n[0], x)) + getValue(execute(n[1], x));
+		v = getValue(await maybeWaitFor(execute(n[0], x))) 
+				+ getValue(await maybeWaitFor(execute(n[1], x)));
 		break;
 
 	  case MINUS:
-		v = getValue(execute(n[0], x)) - getValue(execute(n[1], x));
+		v = getValue(await maybeWaitFor(execute(n[0], x))) 
+				- getValue(await maybeWaitFor(execute(n[1], x)));
 		break;
 
 	  case MUL:
-		v = getValue(execute(n[0], x)) * getValue(execute(n[1], x));
+		v = getValue(await maybeWaitFor(execute(n[0], x))) 
+				* getValue(await maybeWaitFor(execute(n[1], x)));
 		break;
 
 	  case DIV:
-		v = getValue(execute(n[0], x)) / getValue(execute(n[1], x));
+		v = getValue(await maybeWaitFor(execute(n[0], x))) 
+				/ getValue(await maybeWaitFor(execute(n[1], x)));
 		break;
 
 	  case MOD:
-		v = getValue(execute(n[0], x)) % getValue(execute(n[1], x));
+		v = getValue(await maybeWaitFor(execute(n[0], x))) 
+				% getValue(await maybeWaitFor(execute(n[1], x)));
 		break;
 
 	  case DELETE:
-		t = execute(n[0], x);
+		t = await maybeWaitFor(execute(n[0], x));
 		v = !(t instanceof Reference) || delete t.base[t.propertyName];
 		break;
 
 	  case VOID:
-		getValue(execute(n[0], x));
+		getValue(await maybeWaitFor(execute(n[0], x)));
 		break;
 
 	  case TYPEOF:
-		t = execute(n[0], x);
+		t = await maybeWaitFor(execute(n[0], x));
 		if (t instanceof Reference) {
 			t = t.base ? t.base[t.propertyName] : undefined;
 		}
@@ -673,24 +724,24 @@ function execute(n, x) {
 		break;
 
 	  case NOT:
-		v = !getValue(execute(n[0], x));
+		v = !getValue(await maybeWaitFor(execute(n[0], x)));
 		break;
 
 	  case BITWISE_NOT:
-		v = ~getValue(execute(n[0], x));
+		v = ~getValue(await maybeWaitFor(execute(n[0], x)));
 		break;
 
 	  case UNARY_PLUS:
-		v = +getValue(execute(n[0], x));
+		v = +getValue(await maybeWaitFor(execute(n[0], x)));
 		break;
 
 	  case UNARY_MINUS:
-		v = -getValue(execute(n[0], x));
+		v = -getValue(await maybeWaitFor(execute(n[0], x)));
 		break;
 
 	  case INCREMENT:
 	  case DECREMENT:
-		t = execute(n[0], x);
+		t = await maybeWaitFor(execute(n[0], x));
 		u = Number(getValue(t));
 		if (n.postfix) {
 			v = u;
@@ -702,16 +753,16 @@ function execute(n, x) {
 		break;
 
 	  case DOT:
-		r = execute(n[0], x);
+		r = await maybeWaitFor(execute(n[0], x));
 		t = getValue(r);
 		u = n[1].value;
 		v = new Reference(toObject(t, r, n[0]), u, n);
 		break;
 
 	  case INDEX:
-		r = execute(n[0], x);
+		r = await maybeWaitFor(execute(n[0], x));
 		t = getValue(r);
-		u = getValue(execute(n[1], x));
+		u = getValue(await maybeWaitFor(execute(n[1], x)));
 		v = new Reference(toObject(t, r, n[0]), String(u), n);
 		break;
 
@@ -719,19 +770,18 @@ function execute(n, x) {
 		// Curse ECMA for specifying that arguments is not an Array object!
 		v = {};
 		for (i = 0, j = n.length; i < j; i++) {
-			u = getValue(execute(n[i], x));
+			u = getValue(await maybeWaitFor(execute(n[i], x)));
 			v.__defineProperty__(i, u, false, false, true);
 		}
 		v.__defineProperty__('length', i, false, false, true);
 		break;
 
 	  case CALL:
-		r = execute(n[0], x);
-		a = execute(n[1], x);
+		r = await maybeWaitFor(execute(n[0], x));
+		a = await maybeWaitFor(execute(n[1], x));
 		f = getValue(r);
 		if (isPrimitive(f) || typeof f.__call__ != "function") {
-			throw new TypeError(r + " is not callable",
-								n[0].filename, n[0].lineno);
+			throw new TypeError(r + " is not callable", n[0].filename, n[0].lineno);
 		}
 		t = (r instanceof Reference) ? r.base : null;
 		if (t instanceof Activation) {
@@ -742,13 +792,13 @@ function execute(n, x) {
 
 	  case NEW:
 	  case NEW_WITH_ARGS:
-		r = execute(n[0], x);
+		r = await maybeWaitFor(execute(n[0], x));
 		f = getValue(r);
 		if (n.type == NEW) {
 			a = {};
 			a.__defineProperty__('length', 0, false, false, true);
 		} else {
-			a = execute(n[1], x);
+			a = await maybeWaitFor(execute(n[1], x));
 		}
 		if (isPrimitive(f) || typeof f.__construct__ != "function") {
 			throw new TypeError(r + " is not a constructor",
@@ -761,7 +811,7 @@ function execute(n, x) {
 		v = [];
 		for (i = 0, j = n.length; i < j; i++) {
 			if (n[i]) {
-				v[i] = getValue(execute(n[i], x));
+				v[i] = getValue(await maybeWaitFor(execute(n[i], x)));
 			}
 		}
 		v.length = j;
@@ -772,7 +822,7 @@ function execute(n, x) {
 		for (i = 0, j = n.length; i < j; i++) {
 			t = n[i];
 			if (t.type == PROPERTY_INIT) {
-				v[t[0].value] = getValue(execute(t[1], x));
+				v[t[0].value] = getValue(await maybeWaitFor(execute(t[1], x)));
 			} else {
 				f = new FunctionObject(t, x.scope);
 				u = (t.type == GETTER) ? '__defineGetter__'
@@ -814,7 +864,7 @@ function execute(n, x) {
 		break;
 
 	  case GROUP:
-		v = execute(n[0], x);
+		v = await maybeWaitFor(execute(n[0], x));
 		break;
 
 	  default:
@@ -862,7 +912,7 @@ var FOp = FunctionObject.prototype = {
 
 		ExecutionContext.current = x2;
 		try {
-			execute(f.body, x2);
+			cannotWaitFor(execute(f.body, x2));
 		} catch (e) {
 			if (e == RETURN) {
 				return x2.result;
@@ -919,8 +969,7 @@ var FOp = FunctionObject.prototype = {
 	apply: function (t, a) {
 		// Curse ECMA again!
 		if (typeof this.__call__ != "function") {
-			throw new TypeError("Function.prototype.apply called on" +
-								" uncallable object");
+			throw new TypeError("Function.prototype.apply called on" + " uncallable object");
 		}
 
 		if (t === undefined || t === null) {
@@ -991,7 +1040,7 @@ function thunk(f, x) {
 	return function () { return f.__call__(this, arguments, x); };
 }
 
-function evaluate(source, filename, lineNumber) {
+async function evaluate(source, filename, lineNumber, injected) {
 	if (typeof source != "string") {
 		return source;
 	}
@@ -999,7 +1048,7 @@ function evaluate(source, filename, lineNumber) {
 	var x2 = new ExecutionContext(GLOBAL_CODE);
 	ExecutionContext.current = x2;
 	try {
-		execute(parse(source, filename, lineNumber), x2);
+		await maybeWaitFor(execute(parse(source, filename, lineNumber), x2));
 	} catch (e) {
 		if (e == THROW) {
 			if (x) {
