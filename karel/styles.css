@@ -8,8 +8,14 @@ textarea {
 .tiny {
 	height: 200px;
 }
+.teensy {
+	height: 50px;
+}
 .card {
 	margin: 0;
+}
+.tight {
+	margin: 3px;
 }
 .smallerText { 
 	font-size: .65em;
