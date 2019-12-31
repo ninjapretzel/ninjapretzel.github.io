@@ -4,7 +4,7 @@ const botsUniform = [];
 const beepersUniform = [];
 const scrollUniform = [0, 0];
 const highlightCellUniform = [0, 0];
-const focWallUniform = [ 0, 0, 0, 0 ]
+const focWallUniform = [ 0, 0, 0, 0 ];
 
 const walls = [ ]
 const bots = [ ]
@@ -144,10 +144,13 @@ function wait(ms) {
 /** directly async version of 'wait' */
 async function pause(ms) { await wait(ms); }
 
+function checkRunning() {
+	if (!running) { throw INTERRUPTED; }
+}	
 async function step() { 
 	let bot = world.karel;
 	await pause(delay);
-	if (!running) { throw INTERRUPTED; }
+	checkRunning();
 	
 	let x = bot.x; let y = bot.y;
 	let dir = round((bot.angle / 90) % 4);
@@ -173,16 +176,17 @@ async function step() {
 async function turnLeft() {
 	let bot = world.karel;
 	await pause(delay);
-	if (!running) { throw INTERRUPTED }
+	checkRunning();
 	
 	bot.angle = (bot.angle + 90) % 360;
 	if (bot.angle < 0) { bot.angle += 360; }
-	
 }
+
 async function isBlocked() {
 	let bot = world.karel;
 	await pause(delay);
-	if (!running) { throw INTERRUPTED }
+	checkRunning();
+	
 	
 	let x = bot.x; let y = bot.y;
 	let dir = round((bot.angle / 90) % 4);
@@ -195,7 +199,7 @@ async function isBlocked() {
 async function isNearBeeper() {
 	let bot = world.karel;
 	await pause(delay);
-	if (!running) { throw INTERRUPTED }
+	checkRunning();
 	
 	let had = beeperExists(bot.x, bot.y);
 	return had;
@@ -210,7 +214,7 @@ async function hasBeeper() {
 async function placeBeeper() {
 	let bot = world.karel;
 	await pause(delay);
-	if (!running) { throw INTERRUPTED }
+	checkRunning();
 	
 	if (bot.beepers > 0) {
 		bot.beepers -= 1;
@@ -223,7 +227,7 @@ async function placeBeeper() {
 async function takeBeeper() {
 	let bot = world.karel;
 	await pause(delay);
-	if (!running) { throw INTERRUPTED }
+	checkRunning();
 	
 	if (beeperExists(bot.x, bot.y)) {
 		bot.beepers += 1;
@@ -410,11 +414,12 @@ function loadWorld(json) {
 }
 
 $(document).ready(()=>{
-	let thingToLoad = "demo";
+	let demoToLoad = "demo";
+	
 	let demoP = urlParam("demo");
 	
 	if (demoP && this[demoP+"Js"] && this[demoP+"World"]) {
-		thingToLoad = demoP;
+		demoToLoad = demoP;
 	}
 	setTimeout(()=>{
 		let extra = "";
@@ -422,12 +427,16 @@ $(document).ready(()=>{
 			extra = "#define FANCYMODE\n";
 		}
 		startFrag("k", {frag: extra+karelfrag}, uniforms)
-
+		let jsToLoad = demoToLoad ? this[demoToLoad+"Js"] : null;
+		let jsonToLoad = demoToLoad ? this[demoToLoad+"World"] : null;
+		if (jsToLoad == null) { jsToLoad = ""; }
+		if (jsonToLoad == null) { jsonToLoad = "{}"; }
+		
 		$(".preload").addClass("hidden");
 		$(".main").removeClass("hidden");
 		responsiveCanvas("#k");
 		codeEditor = CodeMirror(document.getElementById("scriptEntry"), {
-			value: this[thingToLoad+"Js"],
+			value: jsToLoad,
 			// value: demoJs,
 			// value: "\nfunction main() {\n\tconsole.log('hello world');\n}\nmain();",
 			mode: "javascript",	
@@ -440,9 +449,12 @@ $(document).ready(()=>{
 			lineNumbers: true,
 		})
 		//*
-		let worldJson = JSON.stringify(this[thingToLoad+"World"])
+		let worldJson = JSON.stringify(jsonToLoad)
 		loadWorld(worldJson)
 		//*/
+		
+		
+		
 		
 	}, 100);
 	
@@ -482,6 +494,9 @@ $(document).ready(()=>{
 				.removeClass("light-green")
 				
 		running = false;
+		// Signal to vm we want to quit.
+		ExecutionContext.current.running = false;
+		
 	});
 	$("#reset").addClass("disabled");
 	$("#run").click(async ()=>{

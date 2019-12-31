@@ -205,9 +205,11 @@ function getValue(v) {
 }
 
 async function maybeWaitFor(v) {
+	if (!ExecutionContext.current.running) { throw "INTERRUPTED."; }
 	if (typeof(v) === "object" && v.constructor.name === "Promise") {
 		try {
 			let result = await v;
+			if (!ExecutionContext.current.running) { throw "INTERRUPTED."; }
 			return result;
 		} catch (err) {
 			throw err;
@@ -215,6 +217,14 @@ async function maybeWaitFor(v) {
 	} else {
 		return v;
 	}
+}
+function waitPromise(ms) {
+	return new Promise((resolve, reject) => { setTimeout( ()=>{resolve(); }, ms); });
+}
+
+async function forceWaitFor(v) {
+	await waitPromise(1);
+	return await maybeWaitFor(v);
 }
 
 function putValue(v, w, vn) {
@@ -363,7 +373,7 @@ async function execute(n, x) {
 		n.setup && getValue(await maybeWaitFor(execute(n.setup, x)));
 		// FALL THROUGH
 	  case WHILE:
-		while (!n.condition || getValue(await maybeWaitFor(execute(n.condition, x)))) {
+		while (!n.condition || getValue(await forceWaitFor(execute(n.condition, x)))) {
 			try {
 				await maybeWaitFor(execute(n.body, x));
 			} catch (e) {
@@ -424,7 +434,7 @@ async function execute(n, x) {
 					throw e;
 				}
 			}
-		} while (getValue(await maybeWaitFor(execute(n.condition, x))));
+		} while (getValue(await forceWaitFor(execute(n.condition, x))));
 		break;
 
 	  case BREAK:
@@ -1034,6 +1044,7 @@ async function evaluate(source, filename, lineNumber, injected) {
 	x2.scope = { object: {}, parent: injHolder };
 	
 	ExecutionContext.current = x2;
+	ExecutionContext.current.running = true;
 	try {
 		await maybeWaitFor(execute(parse(source, filename, lineNumber), x2));
 	} catch (e) {
