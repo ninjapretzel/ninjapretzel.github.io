@@ -38,6 +38,7 @@ const round = Math.round;
 // Mouse info
 const mouse = {};
 
+
 // World of Karel 
 const world = {
 	karel: { 
@@ -401,19 +402,25 @@ function loadWorld(json) {
 }
 
 $(document).ready(()=>{
+	let thingToLoad = "demo";
+	let demoP = urlParam("demo");
+	
+	if (demoP && this[demoP+"Js"] && this[demoP+"World"]) {
+		thingToLoad = demoP;
+	}
 	setTimeout(()=>{
 		let extra = "";
 		if (urlParam("fancy")) {
 			extra = "#define FANCYMODE\n";
 		}
-		
 		startFrag("k", {frag: extra+karelfrag}, uniforms)
 
 		$(".preload").addClass("hidden");
 		$(".main").removeClass("hidden");
 		responsiveCanvas("#k");
 		codeEditor = CodeMirror(document.getElementById("scriptEntry"), {
-			value: demoJs,
+			value: this[thingToLoad+"Js"],
+			// value: demoJs,
 			// value: "\nfunction main() {\n\tconsole.log('hello world');\n}\nmain();",
 			mode: "javascript",	
 			theme: "solarized dark",
@@ -424,6 +431,11 @@ $(document).ready(()=>{
 			electricChars: false,
 			lineNumbers: true,
 		})
+		//*
+		let worldJson = JSON.stringify(this[thingToLoad+"World"])
+		loadWorld(worldJson)
+		//*/
+		
 	}, 100);
 	
 	updateWorldText();
@@ -448,13 +460,19 @@ $(document).ready(()=>{
 			loadSnapshot();
 			updateBeeperText();
 			
-			M.toast({html: "Reset Finished.", classes:"green", displayLength: 1000 } );
+			M.toast({html: "Reset Finished.", classes:"green", displayLength: 2000 } );
 		} catch (err) { 
 			
 			M.toast({html: `Reset failed: ${e}`, classes: "red" } );
 		}
 		$("#reset").addClass("disabled");
 		$("#run").removeClass("disabled");
+		$(".activation").addClass("blue-grey")
+				.removeClass("green")
+				.removeClass("deep-orange")
+				.removeClass("red")
+				.removeClass("light-green")
+				
 		running = false;
 	});
 	$("#reset").addClass("disabled");
@@ -464,17 +482,45 @@ $(document).ready(()=>{
 		running = true;
 		$("#reset").removeClass("disabled");
 		$("#run").addClass("disabled");
+		$(".activation").addClass("light-green")
+			.removeClass("blue-grey")
+			.removeClass("deep-orange")
+			.removeClass("green")
+			.removeClass("red")
 		let script = codeEditor.getValue();
 		
 		try {
 			await evaluate(script, "dynamic", 1, karelFunctions);
-			M.toast({html: "Run Finished.", classes:"green", displayLength: 1000  } );
+			M.toast({html: "Run Finished.", classes:"green", displayLength: 2000  } );
+			$(".activation").addClass("green")
+					.removeClass("red")
+					.removeClass("blue-grey")
+					.removeClass("light-green")
+					.removeClass("deep-orange")
 		} catch (e) {
 			if (e === INTERRUPTED) {
 				M.toast({html:`${e} Karel will wait.`, classes:"yellow black-text"});
 			} else {
-				M.toast({html:`Script error. ${e}`, classes:"red" })
-				console.error(e);
+				if (typeof(e) === "string" && e.includes("KarelCrash!")) {
+					M.toast({html:`${e}!<br/>Instruct Karel to be a little more careful!`, classes:"red" })
+					
+					$(".activation").addClass("deep-orange")
+						.removeClass("blue-grey")
+						.removeClass("green")
+						.removeClass("light-green")
+						.removeClass("red")
+					
+				} else {
+					M.toast({html:`Script error. ${e}`, classes:"red" })
+					console.error(e);
+					
+					$(".activation").addClass("red")
+						.removeClass("blue-grey")
+						.removeClass("green")
+						.removeClass("deep-orange")
+						.removeClass("light-green")
+				}
+				
 			}
 		}
 	});

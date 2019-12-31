@@ -6,76 +6,92 @@
 	<meta http-equiv="X-UA-Compatible" content="ie=edge">
 	<title>Karel</title>
 	
+	<!-- 	Dependencies	-->
 	<!-- Jquery -->
 	<script src="https://code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
 	<!-- Materialize -->
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css" />
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
 	
+	<!-- CodeMirror, To have a nice functional code editor on page. -->
 	<link rel="stylesheet" href="lib/codemirror.css" />
 	<link rel="stylesheet" href="lib/solarized.css" />
 	<script src="lib/codemirror.js"></script>
 	<script src="lib/javascript.js"></script>
 	
-	<script src="lib/narcissus/jsdefs.js"></script>
-	<script src="lib/narcissus/jsparse.js"></script>
-	<script src="lib/narcissus/jsexec.js"></script>
+	<!-- Narcissus, Modified from Spidermonkey's Narcissus -->
+	<script src="lib/jsdefs.js"></script>
+	<script src="lib/jsparse.js"></script>
+	<script src="lib/jsexec.js"></script>
 	
-	
-	
-	<link rel="stylesheet" href="styles.css" />
+	<!-- 	Own resources.	-->
+	<!-- Example code/worlds. -->
 	<script src="examples/demo.js"></script>
+	<script src="examples/maze.js"></script>
+	<!-- Some WebGL/OpenGL utilities. -->
 	<script src="gl.js"></script>
+	<!-- KarelWorld Renderer Shader source text. -->
 	<script src="karel.glsl.js"></script>
+	<!-- Code for this Single Page Application. -->
 	<script src="karel.js"></script>
+	
+	<!-- Custom styles. -->
+	<link rel="stylesheet" href="styles.css" />
 	
 </head>
 <body class="brown darken-2">
-	<div class="container row brown darken-3">
-		<div class="col s12 blue-grey darken-2">
-			<h1>Karel.js</h1>	
+	<div class="container row  brown darken-3">
+		<div class="col s12 row activation rowfix blue-grey darken-2">
+			<div class="col s6 m4 l3"><h1><a href="index.html" class="black-text">Karel.js</a></h1></div>
+			<div class="col s6">
+				A tool for learning programming.<br>
+				Add <tt class="blue-grey darken-3">?demo=maze</tt> to the url and load to open the maze-solver demo<br>
+				Add <tt class="blue-grey darken-3">?fancy=true</tt> to the url and load to use the fancy karel-world renderer.
+			</div>
 		</div>
 		<div class="preload col s12 card small blue-grey darken-2">
 			Please wait, loading. Initial load (shader compilation) may take some time...<br>
 			If you added <tt class="blue-grey darken-3">?fancy=true</tt> to the url, expect it to take longer.
 		</div>
-		<div class="main col s12 card blue-grey blue-grey-text">.</div>
-		<div class="main col s6 card blue-grey darken-1"> <h4>Script Entry </h4></div>
-		<div class="main col s6 card blue-grey darken-1"> <h4>World Display/Editor </h4></div>
-		<div class="main col s12 card blue-grey blue-grey-text">.</div>
-		<div class="main col s6 card large blue-grey darken-2">
+		<div class="main col s12 activation card blue-grey blue-grey-text">.</div>
+		<div class="main col s6 activation card blue-grey darken-1"> <h4>JavaScript Entry </h4></div>
+		<div class="main col s6 activation card blue-grey darken-1"> <h4>World Display/Editor </h4></div>
+		<div class="main col s12 activation card blue-grey blue-grey-text">.</div>
+		<div class="main col s6 activation card large blue-grey darken-2">
 			<div id="scriptEntry"></div>
 			<br>
 			<button id="reset" class="btn waves-effect waves-dark">Reset</button>
 			<button id="run" class="btn waves-effect waves-dark">Run</button>
 			<div> Delay(ms): </div>
 			<div class="input-field">
-				<input type="text" id="delay" class="blue-grey validate"/>
+				<input type="text" id="delay" class="blue-grey activation validate"/>
 			</div>
 		</div>
-		<div class="main col s6 card large blue-grey darken-2">
+		<div class="main col s6 activation card large blue-grey darken-2">
 			<canvas id="k" tabindex='1'></canvas>
 		</div>
-		<div class="main col s6 card tiny blue-grey darken-2">
+		<div class="main col s6 activation card tiny blue-grey darken-2">
 			<h5>World JSON:</h5>
-			<textarea id="world"></textarea>
+			<textarea id="world" class="activation blue-grey darken-1"></textarea>
 			<button id="load" class="btn waves-effect waves-dark">Load World</button> <br>
 			The JSON data for the world automatically updates as you edit. <br>
 			Feel free to copy/paste to import/export. <br>
 		</div>
 		
-		<div class="main col s3 card tiny smallerText blue-grey darken-2">
+		<div class="main col s3 activation card tiny smallerText blue-grey darken-2">
 			<h5>Editor Instructions:</h5> <br>
-			Click and drag to pan. Mouse Scroll to zoom in/out. <br>
-			Click on grid lines to toggle walls. <br>
-			Click on grid cells to add beepers. Shift click to remove beepers. <br>
-			Click on Karel to rotate him. Shift click to rotate the other way. <br>
-			Hover over a cell and hit 'k' to place Karel. <br>
+			<ul class=".browser-default">
+				<li class=".browser-default">Click and drag to pan. Mouse Scroll to zoom in/out.</li>
+				<li class=".browser-default">Click on grid lines to toggle walls.</li>
+				<li class=".browser-default">Click on grid cells to add beepers. Shift click to remove beepers. </li>
+				<li class=".browser-default">Click on Karel to rotate him. Shift click to rotate the other way. </li>
+				<li class=".browser-default">Hover over a cell and hit 'k' to place Karel. </li>
+			</ul>
 		</div>
-		<div class="main col s3 card tiny blue-grey darken-2">
+		<div class="main col s3 activation card tiny blue-grey darken-2">
 			<div> Karel's Beepers: </div>
 			<div class="input-field">
-				<input type="text" id="karelBeepers" class="blue-grey validate" />
+				<input type="text" id="karelBeepers" class="blue-grey activation validate" />
 			</div>
 			
 			<button id="removeBeeper" class="btn-small">-</button>

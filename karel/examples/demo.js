@@ -1,4 +1,5 @@
-const demoJs = `// Karel.js Demo
+this.demoWorld = {"karel":{"x":0,"y":0,"angle":90,"beepers":0},"horizontalWalls":{"-5,0":1,"-4,0":1,"-3,0":1,"-2,0":1,"-1,0":1,"0,0":1,"1,0":1,"2,0":1},"verticalWalls":{"2,0":1,"-3,-3":1,"-3,-2":1,"-3,-1":1,"-3,0":1,"-3,1":1,"-3,2":1,"-2,2":1,"-2,-2":1,"-1,-3":1,"-1,-2":1,"-1,-1":1},"beepers":{"2,-1":3,"-2,3":2,"-2,2":1}};
+this.demoJs = `// Karel.js Demo
 // Here is a little demo script that shows Karel's FULL API 
 // (Just press 'RUN' below if you are impatient.)
 // (also add '?fancy=true' to the URL to use a fancier shader.)

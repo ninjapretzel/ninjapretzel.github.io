@@ -79,15 +79,19 @@ GLContext.prototype.setUniform = function(prog, name, val){
 			let info = uniformVecTypes[kind];
 			
 			let s = arr.slice(2);
-			//console.log(`Setting array: ${name} to ${s} with ${info.func}`);
+			// console.log(`Setting array: ${name} to ${s} with ${info.func}`);
 			gl[info.func](loc, s);
 		} else if (arr.length == 4) {
+			// console.log(`setting ${name} to ${arr}`)
 			gl.uniform4f(loc, arr[0], arr[1], arr[2], arr[3]);
 		} else if (arr.length == 3) {
+			// console.log(`setting ${name} to ${arr}`)
 			gl.uniform3f(loc, arr[0], arr[1], arr[2]);
 		} else if (arr.length == 2) {
+			// console.log(`setting ${name} to ${arr}`)
 			gl.uniform2f(loc, arr[0], arr[1]);
 		} else {
+			// console.log(`setting ${name} to ${arr}`)
 			gl.uniform1f(loc, arr[0]);
 		}
 		return true;

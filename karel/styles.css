@@ -14,3 +14,6 @@ textarea {
 .smallerText { 
 	font-size: .65em;
 }
+.rowfix {
+	margin-bottom: 0;
+}
