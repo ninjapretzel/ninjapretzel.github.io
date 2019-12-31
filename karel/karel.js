@@ -71,14 +71,19 @@ function loadSnapshot() {
 	world.karel.x = snapshot.karel.x;	world.karel.y = snapshot.karel.y;
 	world.karel.angle = snapshot.karel.angle;	
 	world.karel.beepers = snapshot.karel.beepers;
-	world.horizontalWalls = {}
-	for (let k of Object.keys(snapshot.horizontalWalls)) { world.horizontalWalls[k] = snapshot.horizontalWalls[k]; }
-	world.verticalWalls = {}
-	for (let k of Object.keys(snapshot.verticalWalls)) { world.verticalWalls[k] = snapshot.verticalWalls[k]; }
-	world.beepers = {}
-	for (let k of Object.keys(snapshot.beepers)) { world.beepers[k] = snapshot.beepers[k]; }
-	
-	console.log(world);
+	copyKeys(snapshot.horizontalWalls, world.horizontalWalls)
+	copyKeys(snapshot.verticalWalls, world.verticalWalls)
+	copyKeys(snapshot.beepers, world.beepers)
+	// console.log(world);
+}
+
+function clearKeys(obj) {
+	for (let k of Object.keys(obj)) { delete obj[k]; }
+}
+
+function copyKeys(src, dest) {
+	clearKeys(dest);
+	for (let k of Object.keys(src)) { dest[k] = src[k]; }
 }
 
 function toggleWall(fw) {
@@ -387,6 +392,9 @@ function loadWorld(json) {
 			if (!isObject(loaded.verticalWalls)) { throw "JSON Must have a verticalWalls object! (or be empty!!)"}
 			if (!isObject(loaded.beepers)) { throw "JSON Must have a beepers object! (or be empty!!)"}
 			
+			scrollUniform[0] = karel.x;
+			scrollUniform[1] = karel.y;
+			
 			// After we've verified that it looks good, we'll assign everything over.
 			world.karel = loaded.karel;
 			world.verticalWalls = loaded.verticalWalls;
@@ -463,7 +471,7 @@ $(document).ready(()=>{
 			M.toast({html: "Reset Finished.", classes:"green", displayLength: 2000 } );
 		} catch (err) { 
 			
-			M.toast({html: `Reset failed: ${e}`, classes: "red" } );
+			M.toast({html: `Reset failed: ${err}`, classes: "red" } );
 		}
 		$("#reset").addClass("disabled");
 		$("#run").removeClass("disabled");
@@ -525,7 +533,19 @@ $(document).ready(()=>{
 		}
 	});
 	$("#load").click(()=>{ loadWorld( $("#world").val() ); });
-	
+	$("#clear").click(()=>{
+		world.karel.x = 0;
+		world.karel.y = 0;
+		world.karel.angle = 0;
+		world.karel.beepers = 0;
+		clearKeys(world.horizontalWalls)
+		clearKeys(world.verticalWalls)
+		clearKeys(world.beepers)
+		scrollUniform[0] = 0;
+		scrollUniform[1] = 0;
+		updateWorldText();
+		updateBeeperText();
+	})
 	$("#karelBeepers").keydown((event)=>{
 		let num = Number($("#karelBeepers").val());
 		if (num && num > 0) { world.karel.beepers = num; } else { updateBeeperText(); }
