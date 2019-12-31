@@ -18,8 +18,12 @@ textarea {
 	margin: 3px;
 }
 .smallerText { 
-	font-size: .65em;
+	font-size: .80em;
 }
 .rowfix {
 	margin-bottom: 0;
+}
+
+ul.tight {
+	padding: 0;
 }
