@@ -414,7 +414,7 @@ function loadWorld(json) {
 }
 
 $(document).ready(()=>{
-	let demoToLoad = "demo";
+	let demoToLoad = "maze";
 	
 	let demoP = urlParam("demo");
 	

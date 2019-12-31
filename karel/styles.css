@@ -17,13 +17,12 @@ textarea {
 .tight {
 	margin: 3px;
 }
+ul.tight {
+	padding: 0;
+}
 .smallerText { 
 	font-size: .80em;
 }
 .rowfix {
 	margin-bottom: 0;
-}
-
-ul.tight {
-	padding: 0;
 }
