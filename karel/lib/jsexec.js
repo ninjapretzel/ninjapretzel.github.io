@@ -54,10 +54,13 @@ function ExecutionContext(type) {
 	this.type = type;
 }
 
+
+
 var global = {
 	// Value properties.
 	NaN: NaN, Infinity: Infinity, undefined: undefined,
 	console: console,
+	running: false,
 
 	// Function properties.
 	eval: function eval(s) {
@@ -205,11 +208,11 @@ function getValue(v) {
 }
 
 async function maybeWaitFor(v) {
-	if (!ExecutionContext.current.running) { throw "INTERRUPTED."; }
+	if (!global.running) { throw "INTERRUPTED."; }
 	if (typeof(v) === "object" && v.constructor.name === "Promise") {
 		try {
 			let result = await v;
-			if (!ExecutionContext.current.running) { throw "INTERRUPTED."; }
+			if (!global.running) { throw "INTERRUPTED."; }
 			return result;
 		} catch (err) {
 			throw err;
@@ -901,6 +904,7 @@ var FOp = FunctionObject.prototype = {
 		x2.scope = {object: new Activation(f, a), parent: this.scope};
 
 		ExecutionContext.current = x2;
+		
 		try {
 			await maybeWaitFor(execute(f.body, x2));
 		} catch (e) {
@@ -1040,11 +1044,12 @@ async function evaluate(source, filename, lineNumber, injected) {
 	var x2 = new ExecutionContext(GLOBAL_CODE);
 	
 	// Inject the object and prevent it from being directly modified.
+	if (!injected) { injected = {}; }
 	let injHolder = { object: injected, parent: x2.scope };
 	x2.scope = { object: {}, parent: injHolder };
 	
 	ExecutionContext.current = x2;
-	ExecutionContext.current.running = true;
+	global.running = true;
 	try {
 		await maybeWaitFor(execute(parse(source, filename, lineNumber), x2));
 	} catch (e) {

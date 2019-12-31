@@ -456,6 +456,7 @@ $(document).ready(()=>{
 		
 		
 		
+		$('.tooltipped').tooltip();
 	}, 100);
 	
 	updateWorldText();
@@ -495,7 +496,7 @@ $(document).ready(()=>{
 				
 		running = false;
 		// Signal to vm we want to quit.
-		ExecutionContext.current.running = false;
+		global.running = false;
 		
 	});
 	$("#reset").addClass("disabled");
