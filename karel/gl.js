@@ -1,4 +1,7 @@
 let frameRate = 50;
+let drawCount = 0;
+let drawDebug = 0;
+
 function GLContext(canvasID) {
 	this.canvas = document.getElementById(canvasID);
 	this.gl = this.canvas.getContext("webgl");
@@ -73,25 +76,42 @@ GLContext.prototype.setUniform = function(prog, name, val){
 		}
 	}
 	if (arr) {
-		if (arr.length > 4) {
-			let kind = arr[0];
-			let count = arr[1];
+		let kind = arr[0];
+		if (uniformVecTypes[kind]) {
 			let info = uniformVecTypes[kind];
+			let count = arr[1];
 			
 			let s = arr.slice(2);
-			// console.log(`Setting array: ${name} to ${s} with ${info.func}`);
-			gl[info.func](loc, s);
+			if (drawCount < drawDebug) {
+				console.log(`Setting array: ${name} to ${s} with ${info.func}`);
+			}
+			
+			if (s.length >= info.size && s.length % info.size == 0) {
+				gl[info.func](loc, s);
+			} else {
+				if (s.length % info.size != 0) {
+					console.warn(`Uniform ${name} does not have a size that is a multiple of ${info.size}`)
+				}
+			}
 		} else if (arr.length == 4) {
-			// console.log(`setting ${name} to ${arr}`)
+			if (drawCount < drawDebug) {
+				console.log(`setting ${name} to ${arr} with gl.uniform4f`)
+			}
 			gl.uniform4f(loc, arr[0], arr[1], arr[2], arr[3]);
 		} else if (arr.length == 3) {
-			// console.log(`setting ${name} to ${arr}`)
+			if (drawCount < drawDebug) {
+				console.log(`setting ${name} to ${arr} with gl.uniform4f`)
+			}
 			gl.uniform3f(loc, arr[0], arr[1], arr[2]);
 		} else if (arr.length == 2) {
-			// console.log(`setting ${name} to ${arr}`)
+			if (drawCount < drawDebug) {
+				console.log(`setting ${name} to ${arr} with gl.uniform4f`)
+			}
 			gl.uniform2f(loc, arr[0], arr[1]);
 		} else {
-			// console.log(`setting ${name} to ${arr}`)
+			if (drawCount < drawDebug) {
+				console.log(`setting ${name} to ${arr} with gl.uniform4f`)
+			}
 			gl.uniform1f(loc, arr[0]);
 		}
 		return true;
@@ -143,7 +163,6 @@ GLContext.prototype.program = function(vert, frag) {
 	console.log("Program link FAIL: " + gl.getProgramInfoLog(p));
 	gl.deleteProgram(p);
 }
-
 GLContext.prototype.compile = function(source) {
 	var gl = this.gl;
 	if (!gl) { console.log("loadShaders: Failed, WebGL not initialized."); return; }
@@ -160,7 +179,6 @@ GLContext.prototype.compile = function(source) {
 	console.log("loadShaders: Finished cmpiling.");
 	if (prog) { return prog; }
 }
-
 
 GLContext.prototype.drawFrag = function(prog) {
 	var gl = this.gl;
@@ -197,7 +215,7 @@ GLContext.prototype.drawFrag = function(prog) {
 	if (timeLoc) { gl.uniform1f(timeLoc, time); }
 	if (resLoc) { gl.uniform2f(resLoc, width, height); }
 	gl.drawArrays(gl.TRIANGLES, 0, 6);
-	
+	drawCount++;
 	
 }
 
