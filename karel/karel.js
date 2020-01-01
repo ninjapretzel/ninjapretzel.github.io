@@ -320,7 +320,7 @@ function updateBeeperText() {
 	
 
 function updateFocusedWall(){
-	const WALLSIZE = .15;
+	const WALLSIZE = .30;
 	const fw = uniforms.focWall;
 	const ix = mouse.ix;			let iy = mouse.iy;
 	const px = mouse.px;			let py = mouse.py;
