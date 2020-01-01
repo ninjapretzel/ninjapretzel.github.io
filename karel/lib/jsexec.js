@@ -55,12 +55,15 @@ function ExecutionContext(type) {
 }
 
 
+var interp = {
+	running: false,
+	runId: 0
+}
 
 var global = {
 	// Value properties.
 	NaN: NaN, Infinity: Infinity, undefined: undefined,
 	console: console,
-	running: false,
 
 	// Function properties.
 	eval: function eval(s) {
@@ -208,11 +211,11 @@ function getValue(v) {
 }
 
 async function maybeWaitFor(v) {
-	if (!global.running) { throw "INTERRUPTED."; }
+	if (!interp.running) { throw "INTERRUPTED."; }
 	if (typeof(v) === "object" && v.constructor.name === "Promise") {
 		try {
 			let result = await v;
-			if (!global.running) { throw "INTERRUPTED."; }
+			if (!interp.running) { throw "INTERRUPTED."; }
 			return result;
 		} catch (err) {
 			throw err;
@@ -1049,7 +1052,7 @@ async function evaluate(source, filename, lineNumber, injected) {
 	x2.scope = { object: {}, parent: injHolder };
 	
 	ExecutionContext.current = x2;
-	global.running = true;
+	interp.running = true;
 	try {
 		await maybeWaitFor(execute(parse(source, filename, lineNumber), x2));
 	} catch (e) {
@@ -1065,5 +1068,6 @@ async function evaluate(source, filename, lineNumber, injected) {
 	} finally {
 		ExecutionContext.current = x;
 	}
+	interp.runId++;
 	return x2.result;
 }

@@ -25,6 +25,8 @@ const uniforms = {
 let codeEditor = undefined;
 let delay = 50;
 let running = false;
+let runId = 0;
+let runTask = null;
 const INTERRUPTED = "INTERRUPTED.";
 
 const minZoom = 5;
@@ -144,8 +146,9 @@ function wait(ms) {
 /** directly async version of 'wait' */
 async function pause(ms) { await wait(ms); }
 
+
 function checkRunning() {
-	if (!running) { throw INTERRUPTED; }
+	if (!running || interp.runId !== runId) { throw INTERRUPTED; }
 }
 function checkRunningEdit() {
 	if (running) { 
@@ -420,6 +423,96 @@ function loadWorld(json) {
 	}
 }
 
+async function runScript() {
+	takeSnapshot();
+	//M.toast({html: "Run Not yet implemented. Sorry.", classes:"yellow black-text" } );
+	running = true;
+	runId = interp.runId;
+	
+	$("#reset").removeClass("disabled");
+	$("#restart").removeClass("disabled");
+	$("#run").addClass("disabled");
+	
+	$(".activation").addClass("light-green")
+		.removeClass("blue-grey")
+		.removeClass("deep-orange")
+		.removeClass("green")
+		.removeClass("red")
+	let script = codeEditor.getValue();
+	
+	try {
+		runTask = evaluate(script, "dynamic", 1, karelFunctions);
+		await runTask;
+		M.toast({html: "Run Finished.", classes:"green", displayLength: 2000  } );
+		
+		$(".activation").addClass("green")
+				.removeClass("red")
+				.removeClass("blue-grey")
+				.removeClass("light-green")
+				.removeClass("deep-orange")
+	} catch (e) {
+		if (e === INTERRUPTED) {
+			M.toast({html:`${e}.`, classes:"yellow black-text", displayLength: 1000});
+		} else {
+			if (typeof(e) === "string" && e.includes("KarelCrash!")) {
+				M.toast({html:`${e}!<br/>Instruct Karel to be a little more careful!`, classes:"red" })
+				
+				$(".activation").addClass("deep-orange")
+					.removeClass("blue-grey")
+					.removeClass("green")
+					.removeClass("light-green")
+					.removeClass("red")
+				
+			} else {
+				M.toast({html:`Script error. ${e}`, classes:"red" })
+				console.error(e);
+				
+				$(".activation").addClass("red")
+					.removeClass("blue-grey")
+					.removeClass("green")
+					.removeClass("deep-orange")
+					.removeClass("light-green")
+			}
+			
+		}
+	}
+	
+}
+
+async function resetScript() {
+	try {
+		loadSnapshot();
+		updateBeeperText();
+		
+		M.toast({html: "Reset Finished.", classes:"green", displayLength: 2000 } );
+	} catch (err) { 
+		
+		M.toast({html: `Reset failed: ${err}`, classes: "red" } );
+	}
+	$("#reset").addClass("disabled");
+	$("#restart").addClass("disabled");
+	$("#run").removeClass("disabled");
+	$(".activation").addClass("blue-grey")
+			.removeClass("green")
+			.removeClass("deep-orange")
+			.removeClass("red")
+			.removeClass("light-green")
+			
+	running = false;
+	// Signal to vm we want to quit.
+	interp.running = false;
+	try {
+		await runTask;
+	} catch (e) { 
+		if (e !== INTERRUPTED) {
+			console.warn("Unexpected throw when interrupting VM:")
+			console.warn(e);
+			M.toast({html: `Unexpected throw when interrupting VM: ${e}`, classes:"red", displayLength:4000})
+		}
+	}
+	
+}
+
 $(document).ready(()=>{
 	let demoToLoad = "maze";
 	
@@ -471,89 +564,35 @@ $(document).ready(()=>{
 	prepareUniforms(world);
 	updateUniforms();
 	
+	function updateDelay(num) {
+		if (num && num > 0 && num <= 250) { 
+			delay = num; 
+		}
+		$("#delay-range").val(delay);
+		$("#delay").val(delay);
+	}
 	$("#delay").val(delay);
+	$("#delay-range").val(delay);
 	$("#delay").keydown((event)=>{
-		let num = Number($("#delay").val());
-		if (num && num > 0) { delay = num; } else { $("#delay").val(delay); }
+		updateDelay(Number($("#delay").val()))
 	})
 	$("#delay").keyup((event)=>{
-		let num = Number($("#delay").val());
-		if (num && num > 0) { delay = num; } else { $("#delay").val(delay); }
+		updateDelay(Number($("#delay").val()))
 	})
+	$("#delay-range").on("input", (event)=>{
+		updateDelay(Number($("#delay-range").val()))
+	})
+	
 	
 	$(".preload").removeClass("hidden");
 	$(".main").addClass("hidden");
-	$("#reset").click(()=>{
-		try {
-			loadSnapshot();
-			updateBeeperText();
-			
-			M.toast({html: "Reset Finished.", classes:"green", displayLength: 2000 } );
-		} catch (err) { 
-			
-			M.toast({html: `Reset failed: ${err}`, classes: "red" } );
-		}
-		$("#reset").addClass("disabled");
-		$("#run").removeClass("disabled");
-		$(".activation").addClass("blue-grey")
-				.removeClass("green")
-				.removeClass("deep-orange")
-				.removeClass("red")
-				.removeClass("light-green")
-				
-		running = false;
-		// Signal to vm we want to quit.
-		global.running = false;
-		
-	});
+	$("#restart").addClass("disabled");
 	$("#reset").addClass("disabled");
-	$("#run").click(async ()=>{
-		takeSnapshot();
-		//M.toast({html: "Run Not yet implemented. Sorry.", classes:"yellow black-text" } );
-		running = true;
-		$("#reset").removeClass("disabled");
-		$("#run").addClass("disabled");
-		$(".activation").addClass("light-green")
-			.removeClass("blue-grey")
-			.removeClass("deep-orange")
-			.removeClass("green")
-			.removeClass("red")
-		let script = codeEditor.getValue();
-		
-		try {
-			await evaluate(script, "dynamic", 1, karelFunctions);
-			M.toast({html: "Run Finished.", classes:"green", displayLength: 2000  } );
-			$(".activation").addClass("green")
-					.removeClass("red")
-					.removeClass("blue-grey")
-					.removeClass("light-green")
-					.removeClass("deep-orange")
-		} catch (e) {
-			if (e === INTERRUPTED) {
-				M.toast({html:`${e} Karel will wait.`, classes:"yellow black-text"});
-			} else {
-				if (typeof(e) === "string" && e.includes("KarelCrash!")) {
-					M.toast({html:`${e}!<br/>Instruct Karel to be a little more careful!`, classes:"red" })
-					
-					$(".activation").addClass("deep-orange")
-						.removeClass("blue-grey")
-						.removeClass("green")
-						.removeClass("light-green")
-						.removeClass("red")
-					
-				} else {
-					M.toast({html:`Script error. ${e}`, classes:"red" })
-					console.error(e);
-					
-					$(".activation").addClass("red")
-						.removeClass("blue-grey")
-						.removeClass("green")
-						.removeClass("deep-orange")
-						.removeClass("light-green")
-				}
-				
-			}
-		}
+	$("#run").click(()=>{ runScript(); });
+	$("#reset").click(()=>{ resetScript(); });
+	$("#restart").click(async ()=>{ 
+		await resetScript();
+		await runScript(); 
 	});
 	$("#load").click(()=>{ 
 		if (checkRunningEdit()) { return; }

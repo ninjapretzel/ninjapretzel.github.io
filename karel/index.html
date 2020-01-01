@@ -65,15 +65,18 @@
 			<h4 class="tight">World Display/Editor </h4>
 		</div>
 		<div class="main col s12 activation card blue-grey blue-grey-text">.</div>
-		<div class="main col s6 activation card large blue-grey darken-2">
+		<div class="main col s6 activation  card large blue-grey darken-2">
 			<div id="scriptEntry"></div>
-			<br>
-			<button id="reset" class="btn waves-effect waves-dark">Reset</button>
-			<button id="run" class="btn waves-effect waves-dark">Run</button>
-			<div> Delay(ms): </div>
-			<div class="input-field">
-				<input type="text" id="delay" class="blue-grey activation validate"/>
+			<div class="row rowfix">
+				<button id="reset" class="col s2 teensy btn waves-effect waves-dark">Reset</button>
+				<button id="run" class="col s2 teensy btn waves-effect waves-dark">Run</button>
+				<button id="restart" class="col s2 teensy btn waves-effect waves-dark">Restart</button>
+				<div class="col s12">Delay(ms):</div>
+				<input type="text" id="delay" value="50" class="col s1 teensy tight blue-grey activation validate"/>
+				<input type="range" id="delay-range" value="50" min="1" max="250" class="col s3 teensy tight blue-grey activation validate"/>
+				
 			</div>
+			
 		</div>
 		<div class="main col s6 activation card large blue-grey darken-2">
 			<canvas id="k" tabindex='1'></canvas>

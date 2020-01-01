@@ -9,13 +9,15 @@ textarea {
 	height: 200px;
 }
 .teensy {
-	height: 50px;
+	height: 50px !important;
 }
 .card {
 	margin: 0;
 }
 .tight {
-	margin: 3px;
+	margin: 3px !important;
+	border: 0px !important;
+	border-bottom: 1px !important;
 }
 ul.tight {
 	padding: 0;
