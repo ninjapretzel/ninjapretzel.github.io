@@ -146,7 +146,14 @@ async function pause(ms) { await wait(ms); }
 
 function checkRunning() {
 	if (!running) { throw INTERRUPTED; }
-}	
+}
+function checkRunningEdit() {
+	if (running) { 
+		M.toast({html:"Please 'Reset' before editing the world", classes:"amber black-text", displayLength: 1000})
+	}
+	return running;
+}
+
 async function step() { 
 	let bot = world.karel;
 	await pause(delay);
@@ -548,8 +555,12 @@ $(document).ready(()=>{
 			}
 		}
 	});
-	$("#load").click(()=>{ loadWorld( $("#world").val() ); });
+	$("#load").click(()=>{ 
+		if (checkRunningEdit()) { return; }
+		loadWorld( $("#world").val() ); 
+	});
 	$("#clear").click(()=>{
+		if (checkRunningEdit()) { return; }
 		world.karel.x = 0;
 		world.karel.y = 0;
 		world.karel.angle = 0;
@@ -563,19 +574,23 @@ $(document).ready(()=>{
 		updateBeeperText();
 	})
 	$("#karelBeepers").keydown((event)=>{
+		if (checkRunningEdit()) { return; }
 		let num = Number($("#karelBeepers").val());
-		if (num && num > 0) { world.karel.beepers = num; } else { updateBeeperText(); }
+		if (num && num > 0) { world.karel.beepers = num; updateWorldText(); } else { updateBeeperText(); }
 	});
 	$("#karelBeepers").keyup((event)=>{
+		if (checkRunningEdit()) { return; }
 		let num = Number($("#karelBeepers").val());
-		if (num && num > 0) { world.karel.beepers = num; } else { updateBeeperText(); }
+		if (num && num > 0) { world.karel.beepers = num; updateWorldText(); } else { updateBeeperText(); }
 	});
-	$("#addBeeper").click(()=>{ 
+	$("#addBeeper").click(()=>{
+		if (checkRunningEdit()) { return; }
 		world.karel.beepers += 1; 
 		updateBeeperText(); 
 		updateWorldText();
 	});
 	$("#removeBeeper").click(()=>{ 
+		if (checkRunningEdit()) { return; }
 		world.karel.beepers -= 1; 
 		if (world.karel.beepers <= 0) { world.karel.beepers = 0; }
 		updateBeeperText(); 
@@ -587,6 +602,8 @@ $(document).ready(()=>{
 			mouse.dragged = false;
 			return;
 		}
+		if (checkRunningEdit()) { return; }
+		
 		if (hasFocusedWall()) {
 			const fw = uniforms.focWall;
 			toggleWall(fw);
@@ -614,6 +631,7 @@ $(document).ready(()=>{
 		}
 	 })
 	$("#k").keydown((event)=>{
+		if (checkRunningEdit()) { return; }
 		// console.log(event);
 		const k = event.originalEvent.key;
 		if (!hasFocusedWall()) {
