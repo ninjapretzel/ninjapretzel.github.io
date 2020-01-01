@@ -65,16 +65,37 @@
 			<h4 class="tight">World Display/Editor </h4>
 		</div>
 		<div class="main col s12 activation card blue-grey blue-grey-text">.</div>
-		<div class="main col s6 activation  card large blue-grey darken-2">
+		<div class="main col s6 activation card large blue-grey darken-2">
 			<div id="scriptEntry"></div>
 			<div class="row rowfix">
-				<button id="reset" class="col s2 teensy btn waves-effect waves-dark">Reset</button>
-				<button id="run" class="col s2 teensy btn waves-effect waves-dark">Run</button>
-				<button id="restart" class="col s2 teensy btn waves-effect waves-dark">Restart</button>
-				<div class="col s12">Delay(ms):</div>
-				<input type="text" id="delay" value="50" class="col s1 teensy tight blue-grey activation validate"/>
-				<input type="range" id="delay-range" value="50" min="1" max="250" class="col s3 teensy tight blue-grey activation validate"/>
-				
+				<div class="col s6 row rowfix">
+					<button id="reset" class="col s4 teensy card btn bb waves-effect waves-dark">Reset</button>
+					<button id="run" class="col s4 teensy card btn bb waves-effect waves-dark">Run</button>
+					<button id="restart" class="col s4 teensy card btn bb waves-effect waves-dark">Restart</button>
+					<div class="card blue-grey activation darken-2 col s12 ">
+						<div class="">Delay(ms):</div>
+						<input type="text" id="delay" value="50" class="center-align col s2 teensy tight blue-grey activation validate"/>
+						<input type="range" id="delay-range" value="50" min="1" max="250" class="col s9 teensy tight blue-grey activation validate"/>
+					</div>
+				</div>
+					
+				<div class="col s6 row rowfix card activation blue-grey loader darken-2">
+					<div class="input-field col s12 tight">
+						<select>
+							<option value="" disabled selected>Choose Slot</option>
+							<!-- Fill user-created slots here -->
+						</select>
+					</div>
+					<div class="input-field col s12 tight">
+						<input type="text" id="slotName" class="" value="Default"/>
+						<label for="slotName" class="active">Selected Slot</label>
+					</div>
+					<button id="loadSlot" class="btn bb waves-effect waves-dark col s6">Load</button>
+					<button id="saveSlot" class="btn bb waves-effect waves-dark col s6">Save</button>
+					<button id="loadScript" class="btn bb waves-effect waves-dark col s6">Load Script</button>
+					<button id="loadWorld" class="btn bb waves-effect waves-dark col s6">Load World</button>
+					
+				</div>
 			</div>
 			
 		</div>
@@ -84,9 +105,10 @@
 		<div class="main col s6 activation card tiny blue-grey darken-2">
 			<h5 class="tight">World JSON:</h5>
 			<textarea id="world" class="activation blue-grey darken-1"></textarea>
-			<button id="load" class="btn waves-effect waves-dark">Load World</button>
-			<button id="clear" class="btn waves-effect waves-dark red darken-4 right">Empty World</button>
+			<button id="load" class="btn bb waves-effect waves-dark">Load World</button>
+			<button id="clear" class="btn deep-orange accent-4 waves-effect waves-dark right">Empty World</button>
 			<br>
+			This is a way to modify the world separate from the save/load slots.<br>
 			The JSON data for the world automatically updates as you edit. <br>
 			Feel free to copy/paste to import/export. <br>
 		</div>
@@ -107,8 +129,8 @@
 				<input type="text" id="karelBeepers" class="blue-grey activation validate" />
 			</div>
 			
-			<button id="removeBeeper" class="btn-small">-</button>
-			<button id="addBeeper" class="btn-small">+</button>
+			<button id="removeBeeper" class="btn-small bb">-</button>
+			<button id="addBeeper" class="btn-small bb">+</button>
 		</div>
 		
 		<div class="main col s12 activation card tiny blue-grey darken-2">

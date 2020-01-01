@@ -32,6 +32,8 @@ const INTERRUPTED = "INTERRUPTED.";
 const minZoom = 5;
 const maxZoom = 30;
 
+let preventEditInRun = false;
+
 // Math...
 const floor = Math.floor;
 const abs = Math.abs;
@@ -152,9 +154,9 @@ function checkRunning() {
 }
 function checkRunningEdit() {
 	if (running) { 
-		M.toast({html:"Please 'Reset' before editing the world", classes:"amber black-text", displayLength: 1000})
+		M.toast({html:"Edits made while running will be lost!", classes:"amber black-text", displayLength: 1000})
 	}
-	return running;
+	return running && preventEditInRun;
 }
 
 async function step() { 
@@ -555,14 +557,18 @@ $(document).ready(()=>{
 		
 		
 		
-		
-		$('.tooltipped').tooltip();
+		// Call Materialize's polyfills
+		try { $('select').formSelect(); } catch (e) { console.warn(e); }
+		try { $('.tooltipped').tooltip(); } catch (e) { console.warn(e); }
 	}, 100);
 	
 	updateWorldText();
 	updateBeeperText();
 	prepareUniforms(world);
 	updateUniforms();
+	
+	$(".preload").removeClass("hidden");
+	$(".main").addClass("hidden");
 	
 	function updateDelay(num) {
 		if (num && num > 0 && num <= 250) { 
@@ -583,11 +589,10 @@ $(document).ready(()=>{
 		updateDelay(Number($("#delay-range").val()))
 	})
 	
-	
-	$(".preload").removeClass("hidden");
-	$(".main").addClass("hidden");
+	$(".bb").addClass("blue-grey lighten-2 blue-grey-text text-darken-3");
 	$("#restart").addClass("disabled");
 	$("#reset").addClass("disabled");
+	
 	$("#run").click(()=>{ runScript(); });
 	$("#reset").click(()=>{ resetScript(); });
 	$("#restart").click(async ()=>{ 
