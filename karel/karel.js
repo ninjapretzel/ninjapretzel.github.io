@@ -158,6 +158,12 @@ function checkRunningEdit() {
 	}
 	return running && preventEditInRun;
 }
+function checkRunningLoad() {
+	if (running) { 
+		M.toast({html:"Cannot save/load script/world while running!<br>Please RESET first!", classes:"amber black-text", displayLength: 1000})
+	}
+	return running;
+}
 
 async function step() { 
 	let bot = world.karel;
@@ -425,7 +431,60 @@ function loadWorld(json) {
 	}
 }
 
-async function runScript() {
+
+function saveToLocal(slot) {
+	let save = JSON.stringify({
+		world: JSON.parse(JSON.stringify(world)),
+		script: codeEditor.getValue()
+	});
+	localStorage[slot] = save;
+	
+	M.toast({html:`Saved to slot '${slot}'`, classes: 'green', displayLength:1000})
+}
+function checkForLocalSlot(slot) {
+	let save = localStorage[slot];
+	if (save) {	
+		return JSON.parse(save);
+	} else {
+		M.toast({html:`Save slot '${slot}' does not exist!`, classes: 'yellow black-text', displayLength:4000})
+		return null;
+	}
+	
+}
+function loadFromLocal(slot) {
+	let save = checkForLocalSlot(slot);
+	
+	if (save) {	
+		let script = save.script;
+		codeEditor.setValue(script);
+		let worldJson = JSON.stringify(save.world);
+		loadWorld(worldJson)
+		
+		M.toast({html:`Loaded from slot '${slot}'`, classes: 'green', displayLength:1000})
+	}
+}
+function loadScriptFromLocal(slot) {
+	let save = checkForLocalSlot(slot);
+	if (save) {	
+		let script = save.script;
+		codeEditor.setValue(script);
+		M.toast({html:`Loaded script from slot '${slot}'`, classes: 'green', displayLength:1000})
+	}
+}
+function loadWorldFromlocal(slot) {
+	let save = checkForLocalSlot(slot);
+	if (save) {	
+		let worldJson = JSON.stringify(save.world);
+		loadWorld(worldJson)
+		M.toast({html:`Loaded world from slot '${slot}'`, classes: 'green', displayLength:1000})
+	}
+}
+
+function rebuildSlotSelector() {
+	
+}
+
+async function execScript() {
 	takeSnapshot();
 	//M.toast({html: "Run Not yet implemented. Sorry.", classes:"yellow black-text" } );
 	running = true;
@@ -481,7 +540,7 @@ async function runScript() {
 	
 }
 
-async function resetScript() {
+async function resetScriptExec() {
 	try {
 		loadSnapshot();
 		updateBeeperText();
@@ -593,13 +652,30 @@ $(document).ready(()=>{
 	$("#restart").addClass("disabled");
 	$("#reset").addClass("disabled");
 	
-	$("#run").click(()=>{ runScript(); });
-	$("#reset").click(()=>{ resetScript(); });
-	$("#restart").click(async ()=>{ 
-		await resetScript();
-		await runScript(); 
+	$("#loadSlot").click(()=>{ 
+		if (checkRunningLoad()) { return; }
+		loadFromLocal($("#slotName").val() )
 	});
-	$("#load").click(()=>{ 
+	$("#loadScript").click(()=>{ 
+		if (checkRunningLoad()) { return; }
+		loadScriptFromLocal($("#slotName").val() )
+	});
+	$("#loadWorld").click(()=>{ 
+		if (checkRunningLoad()) { return; }
+		loadScriptFromLocal($("#slotName").val() )
+	});
+	$("#saveSlot").click(()=>{ 
+		if (checkRunningLoad()) { return; }
+		saveToLocal($("#slotName").val() )
+	});
+	
+	$("#run").click(()=>{ execScript(); });
+	$("#reset").click(()=>{ resetScriptExec(); });
+	$("#restart").click(async ()=>{ 
+		await resetScriptExec();
+		await execScript(); 
+	});
+	$("#import").click(()=>{ 
 		if (checkRunningEdit()) { return; }
 		loadWorld( $("#world").val() ); 
 	});
