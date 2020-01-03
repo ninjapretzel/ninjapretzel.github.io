@@ -491,7 +491,6 @@ async function execScript() {
 	runId = interp.runId;
 	
 	$("#reset").removeClass("disabled");
-	$("#restart").removeClass("disabled");
 	$("#run").addClass("disabled");
 	
 	$(".activation").addClass("light-green")
@@ -551,7 +550,6 @@ async function resetScriptExec() {
 		M.toast({html: `Reset failed: ${err}`, classes: "red" } );
 	}
 	$("#reset").addClass("disabled");
-	$("#restart").addClass("disabled");
 	$("#run").removeClass("disabled");
 	$(".activation").addClass("blue-grey")
 			.removeClass("green")
@@ -649,7 +647,6 @@ $(document).ready(()=>{
 	})
 	
 	$(".bb").addClass("blue-grey lighten-2 blue-grey-text text-darken-3");
-	$("#restart").addClass("disabled");
 	$("#reset").addClass("disabled");
 	
 	$("#loadSlot").click(()=>{ 
