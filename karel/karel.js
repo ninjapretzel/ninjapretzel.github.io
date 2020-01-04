@@ -586,9 +586,32 @@ async function execScript() {
 		}
 	}
 	
+	running = false;
+	interp.running = false;
+	
 }
 
 async function resetScriptExec() {
+	
+	
+	if (running || interp.running) {
+		
+		running = false;
+		// Signal to vm we want to quit.
+		interp.running = false;
+		
+		try {
+			await runTask;
+		} catch (e) { 
+			if (e !== INTERRUPTED) {
+				console.warn("Unexpected throw when interrupting VM:")
+				console.warn(e);
+				M.toast({html: `Unexpected throw when interrupting VM: ${e}`, classes:"red", displayLength:4000})
+			}
+		}
+	}		
+	
+	
 	try {
 		loadSnapshot();
 		updateBeeperText();
@@ -605,19 +628,7 @@ async function resetScriptExec() {
 			.removeClass("deep-orange")
 			.removeClass("red")
 			.removeClass("light-green")
-			
-	running = false;
-	// Signal to vm we want to quit.
-	interp.running = false;
-	try {
-		await runTask;
-	} catch (e) { 
-		if (e !== INTERRUPTED) {
-			console.warn("Unexpected throw when interrupting VM:")
-			console.warn(e);
-			M.toast({html: `Unexpected throw when interrupting VM: ${e}`, classes:"red", displayLength:4000})
-		}
-	}
+	
 	
 }
 
