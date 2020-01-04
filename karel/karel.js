@@ -63,6 +63,7 @@ const world = {
 		"-2,2": 1,
 	},
 }
+
 let snapshot = {};
 function takeSnapshot() { 
 	snapshot = JSON.parse(JSON.stringify(world)); 
@@ -163,6 +164,14 @@ function checkRunningLoad() {
 		M.toast({html:"Cannot save/load script/world while running!<br>Please RESET first!", classes:"amber black-text", displayLength: 1000})
 	}
 	return running;
+}
+
+function checkFirstTimeLoad() {
+	let keys = Object.keys(localStorage);
+	if (keys.length == 0) {
+		localStorage["Demo"] = JSON.stringify( { world: basicWorld, script: basicJs } );
+		localStorage["Maze"] = JSON.stringify( { world: mazeWorld, script: mazeJs } );
+	}
 }
 
 async function step() { 
@@ -422,7 +431,7 @@ function loadWorld(json) {
 			world.verticalWalls = loaded.verticalWalls;
 			world.horizontalWalls = loaded.horizontalWalls;
 			world.beepers = loaded.beepers;
-			M.toast({html: "Load successful!", classes:"green" } );
+			M.toast({html: "World Import Successful!", classes:"green", displayLength: 1000 } );
 		} else {
 			throw "JSON must describe an object!"
 		}
@@ -481,6 +490,46 @@ function loadWorldFromlocal(slot) {
 }
 
 function rebuildSlotSelector() {
+	const chooseSlot = $("#chooseSlot")
+	const slotSelect = $("#slotSelect")
+	const keys = Object.keys(localStorage);
+	$(".slotOption").remove()
+	for (let k of keys) {
+		let element = $(`<option class='slotOption' value='${k}'>${k}</option>`)
+		slotSelect.append(element);
+		
+	}
+	
+	// For some reason, this method from materialze's polyfill ALWAYS throws, even though it's successful.
+	try { $('select').formSelect(); } catch (e) {  }
+	
+	
+	let selectOptions = $("span", $("li", $("ul.dropdown-content", $("#slotSelect").parent())))
+	
+	selectOptions.click((event)=>{
+		if (!event.currentTarget.parentElement.classList.contains("disabled")) {
+			let justText = $(event.currentTarget).clone().children().remove().end().text()
+			$("#slotName").val(justText)
+		}
+	})
+	selectOptions.each((index)=>{
+		let target = selectOptions[index];
+		let justText = $(target).clone().children().remove().end().text()
+		
+		if (!target.parentElement.classList.contains("disabled")) {
+			let del = $(`<button class="btn-small red right">X</button>`);
+			del.click((event)=>{
+				// console.log(justText);
+				
+				localStorage.removeItem(justText);
+				rebuildSlotSelector();
+				M.toast({html: `Deleted slot ${justText}.`, classes: `amber black-text`, displayLength: 5555 })
+				event.stopPropagation();
+			})
+			
+			$(target).append(del);
+		}
+	})
 	
 }
 
@@ -573,6 +622,8 @@ async function resetScriptExec() {
 }
 
 $(document).ready(()=>{
+	checkFirstTimeLoad();
+	
 	let demoToLoad = "maze";
 	
 	let demoP = urlParam("demo");
@@ -612,12 +663,16 @@ $(document).ready(()=>{
 		loadWorld(worldJson)
 		//*/
 		
-		
+		// $("input.select-dropdown", $("#slotSelect").parent()).change((event)=>{
+		// 	console.log(`test`)
+		// 	console.log(event)
+		// })
 		
 		// Call Materialize's polyfills
-		try { $('select').formSelect(); } catch (e) { console.warn(e); }
+		rebuildSlotSelector();
 		try { $('.tooltipped').tooltip(); } catch (e) { console.warn(e); }
 	}, 100);
+	
 	
 	updateWorldText();
 	updateBeeperText();
@@ -626,6 +681,12 @@ $(document).ready(()=>{
 	
 	$(".preload").removeClass("hidden");
 	$(".main").addClass("hidden");
+	
+	
+	$("select").parent().change((event)=>{
+		console.log(`Test ${event}`)
+		console.log(event)
+	})
 	
 	function updateDelay(num) {
 		if (num && num > 0 && num <= 250) { 
@@ -649,6 +710,12 @@ $(document).ready(()=>{
 	$(".bb").addClass("blue-grey lighten-2 blue-grey-text text-darken-3");
 	$("#reset").addClass("disabled");
 	
+	$("#slotName").keyup((event)=>{
+		$("#slotName").val( $("#slotName").val().replace('\'', '').replace("\"", "").replace(`\``, ``) )
+	})
+	$("#slotName").keydown((event)=>{
+		$("#slotName").val( $("#slotName").val().replace('\'', '').replace("\"", "").replace(`\``, ``) )
+	})
 	$("#loadSlot").click(()=>{ 
 		if (checkRunningLoad()) { return; }
 		loadFromLocal($("#slotName").val() )
@@ -664,6 +731,7 @@ $(document).ready(()=>{
 	$("#saveSlot").click(()=>{ 
 		if (checkRunningLoad()) { return; }
 		saveToLocal($("#slotName").val() )
+		rebuildSlotSelector();
 	});
 	
 	$("#run").click(()=>{ execScript(); });

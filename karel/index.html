@@ -80,10 +80,11 @@
 					
 				<div class="col s6 row rowfix card activation blue-grey loader darken-2">
 					<div class="input-field col s12 tight">
-						<select>
-							<option value="" disabled selected>Choose Slot</option>
+						<select id="slotSelect">
+							<option id="chooseSlot" value="" disabled selected>Choose Slot</option>
 							<!-- Fill user-created slots here -->
 						</select>
+						<label></label>
 					</div>
 					<div class="input-field col s12 tight">
 						<input type="text" id="slotName" class="" value="Default"/>
@@ -134,12 +135,12 @@
 		
 		<div class="main col s12 activation card tiny blue-grey darken-2">
 			<div class="tight">
-				Background Color Key:
-				<a class="btn-small darken-2 blue-grey">Coding</a>
-				<a class="btn-small darken-2 light-green">Running</a>
-				<a class="btn-small darken-2 green">Complete</a>
-				<a class="btn-small darken-2 deep-orange">KarelCrash!</a>
-				<a class="btn-small darken-2 red">Script Error</a>
+				Background Color Key: (hover)
+				<a class="btn-small darken-2 blue-grey tooltipped" data-position="top" data-tooltip="Karel is waiting for you to<br>give him a world and program to RUN.">Coding</a>
+				<a class="btn-small darken-2 light-green tooltipped" data-position="top" data-tooltip="Karel is currently running a program.">Running</a>
+				<a class="btn-small darken-2 green tooltipped" data-position="top" data-tooltip="Karel has finished running his program"> Complete</a>
+				<a class="btn-small darken-2 deep-orange tooltipped" data-position="top" data-tooltip="Karel has tried to do something he cannot do,<br>and has stopped running his program.">KarelCrash!</a>
+				<a class="btn-small darken-2 red tooltipped" data-position="top" data-tooltip="Karel got to a part of your script<br> that he doesn't understand.<br> Probably, it's a typo.">Script Error</a>
 			</div>
 			
 		</div>
