@@ -28,3 +28,6 @@ ul.tight {
 .rowfix {
 	margin-bottom: 0;
 }
+.loader {
+	height: 199px;
+}

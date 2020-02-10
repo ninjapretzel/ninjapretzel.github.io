@@ -1,10 +1,42 @@
-# Karel.js Demo
-- (Just press 'RUN' below if you are impatient.)
-- (also add '?fancy=true' to the URL to use a fancier shader.)
+# Karel.js the Robot
+- A little Karel the Robot sim I made for educational purposes.
 
-# Built-in functions
+## Instructions and notes:
+
+- Edit Karel's world to your design by:
+	- Clicking grid lines to add/remove walls
+	- Clicking cells to add beepers
+	- Shift+clicking cells to remove beepers
+	- Clicking Karel to rotate him
+	- Pressing 'k' when hovering over a cell to place Karel there.
+	- Changing the number below the editor to change how many beepers Karel is holding.
+	- (Or clicking the +/- buttons below that to give/take one at a time.)
+	
+- Type a program for Karel into the "JavaScript Entry" textbox
+	- For those who are already knowledgable, Actually runs within a javascript interpreter, Narcissus.
+	- Modern features like (`let`/`async`/`await`/spread `[...x]`/`{...x}`) are not supported.
+	
+- Click the big 'Run' button under the code to make Karel begin running the program.
+	- The state of the world and karel when you click 'Run' will be saved
+	- The saved state will be restored when you hit 'Reset'
+	- When you hit 'Restart', Karel will stop, the saved state will be restored, and the script will start again.
+	
+- Adjust the delay to make Karel slower/faster
+
+- Save or Load data by typing a name in the 'Selected Slot' field
+	- Alternatively, choose a name that already exists from the 'Choose Slot' dropdown
+	- Click the LOAD button to load the entire script/world from the selected slot
+	- Click the SAVE button to save the entire script/world to the selected slot
+	- Click the LOAD SCRIPT button to load only the script from the selected slot
+	- Click the LOAD WORLD button to load only the world from the selected slot
+
+## Excercises
+
+- Some ideas for beginner programmers to work on [Here](docs/Excercises.md)
+
+# Karel's API / Built-in functions
 Things Karel knows how to do!  
-Here is Karel's FULL API 
+Here is Karel's FULL API:  
 
 ##### Navigation
 [`void step()`](#void-step)  

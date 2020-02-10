@@ -32,6 +32,8 @@ const INTERRUPTED = "INTERRUPTED.";
 const minZoom = 5;
 const maxZoom = 30;
 
+let preventEditInRun = false;
+
 // Math...
 const floor = Math.floor;
 const abs = Math.abs;
@@ -61,6 +63,7 @@ const world = {
 		"-2,2": 1,
 	},
 }
+
 let snapshot = {};
 function takeSnapshot() { 
 	snapshot = JSON.parse(JSON.stringify(world)); 
@@ -152,9 +155,23 @@ function checkRunning() {
 }
 function checkRunningEdit() {
 	if (running) { 
-		M.toast({html:"Please 'Reset' before editing the world", classes:"amber black-text", displayLength: 1000})
+		M.toast({html:"Edits made while running will be lost!", classes:"amber black-text", displayLength: 1000})
+	}
+	return running && preventEditInRun;
+}
+function checkRunningLoad() {
+	if (running) { 
+		M.toast({html:"Cannot save/load script/world while running!<br>Please RESET first!", classes:"amber black-text", displayLength: 1000})
 	}
 	return running;
+}
+
+function checkFirstTimeLoad() {
+	let keys = Object.keys(localStorage);
+	if (keys.length == 0) {
+		localStorage["Demo"] = JSON.stringify( { world: basicWorld, script: basicJs } );
+		localStorage["Maze"] = JSON.stringify( { world: mazeWorld, script: mazeJs } );
+	}
 }
 
 async function step() { 
@@ -414,7 +431,7 @@ function loadWorld(json) {
 			world.verticalWalls = loaded.verticalWalls;
 			world.horizontalWalls = loaded.horizontalWalls;
 			world.beepers = loaded.beepers;
-			M.toast({html: "Load successful!", classes:"green" } );
+			M.toast({html: "World Import Successful!", classes:"green", displayLength: 1000 } );
 		} else {
 			throw "JSON must describe an object!"
 		}
@@ -423,14 +440,106 @@ function loadWorld(json) {
 	}
 }
 
-async function runScript() {
+
+function saveToLocal(slot) {
+	let save = JSON.stringify({
+		world: JSON.parse(JSON.stringify(world)),
+		script: codeEditor.getValue()
+	});
+	localStorage[slot] = save;
+	
+	M.toast({html:`Saved to slot '${slot}'`, classes: 'green', displayLength:1000})
+}
+function checkForLocalSlot(slot) {
+	let save = localStorage[slot];
+	if (save) {	
+		return JSON.parse(save);
+	} else {
+		M.toast({html:`Save slot '${slot}' does not exist!`, classes: 'yellow black-text', displayLength:4000})
+		return null;
+	}
+	
+}
+function loadFromLocal(slot) {
+	let save = checkForLocalSlot(slot);
+	
+	if (save) {	
+		let script = save.script;
+		codeEditor.setValue(script);
+		let worldJson = JSON.stringify(save.world);
+		loadWorld(worldJson)
+		
+		M.toast({html:`Loaded from slot '${slot}'`, classes: 'green', displayLength:1000})
+	}
+}
+function loadScriptFromLocal(slot) {
+	let save = checkForLocalSlot(slot);
+	if (save) {	
+		let script = save.script;
+		codeEditor.setValue(script);
+		M.toast({html:`Loaded script from slot '${slot}'`, classes: 'green', displayLength:1000})
+	}
+}
+function loadWorldFromlocal(slot) {
+	let save = checkForLocalSlot(slot);
+	if (save) {	
+		let worldJson = JSON.stringify(save.world);
+		loadWorld(worldJson)
+		M.toast({html:`Loaded world from slot '${slot}'`, classes: 'green', displayLength:1000})
+	}
+}
+
+function rebuildSlotSelector() {
+	const chooseSlot = $("#chooseSlot")
+	const slotSelect = $("#slotSelect")
+	const keys = Object.keys(localStorage);
+	$(".slotOption").remove()
+	for (let k of keys) {
+		let element = $(`<option class='slotOption' value='${k}'>${k}</option>`)
+		slotSelect.append(element);
+		
+	}
+	
+	// For some reason, this method from materialze's polyfill ALWAYS throws, even though it's successful.
+	try { $('select').formSelect(); } catch (e) {  }
+	
+	
+	let selectOptions = $("span", $("li", $("ul.dropdown-content", $("#slotSelect").parent())))
+	
+	selectOptions.click((event)=>{
+		if (!event.currentTarget.parentElement.classList.contains("disabled")) {
+			let justText = $(event.currentTarget).clone().children().remove().end().text()
+			$("#slotName").val(justText)
+		}
+	})
+	selectOptions.each((index)=>{
+		let target = selectOptions[index];
+		let justText = $(target).clone().children().remove().end().text()
+		
+		if (!target.parentElement.classList.contains("disabled")) {
+			let del = $(`<button class="btn-small red right">X</button>`);
+			del.click((event)=>{
+				// console.log(justText);
+				
+				localStorage.removeItem(justText);
+				rebuildSlotSelector();
+				M.toast({html: `Deleted slot ${justText}.`, classes: `amber black-text`, displayLength: 5555 })
+				event.stopPropagation();
+			})
+			
+			$(target).append(del);
+		}
+	})
+	
+}
+
+async function execScript() {
 	takeSnapshot();
 	//M.toast({html: "Run Not yet implemented. Sorry.", classes:"yellow black-text" } );
 	running = true;
 	runId = interp.runId;
 	
 	$("#reset").removeClass("disabled");
-	$("#restart").removeClass("disabled");
 	$("#run").addClass("disabled");
 	
 	$(".activation").addClass("light-green")
@@ -477,9 +586,32 @@ async function runScript() {
 		}
 	}
 	
+	running = false;
+	interp.running = false;
+	
 }
 
-async function resetScript() {
+async function resetScriptExec() {
+	
+	
+	if (running || interp.running) {
+		
+		running = false;
+		// Signal to vm we want to quit.
+		interp.running = false;
+		
+		try {
+			await runTask;
+		} catch (e) { 
+			if (e !== INTERRUPTED) {
+				console.warn("Unexpected throw when interrupting VM:")
+				console.warn(e);
+				M.toast({html: `Unexpected throw when interrupting VM: ${e}`, classes:"red", displayLength:4000})
+			}
+		}
+	}		
+	
+	
 	try {
 		loadSnapshot();
 		updateBeeperText();
@@ -490,30 +622,19 @@ async function resetScript() {
 		M.toast({html: `Reset failed: ${err}`, classes: "red" } );
 	}
 	$("#reset").addClass("disabled");
-	$("#restart").addClass("disabled");
 	$("#run").removeClass("disabled");
 	$(".activation").addClass("blue-grey")
 			.removeClass("green")
 			.removeClass("deep-orange")
 			.removeClass("red")
 			.removeClass("light-green")
-			
-	running = false;
-	// Signal to vm we want to quit.
-	interp.running = false;
-	try {
-		await runTask;
-	} catch (e) { 
-		if (e !== INTERRUPTED) {
-			console.warn("Unexpected throw when interrupting VM:")
-			console.warn(e);
-			M.toast({html: `Unexpected throw when interrupting VM: ${e}`, classes:"red", displayLength:4000})
-		}
-	}
+	
 	
 }
 
 $(document).ready(()=>{
+	checkFirstTimeLoad();
+	
 	let demoToLoad = "maze";
 	
 	let demoP = urlParam("demo");
@@ -553,16 +674,30 @@ $(document).ready(()=>{
 		loadWorld(worldJson)
 		//*/
 		
+		// $("input.select-dropdown", $("#slotSelect").parent()).change((event)=>{
+		// 	console.log(`test`)
+		// 	console.log(event)
+		// })
 		
-		
-		
-		$('.tooltipped').tooltip();
+		// Call Materialize's polyfills
+		rebuildSlotSelector();
+		try { $('.tooltipped').tooltip(); } catch (e) { console.warn(e); }
 	}, 100);
+	
 	
 	updateWorldText();
 	updateBeeperText();
 	prepareUniforms(world);
 	updateUniforms();
+	
+	$(".preload").removeClass("hidden");
+	$(".main").addClass("hidden");
+	
+	
+	$("select").parent().change((event)=>{
+		console.log(`Test ${event}`)
+		console.log(event)
+	})
 	
 	function updateDelay(num) {
 		if (num && num > 0 && num <= 250) { 
@@ -583,18 +718,40 @@ $(document).ready(()=>{
 		updateDelay(Number($("#delay-range").val()))
 	})
 	
-	
-	$(".preload").removeClass("hidden");
-	$(".main").addClass("hidden");
-	$("#restart").addClass("disabled");
+	$(".bb").addClass("blue-grey lighten-2 blue-grey-text text-darken-3");
 	$("#reset").addClass("disabled");
-	$("#run").click(()=>{ runScript(); });
-	$("#reset").click(()=>{ resetScript(); });
-	$("#restart").click(async ()=>{ 
-		await resetScript();
-		await runScript(); 
+	
+	$("#slotName").keyup((event)=>{
+		$("#slotName").val( $("#slotName").val().replace('\'', '').replace("\"", "").replace(`\``, ``) )
+	})
+	$("#slotName").keydown((event)=>{
+		$("#slotName").val( $("#slotName").val().replace('\'', '').replace("\"", "").replace(`\``, ``) )
+	})
+	$("#loadSlot").click(()=>{ 
+		if (checkRunningLoad()) { return; }
+		loadFromLocal($("#slotName").val() )
 	});
-	$("#load").click(()=>{ 
+	$("#loadScript").click(()=>{ 
+		if (checkRunningLoad()) { return; }
+		loadScriptFromLocal($("#slotName").val() )
+	});
+	$("#loadWorld").click(()=>{ 
+		if (checkRunningLoad()) { return; }
+		loadScriptFromLocal($("#slotName").val() )
+	});
+	$("#saveSlot").click(()=>{ 
+		if (checkRunningLoad()) { return; }
+		saveToLocal($("#slotName").val() )
+		rebuildSlotSelector();
+	});
+	
+	$("#run").click(()=>{ execScript(); });
+	$("#reset").click(()=>{ resetScriptExec(); });
+	$("#restart").click(async ()=>{ 
+		await resetScriptExec();
+		await execScript(); 
+	});
+	$("#import").click(()=>{ 
 		if (checkRunningEdit()) { return; }
 		loadWorld( $("#world").val() ); 
 	});
