@@ -7,14 +7,14 @@
 
 Data:
 ```
-Program Name	Function	CPU Time		IOs
-TKB				Linker			  14	   2735
-MAC				Assembler		  13		253
-COBOL			Compiler		   8		 27
-BASIC			Compiler		   6		 27
-PASCAL			Compiler		   6		 12
-EDT				Text Editor		   4		 91
-SOS				Text Editor		   1		 33
+Program Name    Function    CPU Time        IOs
+TKB             Linker            14       2735
+MAC             Assembler         13        253
+COBOL           Compiler           8         27
+BASIC           Compiler           6         27
+PASCAL          Compiler           6         12
+EDT             Text Editor        4         91
+SOS             Text Editor        1         33
 ```
 
 I would normalize using a log scale applied to the IOs metric. 
@@ -22,14 +22,14 @@ I see that IOs are more varied, but I also know that linkers and assemblers have
 
 Normalized Data:
 ```
-Program Name	Function	CPU Time		Log2(IOs)
-TKB				Linker			  14		   11.417
-MAC				Assembler		  13			7.983
-COBOL			Compiler		   8			4.755
-BASIC			Compiler		   6			4.755
-PASCAL			Compiler		   6			3.585
-EDT				Text Editor		   4			6.508
-SOS				Text Editor		   1			5.044
+Program Name    Function    CPU Time        Log2(IOs)
+TKB             Linker            14           11.417
+MAC             Assembler         13            7.983
+COBOL           Compiler           8            4.755
+BASIC           Compiler           6            4.755
+PASCAL          Compiler           6            3.585
+EDT             Text Editor        4            6.508
+SOS             Text Editor        1            5.044
 ```
 Scatter plot:  
 ![Test](./ICW2Chart1.png)
@@ -51,13 +51,10 @@ I would stop this after step 4, as there would be 3  clusters:
 - `COBOL`, `PASCAL`, `BASIC`
 - `TKB`, `MAC`
 
-Drawing those clusters on the scatter plot:
+Drawing those clusters on the scatter plot:  
 ![Text](./ICW2Chart3.png)
 
-
-
 # 2. Slide 10-24, Ex 10.2
-(15pts)
 
 3 Resources, `{ A, B, C }`  
 Following Table:
