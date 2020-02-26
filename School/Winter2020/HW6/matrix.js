@@ -20,6 +20,11 @@ const signTableK2 = transpose([
 	[ 1, 1, 1, 1 ]	
 ]);
 
+x= [
+	[1,2,1, 3],
+	[2,1,5, 8],
+	[3,4,6, 100],
+]
 
 function mul(row, n) {
 	let result = [];
@@ -155,8 +160,8 @@ function names(k) {
 /** Crunch the general SST data out of the q[] coefficient vector. */
 function GeneralSST(v) {
 	function VariationCompare(a, b) {
-		return a.val < b.val ? -1 
-			: b.val < a.val ? 1 : 0
+		return a.val < b.val ? 1 
+			: b.val < a.val ? -1 : 0
 	}
 	const k = Math.log2(v.length);
 	if (k % 1 != 0) { return null; }
@@ -182,7 +187,7 @@ function GeneralSST(v) {
 		const v = SS[i] / SS[0];
 		const vrn = {}
 		result.Variation[i-1] = vrn
-		vrn.name = ns[i]
+		vrn.name = ns[i].replace("SS", "");
 		vrn.val = v;
 	}
 	result.Variation.sort(VariationCompare);
