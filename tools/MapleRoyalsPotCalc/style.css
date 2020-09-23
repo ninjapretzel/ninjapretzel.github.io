@@ -9,3 +9,7 @@
 .noMargin {
 	margin:0px;
 }
+
+.hidden {
+	display: none !important;
+}

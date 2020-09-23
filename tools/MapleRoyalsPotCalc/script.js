@@ -61,15 +61,23 @@ function updateData() {
 
 function updateDisplay() {
 	target.empty();
+	const active = csses.active;
 	
 	for (let i = 0; i < dataset.length; i++) {
 		const obj = dataset[i];
 		const css = " " + csses[obj.type] + " " + csses[obj.recKind];
-		const hpcss = " " + ((sort === "HP") ? csses.active : css);
-		const mpcss = " " + ((sort === "MP") ? csses.active : css);
-		const totcss = " " + ((sort === "TOTAL") ? csses.active : css);
+		const hpcss = " " + ((sort === "HP") ? active : css);
+		const mpcss = " " + ((sort === "MP") ? active : css);
+		const totcss = " " + ((sort === "TOTAL") ? active : css);
 		
-			
+		const unq = obj.uniquePrices 
+			? `<div id="${obj.id}unq" class="col s12 card-panel noMargin hidden ${active}">Unique Prices:${obj.uniquePrices}</div>` 
+			: "";
+		const loc = obj.location
+			? `<div id="${obj.id}loc" class="col s12 card-panel noMargin hidden ${active}">Location: ${obj.location}</div>`
+			: "";
+		const tt = (obj.uniquePrices || obj.location) ? "Click to Reveal" : "";
+		
 		const row = $(`<div class="col s12 row card black-text noMargin ${css}" id="${obj.id}"> 
 <div id="${obj.id}nm" class="col s3 card-panel noMargin ${css}">${obj.name}</div>
 <div id="${obj.id}rh" class="col s1 card-panel noMargin ${css}">${obj.rawHp}</div>
@@ -78,9 +86,16 @@ function updateDisplay() {
 <div id="${obj.id}hr" class="col s1 card-panel noMargin ${hpcss}">${obj.hpRatio.toFixed(3)}</div>
 <div id="${obj.id}mr" class="col s1 card-panel noMargin ${mpcss}">${obj.mpRatio.toFixed(3)}</div>
 <div id="${obj.id}tr" class="col s1 card-panel noMargin ${totcss}">${obj.totRatio.toFixed(3)}</div>
-<div id="${obj.id}tt" class="col s2 card-panel noMargin ${css} center">Click to reveal</div>
+<div id="${obj.id}tt" class="col s2 card-panel noMargin ${css} center">${tt}</div>
+${loc}
+${unq}
 			</div>`);
 		
+		row.find(`#${obj.id}tt`).click((evt)=>{
+			console.log("hello from", obj.name);
+			$(`#${obj.id}loc`).toggleClass("hidden");
+			$(`#${obj.id}unq`).toggleClass("hidden");
+		});
 		target.append(row);
 		
 	}
