@@ -73,10 +73,10 @@ function updateDisplay() {
 		const totcss = " " + ((sort === "TOTAL") ? active : css);
 		
 		const unq = obj.uniquePrices 
-			? `<div id="${obj.id}unq" class="col s12 card-panel noMargin hidden ${active}">Unique Prices:${obj.uniquePrices}</div>` 
+			? `<div id="${obj.id}unq" class="col s12 card-panel right-align noMargin hidden ${active}">Unique Prices:${obj.uniquePrices}</div>` 
 			: "";
 		const loc = obj.location
-			? `<div id="${obj.id}loc" class="col s12 card-panel noMargin hidden ${active}">Location: ${obj.location}</div>`
+			? `<div id="${obj.id}loc" class="col s12 card-panel right-align  noMargin hidden ${active}">Location: ${obj.location}</div>`
 			: "";
 		const tt = (obj.uniquePrices || obj.location) ? "Click to Reveal" : "";
 		
