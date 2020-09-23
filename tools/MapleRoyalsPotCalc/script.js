@@ -142,8 +142,11 @@ function bindChanges(id) {
 
 $(document).ready(()=>{
 	target = $("#target");
+	
 	$("#hp").val(hp);
 	$("#mp").val(mp);
+	$("#elixir").val(elixir);
+	$("#power").val(power);
 	
 	updateData();
 	sortBy(sort);
