@@ -88,13 +88,12 @@ function updateDisplay() {
 <div id="${obj.id}hr" class="col s1 card-panel noMargin ${hpcss}">${obj.hpRatio.toFixed(3)}</div>
 <div id="${obj.id}mr" class="col s1 card-panel noMargin ${mpcss}">${obj.mpRatio.toFixed(3)}</div>
 <div id="${obj.id}tr" class="col s1 card-panel noMargin ${totcss}">${obj.totRatio.toFixed(3)}</div>
-<div id="${obj.id}tt" class="col s2 card-panel noMargin ${css} center">${tt}</div>
+<div id="${obj.id}tt" class="col s2 card-panel clickable noMargin ${css} center">${tt}</div>
 ${loc}
 ${unq}
 			</div>`);
 		
 		row.find(`#${obj.id}tt`).click((evt)=>{
-			console.log("hello from", obj.name);
 			$(`#${obj.id}loc`).toggleClass("hidden");
 			$(`#${obj.id}unq`).toggleClass("hidden");
 		});
