@@ -147,6 +147,7 @@ $(document).ready(()=>{
 	$("#mp").val(mp);
 	$("#elixir").val(elixir);
 	$("#power").val(power);
+	M.updateTextFields();
 	
 	updateData();
 	sortBy(sort);
