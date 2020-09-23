@@ -80,9 +80,9 @@ function updateDisplay() {
 		
 		const row = $(`<div class="col s12 row card black-text noMargin ${css}" id="${obj.id}"> 
 <div id="${obj.id}nm" class="col s3 card-panel noMargin ${css}">${obj.name}</div>
-<div id="${obj.id}rh" class="col s1 card-panel noMargin ${css}">${obj.rawHp}</div>
-<div id="${obj.id}rm" class="col s1 card-panel noMargin ${css}">${obj.rawMp}</div>
-<div id="${obj.id}ms" class="col s2 card-panel noMargin ${css}">${obj.meso}</div>
+<div id="${obj.id}rh" class="col s1 card-panel right-align noMargin ${css}">${obj.rawHp}</div>
+<div id="${obj.id}rm" class="col s1 card-panel right-align noMargin ${css}">${obj.rawMp}</div>
+<div id="${obj.id}ms" class="col s2 card-panel right-align noMargin ${css}">${obj.meso}</div>
 <div id="${obj.id}hr" class="col s1 card-panel noMargin ${hpcss}">${obj.hpRatio.toFixed(3)}</div>
 <div id="${obj.id}mr" class="col s1 card-panel noMargin ${mpcss}">${obj.mpRatio.toFixed(3)}</div>
 <div id="${obj.id}tr" class="col s1 card-panel noMargin ${totcss}">${obj.totRatio.toFixed(3)}</div>
