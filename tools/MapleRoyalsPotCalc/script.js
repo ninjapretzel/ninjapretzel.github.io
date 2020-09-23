@@ -7,6 +7,8 @@ const csses = {
 }
 let sort = localStorage.sort || "TOTAL";
 let size = localStorage.size || "SMALL";
+let showKey = localStorage.showKey || "YES";
+
 function loadData(name, defaultVal) {
 	window[name] = defaultVal;
 	if (localStorage[name]) {
@@ -163,10 +165,16 @@ $(document).ready(()=>{
 	bindChanges("elixir");
 	bindChanges("power");
 	
-	if (size === "BIG") { $("#wrapper").toggleClass("container"); }
+	if (size === "BIG") { $("#wrapper").removeClass("container"); }
 	$("#toggleContainer").click(()=>{
 		$("#wrapper").toggleClass("container");
 		localStorage.size = size = (size === "SMALL" ? "BIG" : "SMALL");
+	});
+	
+	if (showKey === "NO") { $("#key").addClass("hidden"); }
+	$("#toggleKey").click(()=> {
+		$("#key").toggleClass("hidden");
+		localStorage.showKey = showKey = (showKey === "YES") ? "NO" : "YES";
 	});
 	
 });
