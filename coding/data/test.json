@@ -9,17 +9,21 @@
 	"InitialCode": "\n\t// Edit me!\n",
 	"Postamble": "}",
 	"TestCases": [
-		{ "args": ["args", "value", "or", "array"], 
+		{ 
+			"args": ["args", "value", "or", "array"], 
 			"expectReturnValue": true,
 			"expected": "expectedReturn", 
 			"expectConsoleOutput": true,
-			"expectedConsole": "expected console output" },
+			"expectedConsole": "expected console output" 
+		},
 			
-		{ "args": "argstringlol", 
+		{ 
+			"args": "argstringlol", 
 			"expected": "expectedReturn", 
 			"expectReturnValue": true,
 			"expectConsoleOutput": true,
-			"expectedConsole": "expected console output" }
+			"expectedConsole": "expected console output" 
+		}
 			
 	],
 	"TestCode": "nope(args);",
