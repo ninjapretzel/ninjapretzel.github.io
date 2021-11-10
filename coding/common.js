@@ -121,8 +121,8 @@ let renderTestCases = function() {
 		let wasFailure = false;
 		
 		if (test.expectReturnValue) {
-			const badge = $("<i>keyboard_return</i>");
-			badge.addClass("material-icons lighten-2");
+			const chip = $("<div>keyboard_return</div>");
+			chip.addClass("right chip material-icons lighten-2");
 			let text = "Expecting result of " + JSON.stringify(test.expected);	
 			if (result) {
 				text += "\nGot " + JSON.stringify(result.returnVal);
@@ -134,21 +134,21 @@ let renderTestCases = function() {
 			div.addClass("col s12 card test");
 			const color =passFailColors[passFail(result, "matchedReturnValue")] 
 			div.addClass(color);
-			badge.addClass(color);
+			chip.addClass(color);
 			div.append($("<pre>"+text+"</pre>"));
 			body.append(div)
-			header.append(badge);
+			header.append(chip);
 		}
 		
 		if (test.expectConsoleOutput) {
-			const badge = $("<i>print</i>");
-			badge.addClass("material-icons lighten-2");
+			const chip = $("<div>print</div>");
+			chip.addClass("right chip material-icons lighten-2");
 			
 			const div = $("<div>");
 			div.addClass("col s12 card test");
 			const color = passFailColors[passFail(result, "matchedConsoleOutput")];
 			div.addClass(color);
-			badge.addClass(color);
+			chip.addClass(color);
 			
 			
 			div.append("<span>Expected Console Output:</span>");
@@ -165,7 +165,7 @@ let renderTestCases = function() {
 				div.append("<span>Not run yet</span><pre>...</pre>");
 			}
 			body.append(div);
-			header.append(badge);
+			header.append(chip);
 		}
 		header.append("<pre>args="+JSON.stringify(test.args)+"</pre>");
 		output.append(element);
