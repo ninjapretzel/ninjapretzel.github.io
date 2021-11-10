@@ -32,3 +32,19 @@ ul.tight {
 .loader {
 	height: 199px;
 }
+.collapsible-header {
+	padding:0px !important;
+	display:block !important;
+}
+.collapsible-body {
+	padding:0px !important;
+	margin:0px !important;
+}
+pre { 
+	margin-top: 0px; 
+	margin-bottom: 0px; 
+}
+
+test {
+	padding: 0px !important;
+}
