@@ -45,7 +45,10 @@ namespace Simulor {
 			// config.seed = 12345;
 			Simulation sim = new Simulation(config);
 
-			// Disable ugly cursor boy.
+			// Clear any garbage
+			ConsoleEx.Clear();
+
+			// Disable ugly cursor boy for printing
 			ConsoleEx.CursorVisible = false;
 			int w = Console.WindowWidth;
 			//packed tighter for faster drawing
@@ -59,8 +62,7 @@ namespace Simulor {
 				tiles[i].fg = '7'; // White
 				tiles[i].bg = '0'; // Black
 			}
-
-
+			
 			double timeRate = 64.5;
 			double timeout = 0;
 			DateTime last = DateTime.UtcNow;
@@ -69,6 +71,7 @@ namespace Simulor {
 			int statusEvery = 1;
 
 			while (true) {
+
 				DateTime now = DateTime.UtcNow;
 				TimeSpan diff = now - last;
 				last = now;
@@ -80,30 +83,40 @@ namespace Simulor {
 					timeout -= 1.0;
 					steps++;
 					sim.TimeStep(1);
-					if (steps % statusEvery == 0) {
-						//Console.WriteLine($"Status Step {steps}: {sim.customers} customers, {sim.openCounters} counters open.");
-					}
 				}
 
+				// Only redraw sim if there was an event that changes it...
 				if (lastEvents != sim.events.Count) {
 					lastEvents = sim.events.Count;
-					// Only redraw if it changes...
 					Draw(sim, tiles, screen, w, h);
 				}
 
+				// Always redraw time rate + current frame info
+				string str;
+				str = $"Time Rate (+/-): {timeRate:f2}";
+				ConsoleEx.WriteAt(w - str.Length, 0, str);
+				str = $"Current Time: {sim.simTime:D8}";
+				ConsoleEx.WriteAt(w - str.Length, 1, str);
 
-
+				Console.Write("\n\n\n");
+				
 				if (Console.KeyAvailable) {
 					ConsoleKeyInfo keyInfo = Console.ReadKey(true);
 					if (keyInfo.Key == ConsoleKey.Escape) {
 						break;
 					}
 
-				}
+					if (keyInfo.KeyChar == '-') { timeRate *= 1.0 / 1.05; }
+					if (keyInfo.KeyChar == '=') { timeRate *= 1.05; }
 
+				}
 
 				Thread.Sleep(1);
 			}
+
+
+			// Reenable cursor boy when done 
+			ConsoleEx.CursorVisible = true;
 
 			var data = Json.Reflect(sim.events);
 			string dir = SourceFileDirectory();
@@ -145,9 +158,11 @@ namespace Simulor {
 			for (int i = 0; i < sim.counters.Count; i++) {
 				var co = sim.counters[i];
 				tiles[x + y * w].c = '@';
-				tiles[x + y * w].fg = co.open ? 'A' : '9';
+				tiles[x + y * w].fg = co.transition ? 'B' : co.open ? 'A' : '9';
+				// if (co.transition) { }
 				// tiles[x+y*w].bg = co.open ? 'A' : '9';
 
+				// tiles[x + y * w].c = co.current != null ? '@' : ' ';
 				tiles[x + y * w + w].c = co.current != null ? 'C' : ' ';
 
 

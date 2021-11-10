@@ -8,8 +8,10 @@ using static UnityEngine.Mathf;
 // This was a script that I used to generate the KiviatGraph in the Unity3d Game Engine.
 public class KivatGraph : MonoBehaviour {
 
-
+	// Data from the problem
 	public float[] data = new float[] { 85,15,65,5,90,40,45,20 };
+	
+	// 
 	public Material mat;
 	public Color kivatColor = Color.cyan;
 	public Color bgColor = Color.gray;
