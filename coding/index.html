@@ -19,16 +19,21 @@
 	<link rel="stylesheet" href="lib/solarized.css" />
 	<script src="lib/codemirror.js"></script>
 	<script src="lib/javascript.js"></script>
+	<script src="lib/python.js"></script>
+	
 	
 	<!-- Narcissus, Modified from Spidermonkey's Narcissus -->
 	<script src="lib/jsdefs.js"></script>
 	<script src="lib/jsparse.js"></script>
 	<script src="lib/jsexec.js"></script>
 	
+	<!-- Python VM -->
+	<script src="lib/pyodide.js"></script>
+	
 	<!-- 	Own resources.	-->
 	<!-- Custom styles. -->
 	<link rel="stylesheet" href="styles.css" />
-	<script src="common.js"></script>
+	<script type="module" src="common.js"></script>
 	
 </head>
 <body class="brown darken-2 white-text">
@@ -66,8 +71,6 @@
 			<div class="row rowfix">
 				<div class="col s6 row rowfix">
 					<button id="run" class="col s4 teensy btn bb waves-effect">Run</button>
-					<button id="reset" class="col s4 teensy btn bb waves-effect">Reset</button>
-					<button id="restart" class="col s4 teensy btn bb waves-effect">Restart</button>
 				</div>
 			</div>
 		</div>

@@ -1,48 +1,12 @@
+import {jsInfo} from "./jsVm.js";
+import {pyInfo} from "./pyVm.js";
+
 let codeEditor = undefined;
-let delay = 1;
-let running = false;
-let runId = 0;
-let runTask = null;
-const INTERRUPTED = "INTERRUPTED";
+const queryParams = urlParam();
+const LANG = queryParams["lang"] || "js";
+const PY = LANG === "py";
+const JS = LANG === "js";
 
-// Collect information:
-// inputs & Timings of inputs
-// eg be able to replay a student's attempt
-// what they typed, where (cursor position), and how long they paused 
-// When they ran code
-
-// Different languages:
-// Python Interpreter in JS
-// 
-
-// Image drawing version
-
-
-// Interface:
-//  Doc links embedded in each lesson
-
-/** Promise wrapper to run code after a delay */
-function wait(ms) {
-	return new Promise((resolve, reject) => { setTimeout( ()=>{resolve(); }, ms); });
-}
-/** directly async version of 'wait' */
-async function pause(ms) { await wait(ms); }
-
-async function fetchJson(path) { 
-	
-	const headers = new Headers();
-	headers.append('pragma', 'no-cache');
-	headers.append('cache-control', 'no-cache');
-	const req = new Request(path);
-	const res = await fetch(req, headers);
-	return await res.json();
-}
-function SimConsole() {
-	this.buffer = "";
-	this.print = (thing) => { this.buffer += thing; }
-	this.println = (thing) => { this.buffer += thing + "\n"; }
-	this.clear = () => { this.buffer = ""; }
-}
 
 let lesson = {
 	Content: {
@@ -66,13 +30,55 @@ let lesson = {
 	TestCode: "placeholder(args[0], args[1], args[2]);",
 }
 
+
+let langInfo = {
+	doExec: async function(script, lesson) { 
+		console.log("I want to exec my script",script,"on lesson",lesson,"but don't know how!");
+	},
+	mode: "javascript", // Name of code mirror highlighting mode...
+	
+}
+async function exec() {
+	let script = codeEditor.getValue();
+	results = await langInfo.doExec(script, lesson);
+	rerenderTestCases();
+}
+if (JS) {
+	langInfo = jsInfo;
+} else if (PY) {
+	langInfo = pyInfo;
+} else {
+	console.warn("No valid language set- defaulting to javascript.");
+	langInfo = jsInfo;
+}
+
+// Collect information:
+// inputs & Timings of inputs
+// eg be able to replay a student's attempt
+// what they typed, where (cursor position), and how long they paused 
+// When they ran code
+
+// Different languages:
+// Python Interpreter in JS
+// 
+
+// Image drawing version
+
+
+// Interface:
+//  Doc links embedded in each lesson
+
+async function fetchJson(path) { 
+	const headers = new Headers();
+	headers.append('pragma', 'no-cache');
+	headers.append('cache-control', 'no-cache');
+	const req = new Request(path);
+	const res = await fetch(req, headers);
+	return await res.json();
+}
+
 let results = []
 
-const simConsole = new SimConsole();
-const injectedFunctions = {
-	print: simConsole.print,
-	println: simConsole.println
-}
 function measure(str) {
 	let line = 0;
 	let ch = 0;
@@ -198,7 +204,9 @@ let renderTestCases = function() {
 $(document).ready(async ()=>{
 	if (!localStorage) { upgradeBrowser(); return; }
 	let jsToLoad = "";
-	let res = await fetchJson("data/test.json")
+	
+	// let res = await fetchJson(`data/${LANG}/${LESSON_ID}.json`);
+	let res = await fetchJson(`data/${LANG}/test.json`);
 	
 	if (res) { lesson = res; showLesson(); }
 	else { failedToLoad(); return; }
@@ -213,25 +221,17 @@ $(document).ready(async ()=>{
 	const endMarker = measure(jsToLoad);
 	if (lesson.Postamble) { endMarker.line += 1; endMarker.ch+=1; }
 	
-	$("#run").click(()=>{ execScript(); });
-	$("#reset").click(()=>{ resetScriptExec(); });
-	$("#restart").click(async ()=>{ 
-		await resetScriptExec();
-		await execScript(); 
-	});
-	
+	$("#run").click(()=>{ exec(); });
 	setTimeout(()=>{
 		codeEditor = CodeMirror(document.getElementById("scriptEntry"), {
 			value: jsToLoad,
-			// value: demoJs,
-			// value: "\nfunction main() {\n\tconsole.log('hello world');\n}\nmain();",
-			mode: "javascript",	
+			mode: langInfo.mode,	
 			theme: "solarized dark",
 			indentUnit: 4,
 			smartIndent: true,
 			tabSize: 4,
 			indentWithTabs: true,
-			electricChars: false,
+			electricChars: false, // ??? No idea what that does. 
 			lineNumbers: true,
 		})
 		
@@ -250,87 +250,13 @@ $(document).ready(async ()=>{
 	
 });
 
-function load(key) {
-	
-}
 
-async function execScript() {
-	running = true;
-	runId = interp.runId;
-	let script = codeEditor.getValue();
-	let result = null;
-	
-	const testCode = lesson.TestCode;
-	for (let i = 0; i < lesson.TestCases.length; i++) {
-		const test = lesson.TestCases[i];
-		
-		const args = test.args;
-		const expectExact = test.expectExact;
-		const expected = test.expected;
-		const expectedConsole = test.expectedConsole;
-		
-		const code = script 
-			+ "\nconst args = " + JSON.stringify(args)
-			+ "\n" + testCode;
-			
-		// console.log(`executing:\n--------------\n${code}\n---------------\n`);
-		let returnVal = undefined;
-		simConsole.clear();
-		const start = new Date().getTime();
-		try {
-			runTask = evaluate(code, "dynamic", 1, injectedFunctions);
-			returnVal = result = await runTask;
-			//M.toast({html: "Run Finished.", classes:"green", displayLength: 2000  } );
-		} catch (e) {
-			if (e === INTERRUPTED) {
-				M.toast({html:`${e}.`, classes:"yellow black-text", displayLength: 1000});
-			} else {
-				M.toast({html:`Script Error. ${e}`, classes:"red" })
-				console.error("e");
-			}
-		}
-		const end = new Date().getTime();
-		const consoleOutput = simConsole.buffer;
-		const elapsedMS = end-start;
-		const matchedReturnValue = expectExact 
-			? result === expected
-			: (!expected || result === expected);
-			
-		const matchedConsoleOutput = !expectedConsole || simConsole.buffer === expectedConsole;
-		
-		const res = { elapsedMS, returnVal, consoleOutput, matchedReturnValue, matchedConsoleOutput }
-		// console.log(res);
-		results[i] = res;
-	}
-	
-	rerenderTestCases();
-}
-
-async function resetScriptExec() {
-	if (running || interp.running) {
-		running.false;
-		interp.running = false;
-		try {
-			await runTask;
-		} catch (e) {
-			if (e !== INTERRUPTED) {
-				console.warn("Unexpected throw when interrupting VM:")
-				console.warn(e);
-				M.toast({html: `Unexpected throw when interrupting VM: ${e}`, classes:"red", displayLength:4000})					
-			}
-		}
-	}
-	
-	// TODO: Any other reset tasks...
-}
-
-function urlParam(parameterName) {
-	let result = null;
-	let tmp = [];
-	let items = location.search.substr(1).split("&");
+function urlParam() {
+	const result = {};
+	const items =  location.search.substr(1).split("&");
 	for (let i = 0; i < items.length; i++) {
-		tmp = items[i].split("=");
-		if (tmp[0] === parameterName) { result = decodeURIComponent(tmp[1]); }
+		const split = items[i].split("=");
+		result[split[0].toLowerCase()] = decodeURIComponent(split[1]).toLowerCase();
 	}
 	return result;
 }
