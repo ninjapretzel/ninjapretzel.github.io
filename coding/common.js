@@ -5,6 +5,22 @@ let runId = 0;
 let runTask = null;
 const INTERRUPTED = "INTERRUPTED";
 
+// Collect information:
+// inputs & Timings of inputs
+// eg be able to replay a student's attempt
+// what they typed, where (cursor position), and how long they paused 
+// When they ran code
+
+// Different languages:
+// Python Interpreter in JS
+// 
+
+// Image drawing version
+
+
+// Interface:
+//  Doc links embedded in each lesson
+
 /** Promise wrapper to run code after a delay */
 function wait(ms) {
 	return new Promise((resolve, reject) => { setTimeout( ()=>{resolve(); }, ms); });
