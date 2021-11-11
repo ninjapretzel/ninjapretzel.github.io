@@ -2,7 +2,8 @@
 	"Content":{
 		"Category": "Blah",
 		"Lesson": "Test",
-		"LessonText": "Just like make it return expected and print \"expected console output\" my dude."
+		"LessonText": "Just like make it return expected and print \"expected console output\" my dude.",
+		"DocLinks": [""]
 	},
 	
 	"Preamble": "function nope(val) {",
