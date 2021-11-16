@@ -1,5 +1,6 @@
 import {jsInfo} from "./jsVm.js";
 import {pyInfo} from "./pyVm.js";
+import * as vm from "./vm.js";
 
 let codeEditor = undefined;
 const queryParams = urlParam();
@@ -32,15 +33,15 @@ let lesson = {
 
 
 let langInfo = {
-	doExec: async function(script, lesson) { 
-		console.log("I want to exec my script",script,"on lesson",lesson,"but don't know how!");
-	},
+	argsFormatter: JSON.stringify,
 	mode: "javascript", // Name of code mirror highlighting mode...
-	
+	ready: true,
+	exec: async function(code, injected) { },
+	extract: async function() { return undefined; },
 }
 async function exec() {
 	let script = codeEditor.getValue();
-	results = await langInfo.doExec(script, lesson);
+	results = await vm.execInternal(script, lesson, langInfo);
 	rerenderTestCases();
 }
 if (JS) {
